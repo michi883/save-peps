@@ -40,6 +40,8 @@ git lfs install                      # once per clone — meshes, textures and a
 open unity/SavePeps                  # via Unity Hub
 ```
 
+On a fresh clone, run **Tools > Save Peps > Apply Project Settings** once. Most build settings live in `ProjectSettings/` and travel with the repo, but a few (active build target, AAB-vs-APK) are machine-local and would otherwise silently default back to APK.
+
 The RevenueCat SDK does not run in the Unity Editor. Editor play uses `FakeEntitlementService`, which can simulate every subscription state; real purchase paths must be tested on a device.
 
 ## Relationship to Save Pip
