@@ -4,32 +4,15 @@ using UnityEngine;
 namespace SavePeps.Rescue
 {
     /// <summary>
-    /// Marks a prop as tappable and carries its id back to the runner.
-    ///
-    /// The collider is deliberately separate from and larger than the visible
-    /// mesh — Save Pip's tap circles ran about 25% wider than the art, and
-    /// that generosity is most of why it felt good on a phone. A player
-    /// aiming at a small plank should not have to be accurate.
-    /// </summary>
-    [RequireComponent(typeof(Collider))]
-    public sealed class Tappable : MonoBehaviour
-    {
-        [Tooltip("Matches RescueObject.Id.")]
-        public string ObjectId;
-
-        /// <summary>The transform choreography drives for this prop.</summary>
-        public AnimTarget Target { get; private set; }
-
-        private void Awake() => Target = GetComponentInChildren<AnimTarget>();
-    }
-
-    /// <summary>
     /// A single touch-up raycast. No gestures, no drag, no camera control —
     /// the whole game is one tap, and the input layer should be that boring.
     /// </summary>
     public sealed class TapRouter : MonoBehaviour
     {
         [SerializeField] private Camera _camera;
+
+        [Tooltip("Near-miss forgiveness, as a fraction of the shorter screen edge.")]
+        [SerializeField, Range(0f, 0.3f)] private float _forgivenessPixels = 0.14f;
 
         /// <summary>Raised with the tapped object's id.</summary>
         public event Action<string> OnTap;
@@ -54,14 +37,52 @@ namespace SavePeps.Rescue
             if (!TryReadTapUp(out var screenPos)) return;
             if (!InputEnabled || _camera == null) return;
 
-            var ray = _camera.ScreenPointToRay(screenPos);
-            if (!Physics.Raycast(ray, out var hit, 100f)) return;
+            var tappable = Pick(screenPos);
+            if (tappable == null || string.IsNullOrEmpty(tappable.ObjectId)) return;
 
-            var tappable = hit.collider.GetComponentInParent<Tappable>();
-            if (tappable != null && !string.IsNullOrEmpty(tappable.ObjectId))
+            Debug.Log($"[SavePeps] Tapped '{tappable.ObjectId}'.");
+            OnTap?.Invoke(tappable.ObjectId);
+        }
+
+        /// <summary>
+        /// Raycast first; if that misses, take the nearest tappable within
+        /// <see cref="_forgivenessPixels"/> on screen.
+        ///
+        /// The fallback is not a workaround, it is the feature: a thumb
+        /// covers a large, imprecise area, and a player who clearly meant the
+        /// plank should get the plank. There are only ever three candidates,
+        /// so "nearest one they plausibly meant" is unambiguous.
+        /// </summary>
+        private Tappable Pick(Vector2 screenPos)
+        {
+            var ray = _camera.ScreenPointToRay(screenPos);
+            if (Physics.Raycast(ray, out var hit, 100f))
             {
-                OnTap?.Invoke(tappable.ObjectId);
+                var direct = hit.collider.GetComponentInParent<Tappable>();
+                if (direct != null) return direct;
             }
+
+            // Scaled off the shorter screen edge so forgiveness is consistent
+            // across densities rather than being generous on small screens.
+            var threshold = Mathf.Min(Screen.width, Screen.height) * _forgivenessPixels;
+            var best = (Tappable)null;
+            var bestDistance = threshold;
+
+            foreach (var candidate in FindObjectsByType<Tappable>(FindObjectsSortMode.None))
+            {
+                var collider = candidate.GetComponent<Collider>();
+                if (collider == null) continue;
+
+                var point = _camera.WorldToScreenPoint(collider.bounds.center);
+                if (point.z <= 0f) continue;
+
+                var distance = Vector2.Distance(screenPos, point);
+                if (distance >= bestDistance) continue;
+                bestDistance = distance;
+                best = candidate;
+            }
+
+            return best;
         }
 
         /// <summary>

@@ -44,7 +44,12 @@ namespace SavePeps.EditorTools
             PlayerSettings.SetApplicationIdentifier(android, ApplicationId);
             PlayerSettings.SetScriptingBackend(android, ScriptingImplementation.IL2CPP);
             PlayerSettings.SetIl2CppCompilerConfiguration(android, Il2CppCompilerConfiguration.Release);
-            PlayerSettings.SetManagedStrippingLevel(android, ManagedStrippingLevel.High);
+            // Medium, not High. High strips MonoBehaviours that are only ever
+            // reached through serialized prefab references, which on device
+            // shows up as "the referenced script on this Behaviour is
+            // missing" and a scene full of inert objects. Assets/link.xml
+            // preserves our assembly on top of this.
+            PlayerSettings.SetManagedStrippingLevel(android, ManagedStrippingLevel.Medium);
 
             // 64-bit only. Play has not accepted 32-bit-only uploads for years,
             // and shipping both just inflates the download.

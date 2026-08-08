@@ -271,7 +271,9 @@ namespace SavePeps.Rescue
             var meet = _meetAnchor.position;
 
             // Stop a body-width short of each other rather than intersecting.
-            var offset = (aStart - bStart).normalized * 0.22f;
+            // 0.22 was too close on device — they read as one blob at the
+            // moment the reunion is supposed to land.
+            var offset = (aStart - bStart).normalized * 0.34f;
             var aEnd = meet + offset;
             var bEnd = meet - offset;
 

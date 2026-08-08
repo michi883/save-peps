@@ -334,7 +334,7 @@ namespace SavePeps.EditorTools
 
         private static GameObject BuildPlank(Material wood)
         {
-            var root = NewProp("plank", new Vector3(0.3f, 0.3f, 0.85f));
+            var root = NewProp("plank", new Vector3(0.36f, 0.26f, 0.92f), tapCentreY: 0.02f);
             var visual = Primitive(PrimitiveType.Cube, "Visual", root.transform.Find("Choreo"), wood);
             // Long axis along Z so it bridges the brook without needing to be
             // rotated into place.
@@ -344,7 +344,7 @@ namespace SavePeps.EditorTools
 
         private static GameObject BuildBalloon(Material skin, Material ink)
         {
-            var root = NewProp("balloon", new Vector3(0.34f, 0.44f, 0.34f));
+            var root = NewProp("balloon", new Vector3(0.36f, 0.46f, 0.36f), tapCentreY: 0.17f);
             var choreo = root.transform.Find("Choreo");
 
             var bulb = Primitive(PrimitiveType.Sphere, "Bulb", choreo, skin);
@@ -364,7 +364,7 @@ namespace SavePeps.EditorTools
 
         private static GameObject BuildFan(Material shell, Material blade)
         {
-            var root = NewProp("fan", new Vector3(0.34f, 0.34f, 0.30f));
+            var root = NewProp("fan", new Vector3(0.36f, 0.34f, 0.34f), tapCentreY: 0.11f);
             var choreo = root.transform.Find("Choreo");
 
             var stand = Primitive(PrimitiveType.Cube, "Stand", choreo, shell);
@@ -398,12 +398,16 @@ namespace SavePeps.EditorTools
         /// than the art — Save Pip's tap circles ran ~25% wider and that
         /// generosity is most of why it felt good under a thumb.
         /// </summary>
-        private static GameObject NewProp(string id, Vector3 tapSize)
+        private static GameObject NewProp(string id, Vector3 tapSize, float tapCentreY)
         {
             var root = new GameObject(id);
             var box = root.AddComponent<BoxCollider>();
             box.size = tapSize;
-            box.center = new Vector3(0f, tapSize.y * 0.5f, 0f);
+            // The centre is explicit per prop rather than derived from the
+            // height: props are modelled around different origins, and
+            // assuming a base-origin left the plank's collider hovering above
+            // its mesh, where taps slid underneath it.
+            box.center = new Vector3(0f, tapCentreY, 0f);
 
             var tappable = root.AddComponent<Tappable>();
             tappable.ObjectId = id;

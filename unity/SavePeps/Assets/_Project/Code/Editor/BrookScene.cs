@@ -288,8 +288,11 @@ namespace SavePeps.EditorTools
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(440f, 100f));
             buttonLabel.text = "Try again";
 
+            // High enough to clear the diorama: at the centre it lands right
+            // on top of the reunion, which is the one moment the player
+            // should be looking at the characters and not at text.
             var stamp = Text(canvasGo.transform, "ResultStamp", font, 92, Hex("FF7660"),
-                new Vector2(0.5f, 0.5f), new Vector2(0f, 300f), new Vector2(900f, 140f));
+                new Vector2(0.5f, 1f), new Vector2(0f, -330f), new Vector2(900f, 140f));
 
             hud = canvasGo.AddComponent<RescueHud>();
             Wire(hud, "_roundLabel", roundLabel);

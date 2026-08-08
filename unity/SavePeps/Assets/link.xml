@@ -1,0 +1,13 @@
+<!--
+  IL2CPP managed stripping removes types it cannot see being used. Our
+  MonoBehaviours are reached through serialized prefab and scene references,
+  which the static analysis does not follow, so without this they get stripped
+  and every instantiated prefab logs "the referenced script on this Behaviour
+  is missing" while quietly doing nothing.
+
+  Editor play mode never exercises stripping, so this class of bug only ever
+  appears on device.
+-->
+<linker>
+  <assembly fullname="Assembly-CSharp" preserve="all"/>
+</linker>
