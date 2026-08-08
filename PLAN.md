@@ -39,13 +39,14 @@ Rule 2 is the schedule. **Confirmed: the Play account is verified but does not y
 | **D1** | Google Play account status | **Verified, no production access yet** | The 12-testers × 14-days rule applies. Closed testing must be live by **16 Aug**. This is the schedule's spine. |
 | **D2** | Rescue count for launch | **36 rescues / 12 rounds** (10 free rounds = 30, 2 paid rounds = 6) | ~9 rescues/week during the content sprint. Floor 33, stretch 45. See §12. |
 | **D4** | 3D art sourcing | **CC0 kits (Kenney low-poly) re-materialled onto one palette atlas, + custom-modelled Peps** | ~3–4 days on the characters; props and environments are adopted, not made. Art direction locked in P0. |
+| **D6** | App identity | **`fan.sound.savepeps`** — reverse-domain namespace for `sound.fan`. Store name "Save Peps". | FINAL as of 7 Aug. Immutable once the first bundle reaches Play. |
+| **D7** | Choreography runtime | **Hand-rolled, no tween library** (was: PrimeTween) | The additive-delta model is bespoke, so a tween lib would only have supplied easing and scheduling — ~60 lines. Dropping it removes a dependency from the Android build path (R4) and let us port Save Pip's exact cubic-bezier curves, so gag timing transfers rather than being re-approximated. |
 
 ### Still open
 
 | # | Decision | Recommendation | Why it matters |
 |---|---|---|---|
 | **D5** | Subscription price | One entitlement `peps_unlimited`, one subscription with **two base plans: monthly and annual**, annual highlighted and carrying a **7-day free trial**. Suggest **$3.99/mo, $19.99/yr**. | Two durations of one tier is not "multiple tiers" — it is standard and converts better. The free trial also satisfies Devpost's "free trial or promo code for judges" requirement for free. Needed by week 2, when the Play product is created. |
-| **D6** | App identity | Store name + package id (e.g. `com.<you>.savepeps`). Check name availability on Play **before** building the listing. | Package id is immutable after first upload. Needed in P0. |
 | **D9** | Repo visibility | Private during the build; public at submission is a small credibility bonus. | Affects where Privacy/Terms are hosted (GitHub Pages is the free answer either way). |
 
 ### My call unless overruled
@@ -53,7 +54,6 @@ Rule 2 is the schedule. **Confirmed: the Play account is verified but does not y
 | # | Decision | Choice | Reasoning |
 |---|---|---|---|
 | **D3** | Where the free/paid gate sits | Keep at **round 11**, but make `FreeRoundCount` a config value so it can move to 8 or 9 in release week if content slips | The brief fixes it at 10. That means 30 polished rescues is a hard floor *before the paywall is even reachable*. Keeping it configurable is the cheap insurance. |
-| **D7** | Tween/animation library | **PrimeTween** (MIT, zero-allocation, free) | The choreography runtime sits on top of it. Chosen once, in P1. |
 | **D8** | Play "target audience" declaration | **13+.** Do not declare a child-directed audience | A cute art style plus a "children" declaration pulls the app into the Designed for Families programme, which adds policy work we do not have weeks for. |
 
 ---

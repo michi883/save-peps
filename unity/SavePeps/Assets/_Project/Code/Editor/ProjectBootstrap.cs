@@ -18,9 +18,9 @@ namespace SavePeps.EditorTools
         private const string CompanyName = "michi883";
         private const string ProductName = "Save Peps";
 
-        // D6 in PLAN.md is still open. This is a working default — it must be
-        // confirmed before the first Play upload, after which it is immutable.
-        private const string ApplicationId = "com.michi883.savepeps";
+        // FINAL. Reverse-domain namespace for sound.fan, which we control.
+        // Immutable once the first bundle reaches Play — do not change.
+        private const string ApplicationId = "fan.sound.savepeps";
 
         [MenuItem("Tools/Save Peps/Apply Project Settings")]
         public static void Apply()
