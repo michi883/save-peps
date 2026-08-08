@@ -237,6 +237,13 @@ namespace SavePeps.EditorTools
         {
             var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
+            // Without an EventSystem a Canvas renders fine and no button ever
+            // fires — which on device looked exactly like a broken Try Again
+            // rather than like missing plumbing.
+            new GameObject("EventSystem",
+                typeof(UnityEngine.EventSystems.EventSystem),
+                typeof(UnityEngine.EventSystems.StandaloneInputModule));
+
             var canvasGo = new GameObject("HUD", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             var canvas = canvasGo.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
