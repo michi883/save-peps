@@ -1,4 +1,6 @@
 using SavePeps.Core;
+using SavePeps.Monetization;
+using SavePeps.Progression;
 using SavePeps.Rescue;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -9,164 +11,52 @@ using UnityEngine.UI;
 namespace SavePeps.EditorTools
 {
     /// <summary>
-    /// Builds the P1 vertical slice: the Brook rescue asset and the Game scene
-    /// that plays it.
+    /// Builds the Game scene: camera, lighting, HUD, round-complete card, and
+    /// the components that run a rescue.
     ///
-    ///   Tools > Save Peps > Build Vertical Slice
+    ///   Tools > Save Peps > Build Game Scene
     ///
-    /// The rescue is authored here as code only because it is the first one
-    /// and the inspector tooling is P2. The data it produces is an ordinary
-    /// RescueDefinition asset — exactly what a designer would fill in by hand.
+    /// This rebuilds the *scene* and nothing else. It reads the catalogue off
+    /// disk and wires it in; it never writes content. Keeping that boundary
+    /// sharp is what makes the scene safe to regenerate after a UI change now
+    /// that rescues are authored in the inspector — see
+    /// <see cref="BrookRescues"/> for the content side.
     /// </summary>
     public static class BrookScene
     {
-        private const string Root = "Assets/_Project";
-        private const string RescuePath = Root + "/Content/Rescues/r01_brook.asset";
-        private const string ScenePath = Root + "/Scenes/Game.unity";
+        private const string ScenePath = ContentPaths.GameScenePath;
 
-        [MenuItem("Tools/Save Peps/Build Vertical Slice")]
-        public static void Build()
+        [MenuItem("Tools/Save Peps/Build Game Scene")]
+        public static void BuildGameScene()
         {
-            var rescue = BuildRescue();
-            BuildScene(rescue);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-            Debug.Log("[SavePeps] Vertical slice built: r01_brook + Game scene.");
-        }
-
-        // -------------------------------------------------------------------
-        // The rescue
-        // -------------------------------------------------------------------
-
-        private static RescueDefinition BuildRescue()
-        {
-            var rescue = AssetDatabase.LoadAssetAtPath<RescueDefinition>(RescuePath);
-            if (rescue == null)
+            if (AssetDatabase.LoadAssetAtPath<Catalog>(ContentPaths.CatalogPath) == null)
             {
-                rescue = ScriptableObject.CreateInstance<RescueDefinition>();
-                AssetDatabase.CreateAsset(rescue, RescuePath);
+                Debug.LogError(
+                    $"[SavePeps] No catalogue at {ContentPaths.CatalogPath}. " +
+                    "Run Tools > Save Peps > Seed Round One Content first.");
+                return;
             }
 
-            rescue.Id = "r01";
-            rescue.Verb = "bridge";
-            rescue.Goal = "Bring them together.";
-            rescue.Difficulty = Difficulty.Easy;
-            rescue.SceneDescription =
-                "Two Peps stand on opposite banks of a small brook, leaning toward each other.";
-
-            rescue.Environment = Load<GameObject>($"{Root}/Art/Environments/Diorama_Brook.prefab");
-            rescue.PepAPrefab = Load<GameObject>($"{Root}/Art/Characters/Pep_A.prefab");
-            rescue.PepBPrefab = Load<GameObject>($"{Root}/Art/Characters/Pep_B.prefab");
-            rescue.PepAAnchor = "Anchor_PepA";
-            rescue.PepBAnchor = "Anchor_PepB";
-            rescue.MeetAnchor = "Anchor_Meet";
-
-            var plank = Load<GameObject>($"{Root}/Art/Props/plank.prefab");
-            var fan = Load<GameObject>($"{Root}/Art/Props/fan.prefab");
-            var balloon = Load<GameObject>($"{Root}/Art/Props/balloon.prefab");
-
-            rescue.Objects = new[]
-            {
-                // ---- correct: the plank bridges the brook -----------------
-                new RescueObject
-                {
-                    Id = "plank", Prop = plank, AnchorId = "Slot_1", Label = "The wooden plank",
-                    Duration = 2.9f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "slide"),
-                        Move(0.0f, 0.7f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.42f, 0.02f, 1.25f), amplitude: 0.35f, ease: EaseKind.Hop),
-                        Sfx(0.68f, "thud"),
-                        Face(0.75f, SceneRef.PepA, PepFace.Hopeful),
-                        Move(0.9f, 0.95f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0f, 0f, 1.12f), amplitude: 0.16f, ease: EaseKind.Hop),
-                        Haptic(0.95f, "light"),
-                        Meet(1.9f, 0.75f),
-                        Sfx(1.95f, "reunion"),
-                    },
-                },
-
-                // ---- wrong: the fan blows the wrong way -------------------
-                new RescueObject
-                {
-                    Id = "fan", Prop = fan, AnchorId = "Slot_2", Label = "The electric fan",
-                    Quip = "Excellent breeze. Entirely the wrong direction.",
-                    Duration = 2.3f,
-                    Steps = new[]
-                    {
-                        Sfx(0.05f, "whoosh"),
-                        Move(0.0f, 1.2f, StepKind.Shake, SceneRef.Self, Vector3.zero,
-                            amplitude: 6f, ease: EaseKind.InOut),
-                        Face(0.3f, SceneRef.PepA, PepFace.Panic),
-                        Move(0.35f, 0.7f, StepKind.Fly, SceneRef.PepA,
-                            new Vector3(0f, 0f, -0.30f)),
-                        Move(1.25f, 0.5f, StepKind.Fly, SceneRef.PepA,
-                            new Vector3(0f, 0f, 0.07f), ease: EaseKind.InOut),
-                    },
-                },
-
-                // ---- wrong: the balloon makes the gap worse ---------------
-                new RescueObject
-                {
-                    Id = "balloon", Prop = balloon, AnchorId = "Slot_3", Label = "The red balloon",
-                    Quip = "Now they are even further apart. Vertically.",
-                    Duration = 2.5f,
-                    Steps = new[]
-                    {
-                        Move(0.0f, 0.6f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.45f, 0.34f, -0.68f), amplitude: 0.3f, ease: EaseKind.Hop),
-                        Face(0.35f, SceneRef.PepB, PepFace.Panic),
-                        Sfx(0.6f, "boing"),
-                        Move(0.7f, 0.6f, StepKind.Fly, SceneRef.PepB, new Vector3(0f, 0.45f, 0f)),
-                        Move(0.7f, 0.6f, StepKind.Fly, SceneRef.Self, new Vector3(0f, 0.45f, 0f)),
-                        Move(1.35f, 0.9f, StepKind.FlyOff, SceneRef.PepB,
-                            new Vector3(0.22f, 0.85f, 0f), ease: EaseKind.In),
-                        Move(1.35f, 0.9f, StepKind.FlyOff, SceneRef.Self,
-                            new Vector3(0.22f, 0.85f, 0f), ease: EaseKind.In),
-                    },
-                },
-            };
-
-            rescue.CorrectIndex = 0;
-            EditorUtility.SetDirty(rescue);
-            return rescue;
+            BuildScene(ContentPaths.CatalogPath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("[SavePeps] Game scene rebuilt. Content untouched.");
         }
-
-        private static OutcomeStep Move(float at, float dur, StepKind kind, string target,
-            Vector3 delta, float amplitude = 0f, EaseKind ease = EaseKind.Out) => new()
-        {
-            At = at, Duration = dur, Kind = kind, Target = target,
-            Delta = delta, Amplitude = amplitude, Ease = ease, Scale = 1f,
-        };
-
-        private static OutcomeStep Face(float at, string target, PepFace face) => new()
-        {
-            At = at, Kind = StepKind.Face, Target = target, Param = face.ToString(), Scale = 1f,
-        };
-
-        private static OutcomeStep Sfx(float at, string id) => new()
-        {
-            At = at, Kind = StepKind.Sfx, Target = SceneRef.Self, Param = id, Scale = 1f,
-        };
-
-        private static OutcomeStep Haptic(float at, string strength) => new()
-        {
-            At = at, Kind = StepKind.Haptic, Target = SceneRef.Self, Param = strength, Scale = 1f,
-        };
-
-        private static OutcomeStep Meet(float at, float dur) => new()
-        {
-            At = at, Duration = dur, Kind = StepKind.Meet, Target = SceneRef.Peps, Scale = 1f,
-        };
 
         // -------------------------------------------------------------------
         // The scene
         // -------------------------------------------------------------------
 
-        private static void BuildScene(RescueDefinition rescue)
+        private static void BuildScene(string catalogPath)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+            // Loaded *after* the new scene, never before. Opening a scene
+            // unloads unused assets, and an asset held only by a local
+            // variable is exactly that — the reference survives as a destroyed
+            // object that assigns as null, so the scene silently ends up with
+            // no catalogue and the game boots to "nothing to play".
+            var catalog = AssetDatabase.LoadAssetAtPath<Catalog>(catalogPath);
 
             // Fixed camera, low FOV, tilted down: the tilt-shift toy read from
             // design/palette.md. Framing is tuned for portrait 9:19.5 and
@@ -206,6 +96,7 @@ namespace SavePeps.EditorTools
             RenderSettings.ambientGroundColor = Hex("E8DCC8");
 
             var hud = BuildHud(out var hudComponent);
+            BuildRoundCard(hud.transform, out var cardComponent);
 
             var game = new GameObject("Game");
             var player = game.AddComponent<ChoreographyPlayer>();
@@ -214,13 +105,26 @@ namespace SavePeps.EditorTools
             var runner = game.AddComponent<RescueRunner>();
 
             Wire(router, "_camera", cam);
-            Wire(runner, "_rescue", rescue);
             Wire(runner, "_tapRouter", router);
             Wire(runner, "_player", player);
             Wire(runner, "_hud", hudComponent);
             Wire(runner, "_feedback", feedback);
+            // GameFlow owns sequencing now; the runner is handed one rescue
+            // at a time rather than playing a fixed asset at boot.
+            WireBool(runner, "_autoPlayOnStart", false);
 
-            hudComponent.SetRound(1, 0, 3);
+            // The editor stand-in for RevenueCat. The real SDK does not run in
+            // the editor at all, so this is what makes the gating path
+            // testable without a device deploy - swapped for
+            // RevenueCatEntitlementService in the Android build (P4).
+            var entitlements = game.AddComponent<FakeEntitlementService>();
+
+            var flow = game.AddComponent<GameFlow>();
+            Wire(flow, "_catalog", catalog);
+            Wire(flow, "_runner", runner);
+            Wire(flow, "_hud", hudComponent);
+            Wire(flow, "_card", cardComponent);
+            Wire(flow, "_entitlementSource", entitlements);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
@@ -254,7 +158,14 @@ namespace SavePeps.EditorTools
 
             var ink = Hex("3D3354");
 
-            var roundLabel = Text(canvasGo.transform, "RoundLabel", font, 34, ink,
+            // Everything the HUD owns hangs off one container so the round
+            // card can hide it wholesale. On device the label, the goal and
+            // the result stamp all bled through the card's wash at once.
+            var hudRoot = new GameObject("HudRoot", typeof(RectTransform));
+            hudRoot.transform.SetParent(canvasGo.transform, false);
+            Stretch(hudRoot.GetComponent<RectTransform>());
+
+            var roundLabel = Text(hudRoot.transform, "RoundLabel", font, 34, ink,
                 new Vector2(0.5f, 1f), new Vector2(0f, -70f), new Vector2(900f, 50f));
             roundLabel.color = new Color(ink.r, ink.g, ink.b, 0.65f);
 
@@ -262,7 +173,8 @@ namespace SavePeps.EditorTools
             for (var i = 0; i < 3; i++)
             {
                 var dotGo = new GameObject($"Dot_{i}", typeof(Image));
-                dotGo.transform.SetParent(canvasGo.transform, false);
+                dotGo.transform.SetParent(hudRoot.transform, false);
+                dotGo.GetComponent<Image>().sprite = Circle();
                 var rt = dotGo.GetComponent<RectTransform>();
                 rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
                 rt.sizeDelta = new Vector2(22f, 22f);
@@ -270,12 +182,12 @@ namespace SavePeps.EditorTools
                 dots[i] = dotGo.GetComponent<Image>();
             }
 
-            var goal = Text(canvasGo.transform, "Goal", font, 46, ink,
+            var goal = Text(hudRoot.transform, "Goal", font, 46, ink,
                 new Vector2(0.5f, 1f), new Vector2(0f, -196f), new Vector2(950f, 64f));
 
             // The tray only exists after a wrong answer.
             var tray = new GameObject("Tray", typeof(RectTransform));
-            tray.transform.SetParent(canvasGo.transform, false);
+            tray.transform.SetParent(hudRoot.transform, false);
             var trayRt = tray.GetComponent<RectTransform>();
             trayRt.anchorMin = trayRt.anchorMax = new Vector2(0.5f, 0f);
             trayRt.sizeDelta = new Vector2(1000f, 300f);
@@ -298,10 +210,11 @@ namespace SavePeps.EditorTools
             // High enough to clear the diorama: at the centre it lands right
             // on top of the reunion, which is the one moment the player
             // should be looking at the characters and not at text.
-            var stamp = Text(canvasGo.transform, "ResultStamp", font, 92, Hex("FF7660"),
+            var stamp = Text(hudRoot.transform, "ResultStamp", font, 92, Hex("FF7660"),
                 new Vector2(0.5f, 1f), new Vector2(0f, -330f), new Vector2(900f, 140f));
 
             hud = canvasGo.AddComponent<RescueHud>();
+            Wire(hud, "_root", hudRoot);
             Wire(hud, "_roundLabel", roundLabel);
             Wire(hud, "_goal", goal);
             Wire(hud, "_tray", tray);
@@ -320,6 +233,101 @@ namespace SavePeps.EditorTools
 
             tray.SetActive(false);
             return canvasGo;
+        }
+
+        /// <summary>
+        /// The round-complete card. It sits inside the same canvas as the HUD
+        /// and covers it, because it is a beat rather than a screen — the
+        /// player should feel the round land and then be back in a diorama,
+        /// not navigate anywhere.
+        /// </summary>
+        private static void BuildRoundCard(Transform canvas, out RoundCompleteCard card)
+        {
+            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            var ink = Hex("3D3354");
+
+            // The component lives on an always-active holder and toggles a
+            // child panel. Putting it on the panel itself would mean Awake
+            // never runs while the card is hidden, and the first Show would
+            // switch the object on only for Awake's Hide to switch it back
+            // off — a card that never appears, from code that looks correct.
+            var holder = new GameObject("RoundComplete", typeof(RectTransform));
+            holder.transform.SetParent(canvas, false);
+            Stretch(holder.GetComponent<RectTransform>());
+
+            var root = new GameObject("Panel", typeof(Image));
+            root.transform.SetParent(holder.transform, false);
+            Stretch(root.GetComponent<RectTransform>());
+            // A wash rather than a blackout: the solved diorama stays visible
+            // underneath, which is most of the reward.
+            // 0.88 washed the scene out almost entirely on device, which
+            // defeats the point of keeping it. This is light enough to read
+            // the reunion through and still hold dark text.
+            root.GetComponent<Image>().color = new Color(0.97f, 0.95f, 0.91f, 0.74f);
+
+            var title = Text(root.transform, "Title", font, 68, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 300f), new Vector2(940f, 100f));
+
+            var subtitle = Text(root.transform, "Subtitle", font, 40, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 210f), new Vector2(940f, 70f));
+            subtitle.color = new Color(ink.r, ink.g, ink.b, 0.7f);
+
+            var dots = new Image[3];
+            for (var i = 0; i < dots.Length; i++)
+            {
+                var dotGo = new GameObject($"CardDot_{i}", typeof(Image));
+                dotGo.transform.SetParent(root.transform, false);
+                var rt = dotGo.GetComponent<RectTransform>();
+                rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+                rt.sizeDelta = new Vector2(44f, 44f);
+                rt.anchoredPosition = new Vector2((i - 1) * 90f, 100f);
+                dots[i] = dotGo.GetComponent<Image>();
+                dots[i].sprite = Circle();
+            }
+
+            var continueGo = new GameObject("Continue", typeof(Image), typeof(Button));
+            continueGo.transform.SetParent(root.transform, false);
+            var continueRt = continueGo.GetComponent<RectTransform>();
+            continueRt.anchorMin = continueRt.anchorMax = new Vector2(0.5f, 0.5f);
+            continueRt.sizeDelta = new Vector2(520f, 124f);
+            continueRt.anchoredPosition = new Vector2(0f, -60f);
+            continueGo.GetComponent<Image>().color = Hex("FFB53E");
+            var continueLabel = Text(continueGo.transform, "Label", font, 46, ink,
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(500f, 110f));
+            continueLabel.text = "Continue";
+
+            // Replay is a link, not a button: it is the rarer intent and
+            // should not compete with Continue for the thumb.
+            var replayGo = new GameObject("Replay", typeof(Image), typeof(Button));
+            replayGo.transform.SetParent(root.transform, false);
+            var replayRt = replayGo.GetComponent<RectTransform>();
+            replayRt.anchorMin = replayRt.anchorMax = new Vector2(0.5f, 0.5f);
+            replayRt.sizeDelta = new Vector2(420f, 96f);
+            replayRt.anchoredPosition = new Vector2(0f, -190f);
+            replayGo.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+            var replayLabel = Text(replayGo.transform, "Label", font, 36, ink,
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(400f, 90f));
+            replayLabel.text = "Replay round";
+            replayLabel.color = new Color(ink.r, ink.g, ink.b, 0.6f);
+
+            card = holder.AddComponent<RoundCompleteCard>();
+            Wire(card, "_root", root);
+            Wire(card, "_title", title);
+            Wire(card, "_subtitle", subtitle);
+            Wire(card, "_continueButton", continueGo.GetComponent<Button>());
+            Wire(card, "_continueLabel", continueLabel);
+            Wire(card, "_replayButton", replayGo.GetComponent<Button>());
+
+            var so = new SerializedObject(card);
+            var dotsProp = so.FindProperty("_dots");
+            dotsProp.arraySize = dots.Length;
+            for (var i = 0; i < dots.Length; i++)
+            {
+                dotsProp.GetArrayElementAtIndex(i).objectReferenceValue = dots[i];
+            }
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            root.SetActive(false);
         }
 
         private static Text Text(Transform parent, string name, Font font, int size, Color color,
@@ -341,6 +349,37 @@ namespace SavePeps.EditorTools
             return t;
         }
 
+        /// <summary>
+        /// A round sprite for the progress dots. A bare Image with no sprite
+        /// draws a square, which is what shipped to the device — "three dots"
+        /// rendered as three little boxes. Knob is a built-in filled circle, so
+        /// this costs no asset.
+        /// </summary>
+        private static Sprite Circle() =>
+            UnityEditor.AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
+
+        private static void Stretch(RectTransform rt)
+        {
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+        }
+
+        private static void WireBool(Object target, string field, bool value)
+        {
+            var so = new SerializedObject(target);
+            var prop = so.FindProperty(field);
+            if (prop == null)
+            {
+                Debug.LogError($"[SavePeps] {target.GetType().Name} has no serialized field '{field}'.");
+                return;
+            }
+
+            prop.boolValue = value;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         private static void Wire(Object target, string field, Object value)
         {
             var so = new SerializedObject(target);
@@ -353,13 +392,6 @@ namespace SavePeps.EditorTools
 
             prop.objectReferenceValue = value;
             so.ApplyModifiedPropertiesWithoutUndo();
-        }
-
-        private static T Load<T>(string path) where T : Object
-        {
-            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
-            if (asset == null) Debug.LogError($"[SavePeps] Missing asset: {path}");
-            return asset;
         }
 
         private static Color Hex(string hex)

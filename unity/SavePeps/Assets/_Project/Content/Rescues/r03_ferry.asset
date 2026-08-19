@@ -1,0 +1,279 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2ed5e3ba2ba4bd3866af2cedd8abaa, type: 3}
+  m_Name: r03_ferry
+  m_EditorClassIdentifier: Assembly-CSharp::SavePeps.Rescue.RescueDefinition
+  Id: r03
+  Verb: ferry
+  Goal: Reach the far bank.
+  Difficulty: 1
+  SceneDescription: Two Peps across a brook. A broad flat leaf lies on the near bank,
+    big enough to stand on.
+  Environment: {fileID: 8359432745503410032, guid: 79a75e73ca64446daae54e4efa8307ab, type: 3}
+  PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
+  PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
+  PepAAnchor: Anchor_PepA
+  PepBAnchor: Anchor_PepB
+  MeetAnchor: Anchor_Meet
+  Objects:
+  - Id: leaf
+    Prop: {fileID: 347665746588371101, guid: db79796654b4b4134b0ea7bf8a89b9f6, type: 3}
+    AnchorId: Slot_3
+    Label: The broad leaf
+    Quip: 
+    Duration: 3.6
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: slide
+    - At: 0
+      Duration: 0.65
+      Kind: 1
+      Target: $self
+      Delta: {x: 0.45, y: -0.085, z: -1.55}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.42
+      Ease: 5
+      Param: 
+    - At: 0.65
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: splash
+    - At: 0.75
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 0.9
+      Duration: 0.5
+      Kind: 2
+      Target: $pepA
+      Delta: {x: 0, y: -0.06, z: 0.37}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.12
+      Ease: 5
+      Param: 
+    - At: 1.5
+      Duration: 0.9
+      Kind: 0
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0.55}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.5
+      Duration: 0.9
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0.55}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.55
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: light
+    - At: 2.45
+      Duration: 0.45
+      Kind: 2
+      Target: $pepA
+      Delta: {x: 0, y: 0.06, z: 0.18}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.12
+      Ease: 5
+      Param: 
+    - At: 2.95
+      Duration: 0.6
+      Kind: 103
+      Target: $peps
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 3
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: reunion
+  - Id: fan
+    Prop: {fileID: 2667499548699804279, guid: 4a549481797f14363be1703c8474f767, type: 3}
+    AnchorId: Slot_2
+    Label: The electric fan
+    Quip: The current runs that way. The breeze does not.
+    Duration: 2.3
+    Steps:
+    - At: 0.05
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: whoosh
+    - At: 0
+      Duration: 1.2
+      Kind: 4
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 6
+      Ease: 2
+      Param: 
+    - At: 0.3
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Panic
+    - At: 0.35
+      Duration: 0.7
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: -0.3}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.25
+      Duration: 0.5
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0.07}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+  - Id: umbrella
+    Prop: {fileID: 3406375913897992646, guid: 9a680c9f59e96425393f84857b1c7b56, type: 3}
+    AnchorId: Slot_1
+    Label: The orange umbrella
+    Quip: It made the crossing. Alone.
+    Duration: 2.3
+    Steps:
+    - At: 0.05
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: pop
+    - At: 0
+      Duration: 0.4
+      Kind: 5
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 160
+      Ease: 0
+      Param: 
+    - At: 0.1
+      Duration: 0.35
+      Kind: 0
+      Target: $self
+      Delta: {x: 0, y: 0.18, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.5
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+    - At: 0.5
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+    - At: 0.6
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: whoosh
+    - At: 0.55
+      Duration: 1.1
+      Kind: 8
+      Target: $self
+      Delta: {x: 0.9, y: 0.55, z: -0.4}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+  CorrectIndex: 0

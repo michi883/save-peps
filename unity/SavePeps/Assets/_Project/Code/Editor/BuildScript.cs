@@ -91,7 +91,13 @@ namespace SavePeps.EditorTools
 
             if (summary.result == BuildResult.Succeeded)
             {
-                var mb = summary.totalSize / (1024f * 1024f);
+                // The artifact on disk, not summary.totalSize — that counts
+                // built content before packaging and reads several times
+                // high for an Android build. docs/release.md sends a human to
+                // compare this number against Play's size threshold, so it
+                // has to be the number Play will actually see.
+                var bytes = File.Exists(path) ? (ulong)new FileInfo(path).Length : summary.totalSize;
+                var mb = bytes / (1024f * 1024f);
                 Debug.Log($"[SavePeps] Build succeeded: {path} ({mb:F1} MB, {summary.totalTime:mm\\:ss}).");
             }
             else

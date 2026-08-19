@@ -29,7 +29,7 @@ Start with [`PLAN.md`](PLAN.md). It is the source of truth for what is being bui
 - **Unity 6.3 LTS (6000.3.21f1)** + Android Build Support. Chosen over 6000.0 LTS because it supports Android target API 35/36, which Google Play requires for new apps.
 - **URP**, mobile renderer, portrait only, IL2CPP + ARM64, AAB output.
 - **RevenueCat** `purchases-unity` via OpenUPM, plus EDM4U.
-- **PrimeTween** for the choreography runtime.
+- **No tween library.** The choreography runtime is hand-rolled (decision D7): the additive-delta model is bespoke, so a tween library would only have supplied easing and scheduling, and dropping it keeps a dependency off the Android build path.
 
 Use Unity's bundled OpenJDK/SDK/NDK rather than a system install.
 
@@ -43,6 +43,34 @@ open unity/SavePeps                  # via Unity Hub
 On a fresh clone, run **Tools > Save Peps > Apply Project Settings** once. Most build settings live in `ProjectSettings/` and travel with the repo, but a few (active build target, AAB-vs-APK) are machine-local and would otherwise silently default back to APK.
 
 The RevenueCat SDK does not run in the Unity Editor. Editor play uses `FakeEntitlementService`, which can simulate every subscription state; real purchase paths must be tested on a device.
+
+## Authoring a rescue
+
+A rescue is data, never C#: a `RescueDefinition` asset naming a diorama, two Peps, three objects and one correct answer, with each outcome as a flat list of timed steps. Everything below lives under **Tools > Save Peps**.
+
+| Tool | What it is for |
+|---|---|
+| **Rescue inspector** | Select any rescue asset. Validation shows inline, and the preview buttons enter play mode and run one outcome — the cost of checking a gag has to be one click. |
+| **Rescue Gauntlet** | Plays every outcome in the catalogue back to back, unattended. Wrong outcomes first, correct one last, so each rescue ends on the reunion. This is how a polish pass takes an hour instead of a day. |
+| **Validate Content** | The catalogue-wide rules: unique verbs, round composition, and the protean-object rule. Also runs on save, and as an EditMode test. |
+| **Show Anchor Gizmos** | Draws `Anchor_*`, `Slot_*` and movers in the scene view while dressing a diorama. |
+| **Save >** | Delete the save, unlock all rounds, or reveal the file — the loop progression work needs over and over. |
+| **Build Game Scene** | Regenerates the Game scene only. Reads the catalogue off disk; never writes content. |
+| **Seed Round One Content** | Creates any missing round-one assets. Existing ones are left alone. |
+
+Two safety properties worth relying on:
+
+- **Seeding creates, it never overwrites.** The generator is how round one came into being, but the assets on disk are the source of truth the moment anyone edits one. Re-seeding exists under **Danger >**, and it names what it is about to discard before doing it.
+- **Previewing never touches progress.** The flow is disabled during playback, so a solved preview records no mark.
+
+Run the tests with:
+
+```bash
+Unity -batchmode -runTests -testPlatform EditMode -projectPath unity/SavePeps
+Unity -batchmode -runTests -testPlatform PlayMode -projectPath unity/SavePeps
+```
+
+The EditMode suite validates the real authored catalogue, so a rescue with a step aimed at a target that does not exist fails the build rather than silently doing nothing on stage.
 
 ## Relationship to Save Pip
 

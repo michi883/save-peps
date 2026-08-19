@@ -27,6 +27,20 @@ namespace SavePeps.Rescue
 
         private bool _pressed;
 
+        /// <summary>
+        /// Fires the tap path without touching the screen.
+        ///
+        /// Not test-only scaffolding: the editor preview and the Rescue
+        /// Gauntlet (PLAN §5.3) both need to play an outcome on demand, and
+        /// routing them through the same entry point as a real tap is what
+        /// keeps the preview honest about what the player will get.
+        /// </summary>
+        public void SimulateTap(string objectId)
+        {
+            if (!InputEnabled || string.IsNullOrEmpty(objectId)) return;
+            OnTap?.Invoke(objectId);
+        }
+
         private void Awake()
         {
             if (_camera == null) _camera = Camera.main;

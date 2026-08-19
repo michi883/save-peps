@@ -13,10 +13,20 @@ namespace SavePeps.Rescue
     /// The loop is deliberately tiny, because the whole game is one tap. The
     /// only genuinely delicate part is retry, which must put the scene back
     /// exactly — see <see cref="AnimTarget"/> for why that is cheap here.
+    ///
+    /// The runner knows nothing about rounds, progression or the catalogue.
+    /// It is handed one rescue at a time by <c>GameFlow</c> and reports the
+    /// result; keeping it ignorant of what comes next is what lets the same
+    /// component serve the game, the editor preview, and the Gauntlet.
     /// </summary>
     public sealed class RescueRunner : MonoBehaviour
     {
+        [Tooltip("Optional. Played at boot when nothing else drives this runner — the P1 slice, the editor preview.")]
         [SerializeField] private RescueDefinition _rescue;
+
+        [Tooltip("Off when a GameFlow owns the sequencing.")]
+        [SerializeField] private bool _autoPlayOnStart = true;
+
         [SerializeField] private TapRouter _tapRouter;
         [SerializeField] private ChoreographyPlayer _player;
         [SerializeField] private RescueHud _hud;
@@ -28,22 +38,31 @@ namespace SavePeps.Rescue
         private Transform _meetAnchor;
         private RescueObject _tapped;
         private int _attempts;
+        private bool _solved;
 
         /// <summary>Raised when the Peps are reunited. True if solved first tap.</summary>
         public event Action<bool> OnSolved;
 
+        /// <summary>The rescue currently staged, or null between rescues.</summary>
+        public RescueDefinition Current => _rescue;
+
+        private void Awake()
+        {
+            if (_player != null) _player.OnEvent += HandleEvent;
+            if (_tapRouter != null) _tapRouter.OnTap += HandleTap;
+        }
+
         private void Start()
         {
+            if (!_autoPlayOnStart) return;
+
             if (_rescue == null)
             {
-                Debug.LogError("[SavePeps] RescueRunner has no rescue assigned.");
-                enabled = false;
+                Debug.LogError("[SavePeps] RescueRunner is set to auto-play but has no rescue assigned.");
                 return;
             }
 
-            _player.OnEvent += HandleEvent;
-            _tapRouter.OnTap += HandleTap;
-            Build();
+            Load(_rescue);
         }
 
         private void OnDestroy()
@@ -55,6 +74,49 @@ namespace SavePeps.Rescue
         // -------------------------------------------------------------------
         // Staging
         // -------------------------------------------------------------------
+
+        /// <summary>
+        /// Stages a rescue, replacing whatever was there. Safe to call
+        /// repeatedly — this is the seam the round loop drives.
+        /// </summary>
+        public void Load(RescueDefinition rescue)
+        {
+            if (rescue == null)
+            {
+                Debug.LogError("[SavePeps] RescueRunner.Load was given no rescue.");
+                return;
+            }
+
+            Teardown();
+            _rescue = rescue;
+            Build();
+        }
+
+        /// <summary>
+        /// Clears the staged rescue. Every per-rescue field is reset here
+        /// rather than in Build, so that a half-built rescue (a missing
+        /// diorama, a bad anchor) cannot leave a previous one's Peps or
+        /// targets behind to be animated by the next tap.
+        /// </summary>
+        public void Teardown()
+        {
+            StopAllCoroutines();
+            if (_player != null) _player.Stop();
+
+            if (_diorama != null) Destroy(_diorama);
+            _diorama = null;
+
+            _targets.Clear();
+            _rescue = null;
+            _pepA = null;
+            _pepB = null;
+            _meetAnchor = null;
+            _tapped = null;
+            _attempts = 0;
+            _solved = false;
+
+            if (_tapRouter != null) _tapRouter.InputEnabled = false;
+        }
 
         private void Build()
         {
@@ -130,6 +192,8 @@ namespace SavePeps.Rescue
 
         private void HandleTap(string objectId)
         {
+            if (_rescue == null || _solved) return;
+
             var obj = Array.Find(_rescue.Objects, o => o != null && o.Id == objectId);
             if (obj == null) return;
 
@@ -154,6 +218,7 @@ namespace SavePeps.Rescue
 
         private void Win()
         {
+            _solved = true;
             var firstTap = _attempts == 1;
             _feedback?.Reunion();
             _hud?.ShowResult(firstTap ? "Perfect!" : "Together again!");

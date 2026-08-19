@@ -59,6 +59,9 @@ namespace SavePeps.EditorTools
             var plank = BuildPlank(mats["Wood"]);
             var balloon = BuildBalloon(mats["Accent"], mats["Ink"]);
             var fan = BuildFan(mats["Stone"], mats["Cream"]);
+            var stone = BuildStone(mats["Stone"]);
+            var leaf = BuildLeaf(mats["FoliageLight"], mats["Foliage"]);
+            var umbrella = BuildUmbrella(mats["Accent"], mats["Ink"]);
 
             var diorama = BuildBrookDiorama(mats);
 
@@ -66,7 +69,8 @@ namespace SavePeps.EditorTools
             AssetDatabase.Refresh();
 
             Debug.Log("[SavePeps] Prototype art generated: " +
-                      $"{pepA.name}, {pepB.name}, {plank.name}, {balloon.name}, {fan.name}, {diorama.name}.");
+                      $"{pepA.name}, {pepB.name}, {plank.name}, {balloon.name}, {fan.name}, " +
+                      $"{stone.name}, {leaf.name}, {umbrella.name}, {diorama.name}.");
         }
 
         // -------------------------------------------------------------------
@@ -392,6 +396,72 @@ namespace SavePeps.EditorTools
         }
 
         /// <summary>
+        /// The stone that dams the brook. Squat and heavy-looking on purpose:
+        /// it has to read as something that would stay put in moving water,
+        /// or the solution is not legible before the tap.
+        /// </summary>
+        private static GameObject BuildStone(Material stone)
+        {
+            var root = NewProp("stone", new Vector3(0.38f, 0.34f, 0.38f), tapCentreY: 0.09f);
+            var choreo = root.transform.Find("Choreo");
+
+            var mass = Primitive(PrimitiveType.Sphere, "Mass", choreo, stone);
+            mass.transform.localPosition = new Vector3(0f, 0.085f, 0f);
+            mass.transform.localScale = new Vector3(0.24f, 0.17f, 0.21f);
+
+            var shoulder = Primitive(PrimitiveType.Sphere, "Shoulder", choreo, stone);
+            shoulder.transform.localPosition = new Vector3(0.06f, 0.05f, -0.04f);
+            shoulder.transform.localScale = new Vector3(0.13f, 0.10f, 0.12f);
+
+            return SavePrefab(root, $"{PropDir}/stone.prefab");
+        }
+
+        /// <summary>
+        /// A big flat leaf — the ferry. Wide enough to obviously carry a Pep,
+        /// which is the whole clue.
+        /// </summary>
+        private static GameObject BuildLeaf(Material blade, Material stem)
+        {
+            var root = NewProp("leaf", new Vector3(0.5f, 0.24f, 0.56f), tapCentreY: 0.03f);
+            var choreo = root.transform.Find("Choreo");
+
+            var body = Primitive(PrimitiveType.Sphere, "Blade", choreo, blade);
+            body.transform.localPosition = new Vector3(0f, 0.02f, 0f);
+            body.transform.localScale = new Vector3(0.30f, 0.035f, 0.42f);
+
+            var rib = Primitive(PrimitiveType.Cube, "Stem", choreo, stem);
+            rib.transform.localPosition = new Vector3(0f, 0.035f, -0.24f);
+            rib.transform.localScale = new Vector3(0.018f, 0.012f, 0.14f);
+
+            return SavePrefab(root, $"{PropDir}/leaf.prefab");
+        }
+
+        /// <summary>
+        /// The umbrella: a wrong answer that is always *nearly* right, which
+        /// is what makes it worth having in more than one lineup. It shelters,
+        /// it catches wind, it does everything except close a gap.
+        /// </summary>
+        private static GameObject BuildUmbrella(Material canopy, Material ink)
+        {
+            var root = NewProp("umbrella", new Vector3(0.42f, 0.52f, 0.42f), tapCentreY: 0.20f);
+            var choreo = root.transform.Find("Choreo");
+
+            var dome = Primitive(PrimitiveType.Sphere, "Canopy", choreo, canopy);
+            dome.transform.localPosition = new Vector3(0f, 0.30f, 0f);
+            dome.transform.localScale = new Vector3(0.32f, 0.15f, 0.32f);
+
+            var shaft = Primitive(PrimitiveType.Cube, "Shaft", choreo, ink);
+            shaft.transform.localPosition = new Vector3(0f, 0.15f, 0f);
+            shaft.transform.localScale = new Vector3(0.016f, 0.30f, 0.016f);
+
+            var hook = Primitive(PrimitiveType.Cube, "Hook", choreo, ink);
+            hook.transform.localPosition = new Vector3(0.03f, 0.015f, 0f);
+            hook.transform.localScale = new Vector3(0.06f, 0.016f, 0.016f);
+
+            return SavePrefab(root, $"{PropDir}/umbrella.prefab");
+        }
+
+        /// <summary>
         /// A prop root: an oversized invisible tap collider on the outside,
         /// an <see cref="AnimTarget"/> child that choreography drives, and the
         /// visual mesh below that. The collider is deliberately much larger
@@ -444,7 +514,12 @@ namespace SavePeps.EditorTools
             far.transform.localPosition = new Vector3(0f, 0.075f, 1.0f);
             far.transform.localScale = new Vector3(1.35f, 0.15f, 1.4f);
 
-            var water = Primitive(PrimitiveType.Cube, "Water", root.transform, mats["Water"]);
+            // The brook is a *mover*, not scenery: r02 dams it and drains it,
+            // so choreography has to be able to reach it. Movers are named
+            // containers whose Choreo child carries the AnimTarget, which is
+            // how RescueRunner registers them - by the container's name.
+            var movers = Child(root.transform, "Movers");
+            var water = Primitive(PrimitiveType.Cube, "Visual", Mover(movers, "Water"), mats["Water"]);
             water.transform.localPosition = new Vector3(0f, 0.035f, 0f);
             water.transform.localScale = new Vector3(1.35f, 0.07f, 0.62f);
 
@@ -460,9 +535,12 @@ namespace SavePeps.EditorTools
             Anchor(root.transform, "Anchor_PepB", new Vector3(0f, 0.15f, 0.62f));
             Anchor(root.transform, "Anchor_Meet", new Vector3(0f, 0.15f, 0.5f));
 
-            Anchor(root.transform, "Slot_1", new Vector3(-0.42f, 0.15f, -1.25f)); // plank
-            Anchor(root.transform, "Slot_2", new Vector3(0.45f, 0.15f, -1.35f));  // fan
-            Anchor(root.transform, "Slot_3", new Vector3(-0.45f, 0.15f, 1.3f));   // balloon
+            // Three lineup positions, reused by every rescue staged here. They
+            // sit off the play line on purpose: an object the player has not
+            // chosen yet must never be mistaken for part of the predicament.
+            Anchor(root.transform, "Slot_1", new Vector3(-0.42f, 0.15f, -1.25f));
+            Anchor(root.transform, "Slot_2", new Vector3(0.45f, 0.15f, -1.35f));
+            Anchor(root.transform, "Slot_3", new Vector3(-0.45f, 0.15f, 1.3f));
 
             return SavePrefab(root, $"{EnvDir}/Diorama_Brook.prefab");
         }
@@ -483,6 +561,20 @@ namespace SavePeps.EditorTools
             var t = Child(parent, name);
             t.localPosition = localPos;
             return t;
+        }
+
+        /// <summary>
+        /// Scenery an outcome can animate. Mirrors a prop's shape - a named
+        /// container whose Choreo child holds the AnimTarget and rests at
+        /// identity - so the same additive-delta and reset rules apply to the
+        /// brook as to the plank. Returns the transform to parent visuals to.
+        /// </summary>
+        private static Transform Mover(Transform parent, string name)
+        {
+            var container = Child(parent, name);
+            var choreo = Child(container, "Choreo");
+            choreo.gameObject.AddComponent<AnimTarget>();
+            return choreo;
         }
 
         private static GameObject Primitive(PrimitiveType type, string name, Transform parent, Material mat)
