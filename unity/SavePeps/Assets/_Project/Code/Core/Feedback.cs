@@ -24,14 +24,46 @@ namespace SavePeps.Core
         [SerializeField] private bool _hapticsEnabled = true;
 
         private readonly Dictionary<string, Clip> _byId = new();
+        private readonly List<AudioClip> _generated = new();
 
         private void Awake()
         {
             if (_source == null) _source = gameObject.AddComponent<AudioSource>();
             _source.playOnAwake = false;
+            _source.spatialBlend = 0f;
+            _source.dopplerLevel = 0f;
             foreach (var c in _clips ?? System.Array.Empty<Clip>())
             {
                 if (c != null && !string.IsNullOrEmpty(c.Id)) _byId[c.Id] = c;
+            }
+
+            // Authored clips always win. The synthesized bank fills every
+            // remaining choreography id, so prototype silence can never make
+            // a physically readable outcome feel inert on the device.
+            foreach (var (id, audio) in ToyAudioBank.Create())
+            {
+                if (_byId.ContainsKey(id))
+                {
+                    Destroy(audio);
+                    continue;
+                }
+
+                _generated.Add(audio);
+                _byId[id] = new Clip
+                {
+                    Id = id,
+                    Audio = audio,
+                    Volume = id is "whoosh" or "slide" ? 0.62f : 0.82f,
+                };
+            }
+        }
+
+        private void OnDestroy()
+        {
+            CancelInvoke();
+            foreach (var clip in _generated)
+            {
+                if (clip != null) Destroy(clip);
             }
         }
 

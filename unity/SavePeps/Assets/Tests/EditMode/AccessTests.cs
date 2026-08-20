@@ -61,10 +61,10 @@ namespace SavePeps.Tests
         }
 
         [Test]
-        public void ProgressStillGatesASubscriber()
+        public void SubscriberCanChooseAnyExistingRoundImmediately()
         {
-            // Paying does not skip the game. Round 5 is free, but unreached.
-            Assert.IsFalse(Access.CanPlay(_catalog, 5, highestUnlocked: 3, subscribed: true));
+            Assert.IsTrue(Access.CanPlay(_catalog, 5, highestUnlocked: 1, subscribed: true));
+            Assert.IsTrue(Access.CanPlay(_catalog, 12, highestUnlocked: 1, subscribed: true));
         }
 
         [Test]
@@ -99,12 +99,45 @@ namespace SavePeps.Tests
             // Reached, paid, not subscribed: this is the sales moment.
             Assert.IsTrue(Access.IsPaywalled(_catalog, 11, highestUnlocked: 11, subscribed: false));
 
-            // Not reached yet: locked, but showing a paywall here would be a bug.
-            Assert.IsFalse(Access.IsPaywalled(_catalog, 11, highestUnlocked: 5, subscribed: false));
+            // Subscription bypasses sequential progression, so a premium
+            // round in the picker is genuinely a subscription opportunity
+            // even when the free path has not reached it yet.
+            Assert.IsTrue(Access.IsPaywalled(_catalog, 11, highestUnlocked: 5, subscribed: false));
 
             // Free round, and past the end of the catalogue: never a paywall.
             Assert.IsFalse(Access.IsPaywalled(_catalog, 4, highestUnlocked: 11, subscribed: false));
             Assert.IsFalse(Access.IsPaywalled(_catalog, 13, highestUnlocked: 99, subscribed: false));
+        }
+
+        [Test]
+        public void AccessStateDistinguishesProgressFromSubscriptionLocks()
+        {
+            Assert.AreEqual(RoundAccess.Playable, Access.State(_catalog, 2, 3, subscribed: false));
+            Assert.AreEqual(RoundAccess.ProgressLocked, Access.State(_catalog, 4, 3, subscribed: false));
+            Assert.AreEqual(RoundAccess.SubscriptionLocked, Access.State(_catalog, 11, 3, subscribed: false));
+            Assert.AreEqual(RoundAccess.Playable, Access.State(_catalog, 11, 1, subscribed: true));
+            Assert.AreEqual(RoundAccess.Missing, Access.State(_catalog, 13, 99, subscribed: true));
+        }
+
+        /// <summary>
+        /// The out-of-content card offers "Play again", which routes to round
+        /// 1. If round 1 could ever be unplayable that button would dead-end
+        /// exactly where the player already had nowhere to go.
+        /// </summary>
+        [Test]
+        public void RoundOneIsAlwaysPlayable()
+        {
+            // A fresh save, a finished save, subscribed or not.
+            foreach (var unlocked in new[] { 1, 5, 12 })
+            foreach (var subscribed in new[] { true, false })
+            {
+                Assert.IsTrue(Access.CanPlay(_catalog, 1, unlocked, subscribed),
+                    $"Round 1 must stay playable (unlocked {unlocked}, subscribed {subscribed}).");
+            }
+
+            // Even if the gate were moved to its most aggressive setting.
+            _catalog.FreeRoundCount = 1;
+            Assert.IsTrue(Access.CanPlay(_catalog, 1, 12, subscribed: false));
         }
 
         [Test]

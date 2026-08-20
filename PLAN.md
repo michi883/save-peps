@@ -297,18 +297,19 @@ Catalog (ordered)
     └── 3 × RescueDefinition
 ```
 
-- **Authored, ordered playlist** — not procedural. A paywall at "Round 11" requires a stable notion of round 11, the difficulty ramp needs hand-tuning, and a two-minute demo video needs the first 90 seconds to be identical every time. Save Pip's sampler was right for endless Reddit play and is wrong here.
+- **Authored, ordered catalogue** — never procedural. Every numbered round is stable for progression, difficulty, completion marks, and the round-11 gate. The lightweight Play action may choose among available authored rounds, but it never generates or reshuffles their three rescues.
 - Save Pip's **round rules become editor validators**: within a round, no two rescues share a category, no two share a correct object, and difficulty should mix. Warnings, not errors — the last rounds may legitimately be all-hard.
 - **Linear unlock.** Completing round *N* unlocks *N+1*. Rescues within a round are played in order; a wrong tap never blocks progress, it just costs the star.
 - **Access rule**, the only gating logic in the game:
 
 ```csharp
 bool CanPlay(int round) =>
-    round <= Progress.HighestUnlocked &&
-    (round <= Config.FreeRoundCount || Entitlements.HasPeps Unlimited);
+    Catalog.Exists(round) &&
+    (Entitlements.HasPepsUnlimited ||
+     (round <= Progress.HighestUnlocked && round <= Config.FreeRoundCount));
 ```
 
-- **UI, kept deliberately thin.** In-scene: `Round 4 · Rescue 2 of 3`, three dots, a goal line, a mute button. That is the whole HUD. Round-complete: a card with the three dots resolving into ★/✓, `Round 4 complete`, and **Continue**. No round map, no level select, no menus — a **Replay round** link on the complete card covers the replay case. Settings (sound, haptics, restore purchases, privacy, terms) live behind one small gear on the title screen.
+- **UI, kept deliberately thin.** Home has one dominant **Play** button and a quiet **Choose round** link. Play avoids the immediately previous round, lightly favours new or imperfect available rounds, and otherwise chooses randomly. The compact picker shows only number, marks, new/completed state, and lock state—never a map. In-scene remains `Round 4 · Rescue 2 of 3`, three dots, and a goal line. Round-complete keeps the ★/✓ card with **Keep playing** and **Choose round**.
 - **Onboarding is one rescue, not a tutorial.** Round 1 rescue 1 is the easiest, most legible scene in the game with a single pulsing hint ring after 3 seconds of inactivity. Nothing else.
 
 ---
@@ -323,6 +324,7 @@ public sealed class SaveData
 {
     public int   SchemaVersion = 1;
     public int   HighestUnlockedRound = 1;
+    public int   LastPlayedRound;
     public Dictionary<string, Mark> RescueMarks;   // rescueId → Star | Check
     public int   TotalRescuesSolved;
     public bool  SoundMuted, HapticsOff;
@@ -492,6 +494,6 @@ The brief fixes the gate at round 11, which makes **30 polished rescues a hard f
 
 ## 18. Explicit non-goals for v1
 
-Named here so they can be refused quickly later: no player-controlled camera or movement; no inventory, dialogue, or currency; no energy, hearts, or timers; no level select map; no leaderboards, accounts, or backend; no seeds or shareable rounds; no analytics beyond what RevenueCat provides; no iOS; no localisation beyond English (store-listing localisation only if there is spare time); no consumables, ads, or second subscription tier; no procedural round generation.
+Named here so they can be refused quickly later: no player-controlled camera or movement; no inventory, dialogue, or currency; no energy, hearts, or timers; no world/level map beyond the compact round picker; no leaderboards, accounts, or backend; no seeds or shareable rounds; no analytics beyond what RevenueCat provides; no iOS; no localisation beyond English (store-listing localisation only if there is spare time); no consumables, ads, or second subscription tier; no procedural round generation.
 
 The goal is a small, delightful, highly polished one-tap puzzle game that feels complete — and is live on Google Play with a working subscription before 30 September.

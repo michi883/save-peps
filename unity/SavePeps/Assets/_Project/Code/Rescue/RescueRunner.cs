@@ -31,8 +31,11 @@ namespace SavePeps.Rescue
         [SerializeField] private ChoreographyPlayer _player;
         [SerializeField] private RescueHud _hud;
         [SerializeField] private Feedback _feedback;
+        [SerializeField] private GameFeel _gameFeel;
 
         private readonly Dictionary<string, AnimTarget> _targets = new();
+        private readonly Dictionary<string, ChoicePresentation> _choices = new();
+        private readonly Dictionary<string, ChoicePad> _choicePads = new();
         private GameObject _diorama;
         private Pep _pepA, _pepB;
         private Transform _meetAnchor;
@@ -79,7 +82,14 @@ namespace SavePeps.Rescue
         /// Stages a rescue, replacing whatever was there. Safe to call
         /// repeatedly — this is the seam the round loop drives.
         /// </summary>
-        public void Load(RescueDefinition rescue)
+        public void Load(RescueDefinition rescue) => Load(rescue, lockInputDuringEntrance: false);
+
+        /// <summary>
+        /// Flow-driven loads lock the entrance so the UI pointer-up that chose
+        /// a round cannot fall through and choose a rescue object in the same
+        /// frame. Editor outcome preview keeps the immediate overload above.
+        /// </summary>
+        public void Load(RescueDefinition rescue, bool lockInputDuringEntrance)
         {
             if (rescue == null)
             {
@@ -87,9 +97,26 @@ namespace SavePeps.Rescue
                 return;
             }
 
-            Teardown();
+            StopAllCoroutines();
+            if (_player != null) _player.Stop();
+            if (_tapRouter != null) _tapRouter.InputEnabled = false;
+
+            if (_diorama != null)
+            {
+                // Current changes immediately for progression/tests, while
+                // the visual stage gets a short toy-box swap of its own.
+                _rescue = rescue;
+                StartCoroutine(SwapDiorama(rescue));
+                return;
+            }
+
+            ClearStage(stopCoroutines: false);
             _rescue = rescue;
             Build();
+            // On the very first scene, keeping input live also keeps editor
+            // Preview Outcome immediate. A human cannot beat this 0.42s drop
+            // with a deliberate tap; automated authoring tools can.
+            StartCoroutine(EnterDiorama(_diorama, lockInput: lockInputDuringEntrance));
         }
 
         /// <summary>
@@ -98,15 +125,19 @@ namespace SavePeps.Rescue
         /// diorama, a bad anchor) cannot leave a previous one's Peps or
         /// targets behind to be animated by the next tap.
         /// </summary>
-        public void Teardown()
+        public void Teardown() => ClearStage(stopCoroutines: true);
+
+        private void ClearStage(bool stopCoroutines)
         {
-            StopAllCoroutines();
+            if (stopCoroutines) StopAllCoroutines();
             if (_player != null) _player.Stop();
 
             if (_diorama != null) Destroy(_diorama);
             _diorama = null;
 
             _targets.Clear();
+            _choices.Clear();
+            _choicePads.Clear();
             _rescue = null;
             _pepA = null;
             _pepB = null;
@@ -116,6 +147,72 @@ namespace SavePeps.Rescue
             _solved = false;
 
             if (_tapRouter != null) _tapRouter.InputEnabled = false;
+            _gameFeel?.ResetPresentation();
+        }
+
+        private IEnumerator SwapDiorama(RescueDefinition next)
+        {
+            var outgoing = _diorama;
+            if (outgoing != null)
+            {
+                var startPosition = outgoing.transform.localPosition;
+                var startRotation = outgoing.transform.localRotation;
+                var startScale = outgoing.transform.localScale;
+                var elapsed = 0f;
+                const float outDuration = 0.26f;
+                while (elapsed < outDuration && outgoing != null)
+                {
+                    elapsed += Time.deltaTime;
+                    var t = Easing.Evaluate(EaseKind.In, Mathf.Clamp01(elapsed / outDuration));
+                    outgoing.transform.localPosition = startPosition + new Vector3(-0.72f * t, -0.20f * t, 0f);
+                    outgoing.transform.localRotation = startRotation * Quaternion.Euler(0f, 0f, 8f * t);
+                    outgoing.transform.localScale = startScale * Mathf.Lerp(1f, 0.94f, t);
+                    yield return null;
+                }
+            }
+
+            ClearStage(stopCoroutines: false);
+            _rescue = next;
+            Build();
+            yield return EnterDiorama(_diorama, lockInput: true);
+        }
+
+        private IEnumerator EnterDiorama(GameObject staged, bool lockInput)
+        {
+            if (staged == null) yield break;
+
+            if (lockInput && _tapRouter != null) _tapRouter.InputEnabled = false;
+            staged.transform.localPosition = new Vector3(0.58f, 0.56f, 0f);
+            staged.transform.localRotation = Quaternion.Euler(0f, 0f, -7f);
+            staged.transform.localScale = Vector3.one * 0.93f;
+
+            var elapsed = 0f;
+            const float duration = 0.42f;
+            while (elapsed < duration && staged != null)
+            {
+                elapsed += Time.deltaTime;
+                var t = Easing.Evaluate(EaseKind.Back, Mathf.Clamp01(elapsed / duration));
+                staged.transform.localPosition = Vector3.LerpUnclamped(new Vector3(0.58f, 0.56f, 0f), Vector3.zero, t);
+                staged.transform.localRotation = Quaternion.SlerpUnclamped(
+                    Quaternion.Euler(0f, 0f, -7f), Quaternion.identity, t);
+                staged.transform.localScale = Vector3.one * Mathf.LerpUnclamped(0.93f, 1f, t);
+                yield return null;
+            }
+
+            if (staged != null)
+            {
+                staged.transform.localPosition = Vector3.zero;
+                staged.transform.localRotation = Quaternion.identity;
+                staged.transform.localScale = Vector3.one;
+            }
+
+            // A preview/test can choose during the entrance via SimulateTap.
+            // Never let the animation's completion reopen input over an
+            // outcome that has already locked it.
+            if (_tapRouter != null && _diorama == staged && _tapped == null && !_solved)
+            {
+                _tapRouter.InputEnabled = true;
+            }
         }
 
         private void Build()
@@ -138,6 +235,11 @@ namespace SavePeps.Rescue
                 _pepB.SetPartner(_pepA.transform);
             }
 
+            foreach (var pad in _diorama.GetComponentsInChildren<ChoicePad>(includeInactive: true))
+            {
+                if (pad != null && !string.IsNullOrEmpty(pad.AnchorId)) _choicePads[pad.AnchorId] = pad;
+            }
+
             foreach (var obj in _rescue.Objects)
             {
                 if (obj?.Prop == null) continue;
@@ -154,6 +256,9 @@ namespace SavePeps.Rescue
 
                 var target = prop.GetComponentInChildren<AnimTarget>();
                 if (target != null) _targets[obj.Id] = target;
+
+                var presentation = prop.GetComponent<ChoicePresentation>();
+                if (presentation != null) _choices[obj.Id] = presentation;
             }
 
             // Named fx and scenery the choreography can move.
@@ -162,6 +267,10 @@ namespace SavePeps.Rescue
                 _targets.TryAdd(target.transform.parent != null ? target.transform.parent.name : target.name, target);
             }
 
+            // GameFlow hides the HUD while the home/picker shell is up. The
+            // runner is also driven directly by editor Preview Outcome, so
+            // staging—not the flow—is the reliable place to reveal it again.
+            _hud?.SetVisible(true);
             _hud?.Show(_rescue.Goal);
             ResetScene();
         }
@@ -201,7 +310,21 @@ namespace SavePeps.Rescue
             _attempts++;
             _tapRouter.InputEnabled = false;
 
+            foreach (var (id, presentation) in _choices)
+            {
+                presentation?.SetSelection(id == obj.Id, locked: true);
+            }
+
+            foreach (var (anchorId, pad) in _choicePads)
+            {
+                pad?.SetSelection(anchorId == obj.AnchorId, locked: true);
+            }
+
             _feedback?.Tap();
+            if (_targets.TryGetValue(obj.Id, out var selectedTarget) && selectedTarget != null)
+            {
+                _gameFeel?.Tap(selectedTarget.transform.position);
+            }
             _hud?.ClearQuip();
 
             _player.Play(obj.Steps, Resolve);
@@ -220,7 +343,6 @@ namespace SavePeps.Rescue
         {
             _solved = true;
             var firstTap = _attempts == 1;
-            _feedback?.Reunion();
             _hud?.ShowResult(firstTap ? "Perfect!" : "Together again!");
             OnSolved?.Invoke(firstTap);
         }
@@ -228,6 +350,12 @@ namespace SavePeps.Rescue
         private void Fail(RescueObject obj)
         {
             _feedback?.Wrong();
+            _pepA?.ReactToWrong(coverEyes: _attempts % 2 == 1);
+            _pepB?.ReactToWrong(coverEyes: _attempts % 2 == 0);
+            if (_targets.TryGetValue(obj.Id, out var selectedTarget) && selectedTarget != null)
+            {
+                _gameFeel?.Wrong(selectedTarget.transform.position);
+            }
             _hud?.ShowQuip(obj.Quip, Retry);
         }
 
@@ -254,6 +382,9 @@ namespace SavePeps.Rescue
 
             _pepA?.ResetToRest();
             _pepB?.ResetToRest();
+            foreach (var choice in _choices.Values) choice?.ResetPresentation();
+            foreach (var pad in _choicePads.Values) pad?.ResetPresentation();
+            _gameFeel?.ResetPresentation();
 
             _tapped = null;
             _tapRouter.InputEnabled = true;
@@ -296,6 +427,10 @@ namespace SavePeps.Rescue
 
                 case StepKind.Sfx:
                     _feedback?.Play(step.Param);
+                    if (step.Param is "thud" or "bonk" or "click" or "snip")
+                    {
+                        _gameFeel?.Impact(step.Param == "thud" ? 1f : 0.55f);
+                    }
                     break;
 
                 case StepKind.Haptic:
@@ -317,10 +452,8 @@ namespace SavePeps.Rescue
         {
             if (_pepA == null || _pepB == null || _meetAnchor == null) yield break;
 
-            _pepA.SetIdle(false);
-            _pepB.SetIdle(false);
-            _pepA.SetFace(PepFace.Happy);
-            _pepB.SetFace(PepFace.Happy);
+            _pepA.BeginRun();
+            _pepB.BeginRun();
 
             // Take the Peps off the choreography player and drive their
             // animated transforms directly, starting from wherever the
@@ -342,21 +475,60 @@ namespace SavePeps.Rescue
             var aEnd = meet + offset;
             var bEnd = meet - offset;
 
+            var runDuration = Mathf.Max(0.35f, duration);
             var elapsed = 0f;
-            while (elapsed < duration)
+            while (elapsed < runDuration)
             {
                 elapsed += Time.deltaTime;
-                var t = Easing.Evaluate(EaseKind.Hop, Mathf.Clamp01(elapsed / duration));
-                // A little vertical skip so they bound rather than slide.
-                var skip = Mathf.Abs(Mathf.Sin(t * Mathf.PI * 2f)) * 0.09f;
+                var linear = Mathf.Clamp01(elapsed / runDuration);
+                var t = Easing.Evaluate(EaseKind.InOut, linear);
+                // Three quick footfalls; the articulated run pose supplies
+                // the counter-swing while this gives the whole toy weight.
+                var skip = Mathf.Abs(Mathf.Sin(linear * Mathf.PI * 3f)) * 0.055f;
                 aTarget.position = Vector3.Lerp(aStart, aEnd, t) + Vector3.up * skip;
                 bTarget.position = Vector3.Lerp(bStart, bEnd, t) + Vector3.up * skip;
                 yield return null;
             }
 
-            _pepA.SetFace(PepFace.Love);
-            _pepB.SetFace(PepFace.Love);
+            aTarget.position = aEnd;
+            bTarget.position = bEnd;
+            _pepA.BeginHug();
+            _pepB.BeginHug();
+            _gameFeel?.Reunion(meet);
             _feedback?.Haptic("success");
+
+            // Squeeze together, then share one small spin. This beat is
+            // deliberately longer than the run: solving the prop is the
+            // setup, affection is the repeated reward.
+            var hugVector = offset;
+            elapsed = 0f;
+            const float hugDuration = 0.42f;
+            while (elapsed < hugDuration)
+            {
+                elapsed += Time.deltaTime;
+                var t = Easing.Evaluate(EaseKind.Back, Mathf.Clamp01(elapsed / hugDuration));
+                var close = Vector3.Lerp(hugVector, hugVector.normalized * 0.24f, t);
+                var lift = Mathf.Sin(Mathf.Clamp01(elapsed / hugDuration) * Mathf.PI) * 0.045f;
+                aTarget.position = meet + close + Vector3.up * lift;
+                bTarget.position = meet - close + Vector3.up * lift;
+                yield return null;
+            }
+
+            _pepA.BeginCelebrate();
+            _pepB.BeginCelebrate();
+            var closeVector = hugVector.normalized * 0.24f;
+            elapsed = 0f;
+            const float spinDuration = 0.56f;
+            while (elapsed < spinDuration)
+            {
+                elapsed += Time.deltaTime;
+                var t = Easing.Evaluate(EaseKind.InOut, Mathf.Clamp01(elapsed / spinDuration));
+                var spun = Quaternion.AngleAxis(t * 58f, Vector3.up) * closeVector;
+                var lift = Mathf.Sin(t * Mathf.PI) * 0.035f;
+                aTarget.position = meet + spun + Vector3.up * lift;
+                bTarget.position = meet - spun + Vector3.up * lift;
+                yield return null;
+            }
         }
     }
 }

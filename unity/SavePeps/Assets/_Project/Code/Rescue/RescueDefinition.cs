@@ -6,6 +6,29 @@ namespace SavePeps.Rescue
     public enum Difficulty { Easy = 0, Medium = 1, Surprising = 2 }
 
     /// <summary>
+    /// The physical idea the player has to recognise, independent of the
+    /// environment or the outcome verb.
+    ///
+    /// Verb uniqueness did not catch the first catalogue's real repetition:
+    /// bridge, dam, ferry, swing, lift and glide were six words for the same
+    /// "move a Pep across a horizontal gap" decision. Keeping the reasoning
+    /// kind as authored data lets validation guard the distinction that
+    /// actually matters to the player.
+    /// </summary>
+    public enum ReasoningKind
+    {
+        Crossing = 0,
+        Activation = 1,
+        Cutting = 2,
+        Luring = 3,
+        Counterweight = 4,
+        Reflection = 5,
+        Temperature = 6,
+        Growth = 7,
+        Shelter = 8,
+    }
+
+    /// <summary>
     /// One of the three things the player can tap.
     ///
     /// Save Pip's house rule holds: within a rescue exactly one object saves,
@@ -52,6 +75,9 @@ namespace SavePeps.Rescue
 
         [Tooltip("The rescue verb — the way the player has to think. Unique across the catalog.")]
         public string Verb;
+
+        [Tooltip("The physical reasoning structure. Adjacent rescues must differ even when their verbs do.")]
+        public ReasoningKind Reasoning;
 
         [Tooltip("2-4 words. What the Peps need, never how. Shown over the scene.")]
         public string Goal;

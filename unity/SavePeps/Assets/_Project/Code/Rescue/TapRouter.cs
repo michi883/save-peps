@@ -60,7 +60,8 @@ namespace SavePeps.Rescue
 
         /// <summary>
         /// Raycast first; if that misses, take the nearest tappable within
-        /// <see cref="_forgivenessPixels"/> on screen.
+        /// <see cref="_forgivenessPixels"/> on screen. When generous hitboxes
+        /// overlap, the visual whose centre is closest to the finger wins.
         ///
         /// The fallback is not a workaround, it is the feature: a thumb
         /// covers a large, imprecise area, and a player who clearly meant the
@@ -70,15 +71,25 @@ namespace SavePeps.Rescue
         private Tappable Pick(Vector2 screenPos)
         {
             var ray = _camera.ScreenPointToRay(screenPos);
-            if (Physics.Raycast(ray, out var hit, 100f))
+            var hitAChoice = false;
+            foreach (var hit in Physics.RaycastAll(ray, 100f))
             {
-                var direct = hit.collider.GetComponentInParent<Tappable>();
-                if (direct != null) return direct;
+                if (hit.collider.GetComponentInParent<Tappable>() != null)
+                {
+                    hitAChoice = true;
+                    break;
+                }
             }
 
             // Scaled off the shorter screen edge so forgiveness is consistent
             // across densities rather than being generous on small screens.
-            var threshold = Mathf.Min(Screen.width, Screen.height) * _forgivenessPixels;
+            // A direct choice hit removes the threshold, but still resolves
+            // against all three visible centres. This is what makes an
+            // overlapping front collider incapable of stealing the choice
+            // the player's finger is visibly centred on.
+            var threshold = hitAChoice
+                ? float.PositiveInfinity
+                : Mathf.Min(Screen.width, Screen.height) * _forgivenessPixels;
             var best = (Tappable)null;
             var bestDistance = threshold;
 
@@ -87,7 +98,16 @@ namespace SavePeps.Rescue
                 var collider = candidate.GetComponent<Collider>();
                 if (collider == null) continue;
 
-                var point = _camera.WorldToScreenPoint(collider.bounds.center);
+                var centre = collider.bounds.center;
+                var renderers = candidate.GetComponentsInChildren<Renderer>();
+                if (renderers.Length > 0)
+                {
+                    var visibleBounds = renderers[0].bounds;
+                    for (var i = 1; i < renderers.Length; i++) visibleBounds.Encapsulate(renderers[i].bounds);
+                    centre = visibleBounds.center;
+                }
+
+                var point = _camera.WorldToScreenPoint(centre);
                 if (point.z <= 0f) continue;
 
                 var distance = Vector2.Distance(screenPos, point);

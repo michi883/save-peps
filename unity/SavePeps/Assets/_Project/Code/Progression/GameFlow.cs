@@ -25,6 +25,7 @@ namespace SavePeps.Progression
         [SerializeField] private RescueRunner _runner;
         [SerializeField] private RescueHud _hud;
         [SerializeField] private RoundCompleteCard _card;
+        [SerializeField] private GameMenu _menu;
 
         [Tooltip("Anything implementing IEntitlementService: the fake in the editor, RevenueCat on device.")]
         [SerializeField] private MonoBehaviour _entitlementSource;
@@ -37,7 +38,8 @@ namespace SavePeps.Progression
         private SaveData _save;
         private int _roundNumber;
         private int _rescueIndex;
-        private bool _awaitingEntitlement;
+        private int _pendingRound;
+        private bool _pickerOpenedFromHome;
 
         /// <summary>Raised with the round the player just tried to reach.</summary>
         public event Action<int> OnPaywallRequested;
@@ -63,6 +65,9 @@ namespace SavePeps.Progression
             }
 
             _save = SaveStore.Load();
+            _hud?.SetVisible(false);
+            _card?.Hide();
+            _menu?.Hide();
         }
 
         private void OnEnable()
@@ -87,11 +92,12 @@ namespace SavePeps.Progression
                 return;
             }
 
-            // Resume where they left off, but never past what has actually been
-            // authored — a save from a build with more rounds must not strand
-            // the player on a round that does not exist.
-            var resume = Mathf.Clamp(_save.HighestUnlockedRound, 1, _catalog.RoundCount);
-            PlayRound(resume);
+            // Opening the app is intentionally a choice-free pause. Play is
+            // one tap away and chooses well; direct control is beside it.
+            // Keeping this in the same scene avoids a load and leaves editor
+            // preview free to disable GameFlow before Start stages anything.
+            if (_menu != null) ShowHome();
+            else PlayRecommendedRound();
         }
 
         /// <summary>
@@ -116,11 +122,60 @@ namespace SavePeps.Progression
         public bool CanPlay(int round) =>
             Access.CanPlay(_catalog, round, _save.HighestUnlockedRound, IsSubscribed);
 
+        public RoundAccess AccessFor(int round) =>
+            Access.State(_catalog, round, _save.HighestUnlockedRound, IsSubscribed);
+
         private bool IsSubscribed => _entitlements is { IsSubscribed: true };
 
         // -------------------------------------------------------------------
         // Rounds
         // -------------------------------------------------------------------
+
+        public void ShowHome()
+        {
+            _hud?.SetVisible(false);
+            _card?.Hide();
+            _menu?.ShowHome(PlayRecommendedRound, ShowRoundPickerFromHome);
+        }
+
+        /// <summary>The dominant Play action: useful randomness over available rounds.</summary>
+        public void PlayRecommendedRound()
+        {
+            var number = RoundSelector.Choose(_catalog, _save, IsSubscribed, UnityEngine.Random.value);
+            if (number <= 0)
+            {
+                Debug.LogError("[SavePeps] No round is currently available to Play.");
+                return;
+            }
+
+            Debug.Log($"[SavePeps] Play chose round {number}.");
+            PlayRound(number);
+        }
+
+        public void ShowRoundPickerFromHome()
+        {
+            _pickerOpenedFromHome = true;
+            _card?.Hide();
+            _hud?.SetVisible(false);
+            _menu?.ShowPicker(_catalog, _save, IsSubscribed, showHomeDiorama: true,
+                SelectRound, ShowHome);
+            Debug.Log($"[SavePeps] Round picker opened with {_catalog.RoundCount} rounds.");
+        }
+
+        private void ShowRoundPickerFromResult()
+        {
+            _pickerOpenedFromHome = false;
+            _card?.Hide();
+            _menu?.ShowPicker(_catalog, _save, IsSubscribed, showHomeDiorama: false,
+                SelectRound, ShowRoundCompleteCard);
+            Debug.Log($"[SavePeps] Round picker opened with {_catalog.RoundCount} rounds.");
+        }
+
+        private void SelectRound(int number)
+        {
+            Debug.Log($"[SavePeps] Round {number} selected from picker.");
+            PlayRound(number);
+        }
 
         public void PlayRound(int number)
         {
@@ -128,7 +183,7 @@ namespace SavePeps.Progression
             {
                 OnCatalogComplete?.Invoke();
                 _hud?.SetVisible(false);
-                _card?.ShowOutOfContent();
+                _card?.ShowOutOfContent(KeepPlaying, ShowRoundPickerFromResult);
                 return;
             }
 
@@ -139,7 +194,7 @@ namespace SavePeps.Progression
                 // what stands between the player and the round.
                 if (Access.IsPaywalled(_catalog, number, _save.HighestUnlockedRound, IsSubscribed))
                 {
-                    _awaitingEntitlement = true;
+                    _pendingRound = number;
                     OnPaywallRequested?.Invoke(number);
                 }
                 else
@@ -149,10 +204,14 @@ namespace SavePeps.Progression
                 return;
             }
 
-            _awaitingEntitlement = false;
+            _pendingRound = 0;
             _roundNumber = number;
             _rescueIndex = 0;
+            _save.LastPlayedRound = number;
+            Persist();
+            _menu?.Hide();
             _card?.Hide();
+            Debug.Log($"[SavePeps] Round {number} started.");
             StartRescue();
         }
 
@@ -168,7 +227,7 @@ namespace SavePeps.Progression
 
             _hud?.SetVisible(true);
             RefreshDots();
-            _runner.Load(rescue);
+            _runner.Load(rescue, lockInputDuringEntrance: true);
         }
 
         private void HandleSolved(bool firstTap)
@@ -203,7 +262,13 @@ namespace SavePeps.Progression
 
         private void CompleteRound()
         {
-            _save.UnlockThrough(_roundNumber + 1);
+            // A subscriber may jump straight to any authored round. Finishing
+            // that round must not silently skip the free player's sequential
+            // progression if the entitlement later lapses.
+            if (_roundNumber <= _save.HighestUnlockedRound)
+            {
+                _save.UnlockThrough(_roundNumber + 1);
+            }
             Persist();
 
             // The diorama deliberately stays: the card washes over the scene
@@ -213,6 +278,13 @@ namespace SavePeps.Progression
             // rescue's Load() clears it.
             _hud?.SetVisible(false);
 
+            ShowRoundCompleteCard();
+        }
+
+        private void ShowRoundCompleteCard()
+        {
+            _menu?.Hide();
+            _hud?.SetVisible(false);
             var round = _catalog.Round(_roundNumber);
             var marks = new Mark[RoundDefinition.RescuesPerRound];
             for (var i = 0; i < marks.Length; i++)
@@ -220,15 +292,27 @@ namespace SavePeps.Progression
                 marks[i] = _save.MarkFor(round?.RescueAt(i)?.Id);
             }
 
-            if (_card != null) _card.Show(_roundNumber, marks, Continue, ReplayRound);
-            else Continue();
+            if (_card != null) _card.Show(_roundNumber, marks, KeepPlaying, ShowRoundPickerFromResult);
+            else KeepPlaying();
         }
 
-        /// <summary>Advances past the round-complete card.</summary>
-        public void Continue() => PlayRound(_roundNumber + 1);
+        /// <summary>Chooses another useful available round after the result beat.</summary>
+        public void KeepPlaying() => PlayRecommendedRound();
 
-        /// <summary>The whole of the replay story — no level select, per PLAN §8.</summary>
+        /// <summary>Compatibility alias for editor scripts from the linear flow.</summary>
+        public void Continue() => KeepPlaying();
+
+        /// <summary>Direct replay hook retained for editor tooling and QA.</summary>
         public void ReplayRound() => PlayRound(_roundNumber);
+
+        /// <summary>
+        /// Back to round 1, for a player who has finished everything authored.
+        ///
+        /// Deliberately not a progress wipe: earned stars stay earned. Round 1
+        /// is always playable — it is unlocked from a fresh save and can never
+        /// be behind the paywall — so this can never itself dead-end.
+        /// </summary>
+        public void PlayFromStart() => PlayRound(1);
 
         /// <summary>
         /// A purchase or restore finished. If the player was stopped at the
@@ -238,8 +322,19 @@ namespace SavePeps.Progression
         /// </summary>
         private void HandleEntitlementChanged()
         {
-            if (!_awaitingEntitlement || !IsSubscribed) return;
-            PlayRound(_roundNumber + 1);
+            if (_pendingRound > 0 && IsSubscribed)
+            {
+                var purchasedRound = _pendingRound;
+                _pendingRound = 0;
+                PlayRound(purchasedRound);
+                return;
+            }
+
+            if (_menu != null && _menu.PickerVisible)
+            {
+                _menu.ShowPicker(_catalog, _save, IsSubscribed, _pickerOpenedFromHome,
+                    SelectRound, _pickerOpenedFromHome ? ShowHome : ShowRoundCompleteCard);
+            }
         }
 
         private void RefreshDots()

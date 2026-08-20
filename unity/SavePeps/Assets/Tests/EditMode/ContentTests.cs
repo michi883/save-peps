@@ -104,14 +104,56 @@ namespace SavePeps.Tests
         }
 
         [Test]
-        public void ThePaywallIsReachable()
+        public void ARoundThatRenamesTheSameReasoningIsRejected()
         {
-            // FreeRoundCount above the authored round count would make the
-            // gate untestable — which is exactly how it ships broken.
+            var catalog = ScriptableObject.CreateInstance<Catalog>();
+            var round = ScriptableObject.CreateInstance<RoundDefinition>();
+            var rescues = new RescueDefinition[RoundDefinition.RescuesPerRound];
+
+            try
+            {
+                for (var i = 0; i < rescues.Length; i++)
+                {
+                    var rescue = ScriptableObject.CreateInstance<RescueDefinition>();
+                    rescue.Id = $"same{i}";
+                    rescue.Verb = $"differentVerb{i}";
+                    rescue.Goal = $"Solve idea {i}.";
+                    rescue.Reasoning = ReasoningKind.Crossing;
+                    rescue.Objects = new[]
+                    {
+                        new RescueObject { Id = $"right{i}", AnchorId = $"Slot_{i + 1}", Duration = 2.5f },
+                        new RescueObject { Id = $"wrongA{i}", Duration = 2.5f, Quip = "No." },
+                        new RescueObject { Id = $"wrongB{i}", Duration = 2.5f, Quip = "Also no." },
+                    };
+                    rescue.CorrectIndex = 0;
+                    rescues[i] = rescue;
+                }
+
+                round.Number = 1;
+                round.Rescues = rescues;
+                catalog.Rounds = new[] { round };
+
+                var report = ContentValidator.Validate(catalog);
+
+                Assert.IsTrue(
+                    report.Errors.Exists(e => e.Contains("different verbs cannot disguise the same puzzle")),
+                    "Unique verbs must not let a structurally repeated round pass. Got:\n" + report);
+            }
+            finally
+            {
+                foreach (var rescue in rescues) if (rescue != null) Object.DestroyImmediate(rescue);
+                Object.DestroyImmediate(round);
+                Object.DestroyImmediate(catalog);
+            }
+        }
+
+        [Test]
+        public void TheFreeBoundaryStaysAtRoundTenWhileContentIsAuthored()
+        {
             var catalog = LoadCatalog();
-            Assert.LessOrEqual(catalog.FreeRoundCount, catalog.RoundCount,
-                $"{catalog.FreeRoundCount} free rounds but only {catalog.RoundCount} authored: " +
-                "nothing behind the paywall to reach.");
+            Assert.AreEqual(Catalog.DefaultFreeRoundCount, catalog.FreeRoundCount,
+                "The current catalogue is intentionally smaller than the planned free block; " +
+                "future rounds 4–10 must not silently become premium as they are added.");
         }
     }
 }

@@ -26,6 +26,7 @@ namespace SavePeps.Tests
             data.RecordSolved("r01", firstTap: true);
             data.RecordSolved("r02", firstTap: false);
             data.SoundMuted = true;
+            data.LastPlayedRound = 3;
 
             Assert.IsTrue(SaveStore.Save(data));
 
@@ -36,6 +37,7 @@ namespace SavePeps.Tests
             Assert.AreEqual(Mark.None, loaded.MarkFor("r03"));
             Assert.AreEqual(2, loaded.TotalRescuesSolved);
             Assert.IsTrue(loaded.SoundMuted);
+            Assert.AreEqual(3, loaded.LastPlayedRound);
         }
 
         [Test]
@@ -77,6 +79,8 @@ namespace SavePeps.Tests
             Assert.AreEqual(3, loaded.HighestUnlockedRound);
             Assert.AreEqual(0, loaded.TotalRescuesSolved);
             Assert.IsFalse(loaded.SoundMuted);
+            Assert.AreEqual(0, loaded.LastPlayedRound,
+                "Older saves have no last-played field and must remain compatible.");
             Assert.AreEqual(Mark.None, loaded.MarkFor("r01"));
         }
 
@@ -95,12 +99,14 @@ namespace SavePeps.Tests
         public void NonsenseValuesAreClamped()
         {
             File.WriteAllText(SavePath,
-                "{\"SchemaVersion\":1,\"HighestUnlockedRound\":-5,\"TotalRescuesSolved\":-9}");
+                "{\"SchemaVersion\":1,\"HighestUnlockedRound\":-5,\"LastPlayedRound\":-4," +
+                "\"TotalRescuesSolved\":-9}");
 
             var loaded = SaveStore.Load();
 
             Assert.AreEqual(1, loaded.HighestUnlockedRound);
             Assert.AreEqual(0, loaded.TotalRescuesSolved);
+            Assert.AreEqual(0, loaded.LastPlayedRound);
         }
 
         [Test]

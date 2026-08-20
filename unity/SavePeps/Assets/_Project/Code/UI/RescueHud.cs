@@ -99,6 +99,12 @@ namespace SavePeps.Rescue
         public void Show(string goal)
         {
             if (_goal != null) _goal.text = goal;
+
+            // A staged rescue starts clean. Without this the previous
+            // rescue's "Perfect!" hangs over the new scene until the first
+            // tap — which on device read as the game congratulating you for
+            // a puzzle you had not looked at yet.
+            ClearQuip();
         }
 
         public void ShowQuip(string quip, Action onRetry)

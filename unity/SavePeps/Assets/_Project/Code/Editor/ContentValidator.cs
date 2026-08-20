@@ -91,6 +91,7 @@ namespace SavePeps.EditorTools
             var verbs = new Dictionary<string, string>();
             var goals = new Dictionary<string, string>();
             var seen = new HashSet<RescueDefinition>();
+            var ordered = new List<RescueDefinition>();
 
             for (var i = 0; i < catalog.RoundCount; i++)
             {
@@ -106,11 +107,13 @@ namespace SavePeps.EditorTools
                 foreach (var rescue in round.Rescues ?? System.Array.Empty<RescueDefinition>())
                 {
                     if (rescue == null || !seen.Add(rescue)) continue;
+                    ordered.Add(rescue);
                     ValidateRescue(rescue, report);
                     TrackUnique(rescue, verbs, goals, report);
                 }
             }
 
+            ValidateAdjacentReasoning(ordered, report);
             ValidateProtean(seen, report);
             return report;
         }
@@ -152,6 +155,13 @@ namespace SavePeps.EditorTools
                             $"Round {round.Number}: '{rescues[i].Id}' and '{rescues[j].Id}' share the verb " +
                             $"'{rescues[i].Verb}'.");
                     }
+
+                    if (rescues[i].Reasoning == rescues[j].Reasoning)
+                    {
+                        report.Errors.Add(
+                            $"Round {round.Number}: '{rescues[i].Id}' and '{rescues[j].Id}' both use " +
+                            $"{rescues[i].Reasoning} reasoning — different verbs cannot disguise the same puzzle.");
+                    }
                 }
             }
 
@@ -161,6 +171,25 @@ namespace SavePeps.EditorTools
             }
 
             ValidateAnswerPositions(round, rescues, report);
+        }
+
+        /// <summary>
+        /// The boundary between rounds is part of the player's sequence too.
+        /// Round N ending and Round N+1 beginning with the same physical idea
+        /// makes the second round feel like more wallpaper, even when each
+        /// round is internally varied.
+        /// </summary>
+        private static void ValidateAdjacentReasoning(IReadOnlyList<RescueDefinition> rescues, Report report)
+        {
+            for (var i = 1; i < rescues.Count; i++)
+            {
+                var previous = rescues[i - 1];
+                var current = rescues[i];
+                if (previous.Reasoning != current.Reasoning) continue;
+
+                report.Errors.Add(
+                    $"{current.Id}: repeats {current.Reasoning} reasoning immediately after {previous.Id}.");
+            }
         }
 
         /// <summary>
@@ -230,6 +259,7 @@ namespace SavePeps.EditorTools
 
             // Names the choreography is allowed to aim at.
             var names = CollectNames(rescue);
+            var animatedNames = CollectAnimatedNames(rescue);
 
             var ids = new HashSet<string>();
             foreach (var obj in objects)
@@ -261,12 +291,12 @@ namespace SavePeps.EditorTools
                     report.Warnings.Add($"{id}/{obj.Id}: {obj.Duration:0.##}s is outside the {MinDuration}-{MaxDuration}s band.");
                 }
 
-                ValidateSteps(rescue, obj, correct, names, report);
+                ValidateSteps(rescue, obj, correct, animatedNames, report);
             }
         }
 
         private static void ValidateSteps(RescueDefinition rescue, RescueObject obj, bool correct,
-            HashSet<string> names, Report report)
+            HashSet<string> animatedNames, Report report)
         {
             var id = rescue.Id;
             var steps = obj.Steps ?? System.Array.Empty<OutcomeStep>();
@@ -298,10 +328,10 @@ namespace SavePeps.EditorTools
                         $"{obj.Duration:0.##}s outcome.");
                 }
 
-                if (!SceneRef.IsReserved(step.Target) && !names.Contains(step.Target))
+                if (!SceneRef.IsReserved(step.Target) && !animatedNames.Contains(step.Target))
                 {
                     report.Errors.Add(
-                        $"{id}/{obj.Id}: step target '{step.Target}' resolves to nothing — it will silently do nothing.");
+                        $"{id}/{obj.Id}: step target '{step.Target}' has no AnimTarget — it will silently do nothing.");
                 }
 
                 if (step.Kind == StepKind.Meet) meets++;
@@ -395,6 +425,33 @@ namespace SavePeps.EditorTools
                 foreach (var t in rescue.Environment.GetComponentsInChildren<Transform>(true))
                 {
                     names.Add(t.name);
+                }
+            }
+
+            foreach (var obj in rescue.Objects ?? System.Array.Empty<RescueObject>())
+            {
+                if (obj != null && !string.IsNullOrEmpty(obj.Id)) names.Add(obj.Id);
+            }
+
+            return names;
+        }
+
+        /// <summary>
+        /// Mirrors RescueRunner's runtime lookup exactly. A transform merely
+        /// existing in a prefab does not make it animatable; only the parent
+        /// name of an AnimTarget (plus spawned prop ids) enters the resolver.
+        /// The old all-transform check let choreography aimed at static
+        /// scenery validate cleanly and then disappear at runtime.
+        /// </summary>
+        private static HashSet<string> CollectAnimatedNames(RescueDefinition rescue)
+        {
+            var names = new HashSet<string>();
+
+            if (rescue.Environment != null)
+            {
+                foreach (var target in rescue.Environment.GetComponentsInChildren<AnimTarget>(true))
+                {
+                    names.Add(target.transform.parent != null ? target.transform.parent.name : target.name);
                 }
             }
 

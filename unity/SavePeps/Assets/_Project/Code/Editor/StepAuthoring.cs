@@ -21,6 +21,22 @@ namespace SavePeps.EditorTools
             Delta = delta, Amplitude = amplitude, Ease = ease, Scale = 1f,
         };
 
+        /// <summary>Rotates a target around authored local axes without inventing a new step kind.</summary>
+        public static OutcomeStep Rotate(float at, float dur, string target, Vector3 euler,
+            EaseKind ease = EaseKind.InOut) => new()
+        {
+            At = at, Duration = dur, Kind = StepKind.Fly, Target = target,
+            EulerDelta = euler, Ease = ease, Scale = 1f,
+        };
+
+        /// <summary>Scales a target from its identity rest pose.</summary>
+        public static OutcomeStep Resize(float at, float dur, string target, float scale,
+            EaseKind ease = EaseKind.Out) => new()
+        {
+            At = at, Duration = dur, Kind = StepKind.Fly, Target = target,
+            Scale = scale, Ease = ease,
+        };
+
         public static OutcomeStep Face(float at, string target, PepFace face) => new()
         {
             At = at, Kind = StepKind.Face, Target = target, Param = face.ToString(), Scale = 1f,

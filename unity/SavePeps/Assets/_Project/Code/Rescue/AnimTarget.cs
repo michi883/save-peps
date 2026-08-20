@@ -21,6 +21,9 @@ namespace SavePeps.Rescue
     {
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
+        [Tooltip("Off for effects such as a reflected beam that choreography reveals, then retry hides again.")]
+        [SerializeField] private bool _visibleAtRest = true;
+
         private Renderer[] _renderers;
         private MaterialPropertyBlock _block;
         private readonly List<float> _baseAlphas = new();
@@ -52,8 +55,24 @@ namespace SavePeps.Rescue
             _position = Vector3.zero;
             _euler = Vector3.zero;
             _scale = 1f;
-            _alpha = 1f;
+            _alpha = _visibleAtRest ? 1f : 0f;
             Apply();
+        }
+
+        /// <summary>
+        /// Sets whether this target exists visually before an outcome.
+        /// Generated dioramas use this for beams, glows and other effects
+        /// revealed by a normal <see cref="StepKind.Show"/> step. It belongs
+        /// to the target rather than to rescue code so retry stays exact.
+        /// </summary>
+        public void SetVisibleAtRest(bool visible)
+        {
+            _visibleAtRest = visible;
+            // Editor generators add the AnimTarget before parenting its
+            // renderers. A previous cache may therefore be legitimately
+            // empty when this authoring call arrives.
+            _renderers = null;
+            ResetToRest();
         }
 
         /// <summary>
@@ -67,7 +86,7 @@ namespace SavePeps.Rescue
             _position = Vector3.zero;
             _euler = Vector3.zero;
             _scale = 1f;
-            _alpha = 1f;
+            _alpha = _visibleAtRest ? 1f : 0f;
 
             for (var i = 0; i < moves.Count; i++)
             {

@@ -16,12 +16,14 @@ namespace SavePeps.Progression
     [CreateAssetMenu(menuName = "Peps/Catalog", fileName = "Catalog")]
     public sealed class Catalog : ScriptableObject
     {
+        public const int DefaultFreeRoundCount = 10;
+
         [Tooltip("Rounds in play order. Index 0 is round 1.")]
         public RoundDefinition[] Rounds = new RoundDefinition[0];
 
         [Tooltip("Rounds playable without a subscription. The brief says 10; keep it movable.")]
         [Min(1)]
-        public int FreeRoundCount = 10;
+        public int FreeRoundCount = DefaultFreeRoundCount;
 
         public int RoundCount => Rounds?.Length ?? 0;
 
@@ -60,12 +62,9 @@ namespace SavePeps.Progression
                 }
             }
 
-            if (Rounds.Length > 0 && Rounds.Length < FreeRoundCount)
-            {
-                Debug.LogWarning(
-                    $"[SavePeps] Catalog has {Rounds.Length} rounds but {FreeRoundCount} are meant to be free — " +
-                    "the paywall is currently unreachable.", this);
-            }
+            // FreeRoundCount may intentionally exceed RoundCount while the
+            // catalogue is still being authored. The product boundary stays
+            // at round 11; missing future free rounds are not premium content.
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using NUnit.Framework;
+using SavePeps.Core;
 using SavePeps.Progression;
 using SavePeps.Rescue;
 using UnityEngine;
@@ -51,13 +52,28 @@ namespace SavePeps.Tests
             var runner = Object.FindFirstObjectByType<RescueRunner>();
             var router = Object.FindFirstObjectByType<TapRouter>();
             var card = Object.FindFirstObjectByType<RoundCompleteCard>();
+            var menu = Object.FindFirstObjectByType<GameMenu>();
+            var gameFeel = Object.FindFirstObjectByType<GameFeel>();
 
             Assert.IsNotNull(flow, "The Game scene has no GameFlow.");
             Assert.IsNotNull(runner, "The Game scene has no RescueRunner.");
             Assert.IsNotNull(router, "The Game scene has no TapRouter.");
             Assert.IsNotNull(card, "The Game scene has no RoundCompleteCard.");
+            Assert.IsNotNull(menu, "The Game scene has no GameMenu.");
+            Assert.IsNotNull(gameFeel, "The Game scene has no shared GameFeel.");
+            foreach (var mesh in gameFeel.GetComponentsInChildren<MeshFilter>(includeInactive: true))
+            {
+                Assert.IsNotNull(mesh.sharedMesh, $"Celebration shape '{mesh.name}' has no built-in mesh.");
+            }
+            Assert.IsEmpty(gameFeel.GetComponentsInChildren<Collider>(includeInactive: true),
+                "Celebration FX should not create colliders that release stripping then rejects on Android.");
 
-            Assert.AreEqual(1, flow.CurrentRound, "A fresh save should start on round 1.");
+            Assert.AreEqual(0, flow.CurrentRound, "A fresh launch should wait on the home screen.");
+            Assert.IsTrue(menu.HomeVisible, "A fresh launch should show the home screen.");
+            Assert.IsNull(runner.Current, "No rescue should run under the home screen.");
+
+            flow.PlayRecommendedRound();
+            Assert.AreEqual(1, flow.CurrentRound, "Only round 1 is available on a fresh save.");
 
             var played = 0;
             for (var i = 0; i < RoundDefinition.RescuesPerRound; i++)
@@ -82,7 +98,7 @@ namespace SavePeps.Tests
                     $"{id} was solved on the first tap and should have earned a star.");
 
                 // Wait for the flow to stage the next rescue, or finish the round.
-                yield return WaitUntil(() => runner.Current == null || runner.Current.Id != id, 15f);
+                yield return WaitUntil(() => runner.Current == null || runner.Current.Id != id || CardVisible(card), 15f);
             }
 
             Assert.AreEqual(RoundDefinition.RescuesPerRound, played);
@@ -93,6 +109,11 @@ namespace SavePeps.Tests
             // The card is the visible end of the round.
             yield return WaitUntil(() => CardVisible(card), 8f);
             Assert.IsTrue(CardVisible(card), "The round-complete card never appeared.");
+
+            flow.KeepPlaying();
+            Assert.AreEqual(2, flow.CurrentRound,
+                "Keep playing should avoid the just-finished round when round 2 is available.");
+            Assert.AreEqual(2, flow.Save.LastPlayedRound);
         }
 
         [UnityTest]
@@ -104,9 +125,12 @@ namespace SavePeps.Tests
             var runner = Object.FindFirstObjectByType<RescueRunner>();
             var router = Object.FindFirstObjectByType<TapRouter>();
 
+            flow.PlayRecommendedRound();
+
             var rescue = runner.Current;
             Assert.IsNotNull(rescue);
             var id = rescue.Id;
+            yield return WaitUntil(() => router.InputEnabled, 5f);
 
             // Tap a wrong object, then retry and solve it.
             var wrong = System.Array.Find(rescue.Objects, o => o != null && !rescue.IsCorrect(o));
@@ -134,6 +158,45 @@ namespace SavePeps.Tests
             Assert.AreEqual(1, flow.Save.TotalRescuesSolved);
         }
 
+        [UnityTest]
+        public IEnumerator ChooseRoundUsesThePickerWithoutChangingProgression()
+        {
+            var save = SaveData.Fresh();
+            save.UnlockThrough(3);
+            Assert.IsTrue(SaveStore.Save(save));
+
+            yield return LoadGameScene();
+
+            var flow = Object.FindFirstObjectByType<GameFlow>();
+            var menu = Object.FindFirstObjectByType<GameMenu>();
+            var runner = Object.FindFirstObjectByType<RescueRunner>();
+            var router = Object.FindFirstObjectByType<TapRouter>();
+
+            flow.ShowRoundPickerFromHome();
+            yield return null;
+            Assert.IsTrue(menu.PickerVisible);
+            Assert.AreEqual(3, menu.Items.Count);
+
+            RoundPickerItem roundTwo = null;
+            foreach (var item in menu.Items)
+            {
+                if (item.RoundNumber == 2) roundTwo = item;
+            }
+
+            Assert.IsNotNull(roundTwo);
+            Assert.AreEqual(RoundAccess.Playable, roundTwo.AccessState);
+            roundTwo.Select();
+
+            Assert.AreEqual(2, flow.CurrentRound);
+            Assert.IsFalse(router.InputEnabled,
+                "The picker pointer-up must stay locked during the entrance instead of falling through.");
+            Assert.AreEqual(2, flow.Save.LastPlayedRound);
+            Assert.AreEqual(3, flow.Save.HighestUnlockedRound,
+                "Choosing a round must not alter the sequential unlock.");
+            Assert.IsNotNull(runner.Current);
+            Assert.AreEqual("r04", runner.Current.Id);
+        }
+
         // -------------------------------------------------------------------
 
         private static IEnumerator LoadGameScene()
@@ -142,7 +205,7 @@ namespace SavePeps.Tests
             // EditorSceneManager: this test is worth running on a device too,
             // and an editor-only load would rule that out.
             yield return SceneManager.LoadSceneAsync(SceneName, LoadSceneMode.Single);
-            // Two frames for Awake/Start to run and GameFlow to stage round 1.
+            // Two frames for Awake/Start to run and GameFlow to present home.
             yield return null;
             yield return null;
         }

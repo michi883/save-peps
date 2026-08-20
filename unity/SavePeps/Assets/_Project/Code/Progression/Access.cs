@@ -1,5 +1,13 @@
 namespace SavePeps.Progression
 {
+    public enum RoundAccess
+    {
+        Missing = 0,
+        Playable = 1,
+        ProgressLocked = 2,
+        SubscriptionLocked = 3,
+    }
+
     /// <summary>
     /// Whether a round can be played, as a pure function.
     ///
@@ -13,24 +21,29 @@ namespace SavePeps.Progression
     /// </summary>
     public static class Access
     {
-        public static bool CanPlay(Catalog catalog, int round, int highestUnlocked, bool subscribed)
+        /// <summary>
+        /// The one authoritative access state used by gameplay and the round
+        /// picker. Subscribers may choose any authored round immediately;
+        /// everyone else follows the free linear unlock and meets the
+        /// subscription gate only beyond <see cref="Catalog.FreeRoundCount"/>.
+        /// </summary>
+        public static RoundAccess State(Catalog catalog, int round, int highestUnlocked, bool subscribed)
         {
-            if (catalog == null || !catalog.Exists(round)) return false;
-            if (round > highestUnlocked) return false;
-            return !catalog.IsPaid(round) || subscribed;
+            if (catalog == null || !catalog.Exists(round)) return RoundAccess.Missing;
+            if (subscribed) return RoundAccess.Playable;
+            if (catalog.IsPaid(round)) return RoundAccess.SubscriptionLocked;
+            return round <= highestUnlocked ? RoundAccess.Playable : RoundAccess.ProgressLocked;
         }
 
+        public static bool CanPlay(Catalog catalog, int round, int highestUnlocked, bool subscribed)
+            => State(catalog, round, highestUnlocked, subscribed) == RoundAccess.Playable;
+
         /// <summary>
-        /// True when the *only* thing standing between the player and this
-        /// round is the subscription. Distinguishing this from "locked" is what
-        /// stops the paywall being shown for a round they simply have not
-        /// reached yet — a sales pitch at the wrong moment reads as a bug.
+        /// True when an authored premium round would become playable through
+        /// Peps Unlimited. This intentionally ignores sequential progress:
+        /// subscribers may enter any existing round immediately.
         /// </summary>
         public static bool IsPaywalled(Catalog catalog, int round, int highestUnlocked, bool subscribed) =>
-            catalog != null &&
-            catalog.Exists(round) &&
-            round <= highestUnlocked &&
-            catalog.IsPaid(round) &&
-            !subscribed;
+            State(catalog, round, highestUnlocked, subscribed) == RoundAccess.SubscriptionLocked;
     }
 }

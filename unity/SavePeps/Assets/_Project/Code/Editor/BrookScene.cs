@@ -20,7 +20,7 @@ namespace SavePeps.EditorTools
     /// disk and wires it in; it never writes content. Keeping that boundary
     /// sharp is what makes the scene safe to regenerate after a UI change now
     /// that rescues are authored in the inspector — see
-    /// <see cref="BrookRescues"/> for the content side.
+    /// <see cref="RoundOneRescues"/> for the content side.
     /// </summary>
     public static class BrookScene
     {
@@ -33,7 +33,7 @@ namespace SavePeps.EditorTools
             {
                 Debug.LogError(
                     $"[SavePeps] No catalogue at {ContentPaths.CatalogPath}. " +
-                    "Run Tools > Save Peps > Seed Round One Content first.");
+                    "Run Tools > Save Peps > Seed Content first.");
                 return;
             }
 
@@ -90,25 +90,43 @@ namespace SavePeps.EditorTools
             light.shadows = LightShadows.None;
             lightGo.transform.rotation = Quaternion.Euler(50f, -35f, 0f);
 
+            // A faint cool fill separates overlapping primitive silhouettes
+            // without realtime shadows or post-processing. The main light
+            // still owns the scene; this only prevents ink-side faces from
+            // collapsing into one flat colour on the phone.
+            var fillGo = new GameObject("Sky Fill");
+            var fill = fillGo.AddComponent<Light>();
+            fill.type = LightType.Directional;
+            fill.color = Hex("BCEAF5");
+            fill.intensity = 0.26f;
+            fill.shadows = LightShadows.None;
+            fillGo.transform.rotation = Quaternion.Euler(35f, 145f, 0f);
+
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
             RenderSettings.ambientSkyColor = Hex("B8E6F5");
             RenderSettings.ambientEquatorColor = Hex("F7F3E8");
             RenderSettings.ambientGroundColor = Hex("E8DCC8");
 
+            var homeDiorama = BuildHomeDiorama(out var homePepA, out var homePepB);
             var hud = BuildHud(out var hudComponent);
             BuildRoundCard(hud.transform, out var cardComponent);
+            BuildGameMenu(hud.transform, homeDiorama, homePepA, homePepB, out var menuComponent);
 
             var game = new GameObject("Game");
             var player = game.AddComponent<ChoreographyPlayer>();
             var router = game.AddComponent<TapRouter>();
             var feedback = game.AddComponent<Feedback>();
+            var gameFeel = game.AddComponent<GameFeel>();
             var runner = game.AddComponent<RescueRunner>();
 
             Wire(router, "_camera", cam);
+            Wire(gameFeel, "_camera", cam);
             Wire(runner, "_tapRouter", router);
             Wire(runner, "_player", player);
             Wire(runner, "_hud", hudComponent);
             Wire(runner, "_feedback", feedback);
+            Wire(runner, "_gameFeel", gameFeel);
+            Wire(menuComponent, "_feedback", feedback);
             // GameFlow owns sequencing now; the runner is handed one rescue
             // at a time rather than playing a fixed asset at boot.
             WireBool(runner, "_autoPlayOnStart", false);
@@ -124,6 +142,7 @@ namespace SavePeps.EditorTools
             Wire(flow, "_runner", runner);
             Wire(flow, "_hud", hudComponent);
             Wire(flow, "_card", cardComponent);
+            Wire(flow, "_menu", menuComponent);
             Wire(flow, "_entitlementSource", entitlements);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -236,6 +255,266 @@ namespace SavePeps.EditorTools
         }
 
         /// <summary>
+        /// A tiny reusable title tableau made from the same Peps and palette
+        /// as gameplay. It gives the home screen a character-led focal point
+        /// without creating a second scene or one-off title artwork.
+        /// </summary>
+        private static GameObject BuildHomeDiorama(out Pep pepA, out Pep pepB)
+        {
+            var root = new GameObject("HomeDiorama");
+            var earth = AssetDatabase.LoadAssetAtPath<Material>(
+                ContentPaths.Root + "/Art/Materials/M_Pal_Earth.mat");
+            var earthLight = AssetDatabase.LoadAssetAtPath<Material>(
+                ContentPaths.Root + "/Art/Materials/M_Pal_EarthLight.mat");
+            var foliage = AssetDatabase.LoadAssetAtPath<Material>(
+                ContentPaths.Root + "/Art/Materials/M_Pal_Foliage.mat");
+            var foliageLight = AssetDatabase.LoadAssetAtPath<Material>(
+                ContentPaths.Root + "/Art/Materials/M_Pal_FoliageLight.mat");
+            var coral = AssetDatabase.LoadAssetAtPath<Material>(
+                ContentPaths.Root + "/Art/Materials/M_Pal_PepA.mat");
+
+            WorldPrimitive("Base", root.transform, PrimitiveType.Cylinder,
+                new Vector3(0f, -0.18f, 0f), new Vector3(2.25f, 0.16f, 1.42f), earth);
+            WorldPrimitive("Top", root.transform, PrimitiveType.Cylinder,
+                new Vector3(0f, 0.02f, 0f), new Vector3(2.16f, 0.055f, 1.34f), earthLight);
+
+            // Sparse dressing frames the couple but never looks tappable.
+            WorldPrimitive("BushLeft", root.transform, PrimitiveType.Sphere,
+                new Vector3(-1.35f, 0.22f, 0.45f), new Vector3(0.42f, 0.28f, 0.34f), foliage);
+            WorldPrimitive("BushRight", root.transform, PrimitiveType.Sphere,
+                new Vector3(1.30f, 0.20f, 0.48f), new Vector3(0.36f, 0.25f, 0.31f), foliageLight);
+
+            var heart = new GameObject("Heart").transform;
+            heart.SetParent(root.transform, false);
+            heart.localPosition = new Vector3(0f, 0.95f, -0.02f);
+            var left = WorldPrimitive("Left", heart, PrimitiveType.Sphere,
+                new Vector3(-0.055f, 0.045f, 0f), new Vector3(0.13f, 0.13f, 0.08f), coral);
+            var right = WorldPrimitive("Right", heart, PrimitiveType.Sphere,
+                new Vector3(0.055f, 0.045f, 0f), new Vector3(0.13f, 0.13f, 0.08f), coral);
+            var point = WorldPrimitive("Point", heart, PrimitiveType.Cube,
+                new Vector3(0f, -0.045f, 0f), new Vector3(0.16f, 0.16f, 0.075f), coral);
+            point.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            _ = left;
+            _ = right;
+
+            var pepAAsset = AssetDatabase.LoadAssetAtPath<GameObject>(
+                ContentPaths.CharacterDir + "/Pep_A.prefab");
+            var pepBAsset = AssetDatabase.LoadAssetAtPath<GameObject>(
+                ContentPaths.CharacterDir + "/Pep_B.prefab");
+            var pepAGo = pepAAsset != null
+                ? PrefabUtility.InstantiatePrefab(pepAAsset, root.transform) as GameObject
+                : null;
+            var pepBGo = pepBAsset != null
+                ? PrefabUtility.InstantiatePrefab(pepBAsset, root.transform) as GameObject
+                : null;
+
+            pepA = pepAGo != null ? pepAGo.GetComponent<Pep>() : null;
+            pepB = pepBGo != null ? pepBGo.GetComponent<Pep>() : null;
+            if (pepAGo != null)
+            {
+                pepAGo.name = "HomePepA";
+                pepAGo.transform.localPosition = new Vector3(-0.43f, 0.14f, -0.05f);
+                pepAGo.transform.localRotation = Quaternion.Euler(0f, -10f, 0f);
+                pepAGo.transform.localScale = Vector3.one * 1.28f;
+            }
+            if (pepBGo != null)
+            {
+                pepBGo.name = "HomePepB";
+                pepBGo.transform.localPosition = new Vector3(0.43f, 0.14f, -0.05f);
+                pepBGo.transform.localRotation = Quaternion.Euler(0f, 10f, 0f);
+                pepBGo.transform.localScale = Vector3.one * 1.28f;
+            }
+
+            root.SetActive(false);
+            return root;
+        }
+
+        private static GameObject WorldPrimitive(string name, Transform parent, PrimitiveType type,
+            Vector3 position, Vector3 scale, Material material)
+        {
+            var go = GameObject.CreatePrimitive(type);
+            go.name = name;
+            go.layer = 2; // Ignore Raycast: title dressing is never a choice.
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = position;
+            go.transform.localScale = scale;
+            if (go.TryGetComponent<Collider>(out var collider)) Object.DestroyImmediate(collider);
+            if (material != null) go.GetComponent<Renderer>().sharedMaterial = material;
+            return go;
+        }
+
+        /// <summary>Builds the only two navigation surfaces in the game.</summary>
+        private static void BuildGameMenu(Transform canvas, GameObject homeDiorama, Pep homePepA, Pep homePepB,
+            out GameMenu menu)
+        {
+            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            var ink = Hex("3D3354");
+
+            var holder = new GameObject("Menu", typeof(RectTransform));
+            holder.transform.SetParent(canvas, false);
+            Stretch(holder.GetComponent<RectTransform>());
+
+            var home = new GameObject("Home", typeof(Image), typeof(CanvasGroup));
+            home.transform.SetParent(holder.transform, false);
+            Stretch(home.GetComponent<RectTransform>());
+            home.GetComponent<Image>().color = new Color(0.97f, 0.95f, 0.91f, 0.16f);
+
+            var title = Text(home.transform, "Title", font, 92, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 780f), new Vector2(940f, 130f));
+            title.text = "SAVE PEPS";
+            var subtitle = Text(home.transform, "Subtitle", font, 38, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 685f), new Vector2(940f, 70f));
+            subtitle.text = "Two Peps. One little predicament.";
+            subtitle.color = new Color(ink.r, ink.g, ink.b, 0.68f);
+
+            var playGo = new GameObject("Play", typeof(Image), typeof(Button));
+            playGo.transform.SetParent(home.transform, false);
+            var playRt = playGo.GetComponent<RectTransform>();
+            playRt.anchorMin = playRt.anchorMax = new Vector2(0.5f, 0.5f);
+            playRt.sizeDelta = new Vector2(620f, 144f);
+            playRt.anchoredPosition = new Vector2(0f, -590f);
+            StylePanel(playGo.GetComponent<Image>(), Hex("FFB53E"));
+            var playLabel = Text(playGo.transform, "Label", font, 54, ink,
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(590f, 120f));
+            playLabel.text = "PLAY";
+
+            var chooseGo = new GameObject("ChooseRound", typeof(Image), typeof(Button));
+            chooseGo.transform.SetParent(home.transform, false);
+            var chooseRt = chooseGo.GetComponent<RectTransform>();
+            chooseRt.anchorMin = chooseRt.anchorMax = new Vector2(0.5f, 0.5f);
+            chooseRt.sizeDelta = new Vector2(520f, 108f);
+            chooseRt.anchoredPosition = new Vector2(0f, -745f);
+            StylePanel(chooseGo.GetComponent<Image>(), new Color(0.97f, 0.95f, 0.91f, 0.92f));
+            var chooseLabel = Text(chooseGo.transform, "Label", font, 40, ink,
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(490f, 92f));
+            chooseLabel.text = "Choose round";
+
+            var picker = new GameObject("RoundPicker", typeof(Image), typeof(CanvasGroup));
+            picker.transform.SetParent(holder.transform, false);
+            Stretch(picker.GetComponent<RectTransform>());
+            picker.GetComponent<Image>().color = new Color(0.97f, 0.95f, 0.91f, 0.94f);
+
+            var pickerTitle = Text(picker.transform, "Title", font, 66, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 880f), new Vector2(940f, 100f));
+            pickerTitle.text = "Choose round";
+            var pickerSubtitle = Text(picker.transform, "Subtitle", font, 34, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 800f), new Vector2(940f, 60f));
+            pickerSubtitle.text = "Any available round, whenever you like.";
+            pickerSubtitle.color = new Color(ink.r, ink.g, ink.b, 0.62f);
+
+            var scrollGo = new GameObject("RoundScroll", typeof(RectTransform), typeof(Image), typeof(ScrollRect));
+            scrollGo.transform.SetParent(picker.transform, false);
+            var scrollRt = scrollGo.GetComponent<RectTransform>();
+            scrollRt.anchorMin = scrollRt.anchorMax = new Vector2(0.5f, 0.5f);
+            scrollRt.sizeDelta = new Vector2(940f, 1210f);
+            scrollRt.anchoredPosition = new Vector2(0f, -5f);
+            scrollGo.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.001f);
+
+            var viewport = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D));
+            viewport.transform.SetParent(scrollGo.transform, false);
+            Stretch(viewport.GetComponent<RectTransform>());
+
+            var content = new GameObject("Rounds", typeof(RectTransform), typeof(GridLayoutGroup));
+            content.transform.SetParent(viewport.transform, false);
+            var contentRt = content.GetComponent<RectTransform>();
+            contentRt.anchorMin = new Vector2(0f, 1f);
+            contentRt.anchorMax = new Vector2(1f, 1f);
+            contentRt.pivot = new Vector2(0.5f, 1f);
+            contentRt.sizeDelta = new Vector2(0f, 1210f);
+            contentRt.anchoredPosition = Vector2.zero;
+            var grid = content.GetComponent<GridLayoutGroup>();
+            grid.cellSize = new Vector2(430f, 172f);
+            grid.spacing = new Vector2(28f, 24f);
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = 2;
+            grid.childAlignment = TextAnchor.UpperCenter;
+
+            var scroll = scrollGo.GetComponent<ScrollRect>();
+            scroll.content = contentRt;
+            scroll.viewport = viewport.GetComponent<RectTransform>();
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.inertia = true;
+            scroll.decelerationRate = 0.12f;
+            scroll.scrollSensitivity = 28f;
+
+            var template = BuildRoundPickerItem(content.transform, font);
+
+            var backGo = new GameObject("Back", typeof(Image), typeof(Button));
+            backGo.transform.SetParent(picker.transform, false);
+            var backRt = backGo.GetComponent<RectTransform>();
+            backRt.anchorMin = backRt.anchorMax = new Vector2(0.5f, 0.5f);
+            backRt.sizeDelta = new Vector2(360f, 100f);
+            backRt.anchoredPosition = new Vector2(0f, -900f);
+            StylePanel(backGo.GetComponent<Image>(), new Color(1f, 1f, 1f, 0.38f));
+            var backLabel = Text(backGo.transform, "Label", font, 36, ink,
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(330f, 84f));
+            backLabel.text = "Back";
+
+            menu = holder.AddComponent<GameMenu>();
+            Wire(menu, "_homeRoot", home);
+            Wire(menu, "_playButton", playGo.GetComponent<Button>());
+            Wire(menu, "_chooseButton", chooseGo.GetComponent<Button>());
+            Wire(menu, "_homeDiorama", homeDiorama);
+            Wire(menu, "_homePepA", homePepA);
+            Wire(menu, "_homePepB", homePepB);
+            Wire(menu, "_pickerRoot", picker);
+            Wire(menu, "_pickerContent", content.transform);
+            Wire(menu, "_itemTemplate", template);
+            Wire(menu, "_backButton", backGo.GetComponent<Button>());
+
+            home.SetActive(false);
+            picker.SetActive(false);
+        }
+
+        private static RoundPickerItem BuildRoundPickerItem(Transform parent, Font font)
+        {
+            var ink = Hex("3D3354");
+            var itemGo = new GameObject("RoundTemplate", typeof(Image), typeof(Button));
+            itemGo.transform.SetParent(parent, false);
+            StylePanel(itemGo.GetComponent<Image>(), Hex("F7F3E8"));
+
+            var roundLabel = Text(itemGo.transform, "Round", font, 38, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 40f), new Vector2(390f, 54f));
+            roundLabel.text = "ROUND 1";
+            var statusLabel = Text(itemGo.transform, "Status", font, 25, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, -9f), new Vector2(390f, 42f));
+            statusLabel.text = "NEW";
+            statusLabel.color = new Color(ink.r, ink.g, ink.b, 0.62f);
+
+            var dots = new Image[RoundDefinition.RescuesPerRound];
+            for (var i = 0; i < dots.Length; i++)
+            {
+                var dotGo = new GameObject($"Dot_{i}", typeof(Image));
+                dotGo.transform.SetParent(itemGo.transform, false);
+                var rt = dotGo.GetComponent<RectTransform>();
+                rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+                rt.sizeDelta = new Vector2(20f, 20f);
+                rt.anchoredPosition = new Vector2((i - 1) * 36f, -57f);
+                dots[i] = dotGo.GetComponent<Image>();
+                dots[i].sprite = Circle();
+            }
+
+            var item = itemGo.AddComponent<RoundPickerItem>();
+            Wire(item, "_button", itemGo.GetComponent<Button>());
+            Wire(item, "_panel", itemGo.GetComponent<Image>());
+            Wire(item, "_roundLabel", roundLabel);
+            Wire(item, "_statusLabel", statusLabel);
+
+            var so = new SerializedObject(item);
+            var dotsProp = so.FindProperty("_dots");
+            dotsProp.arraySize = dots.Length;
+            for (var i = 0; i < dots.Length; i++)
+            {
+                dotsProp.GetArrayElementAtIndex(i).objectReferenceValue = dots[i];
+            }
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            itemGo.SetActive(false);
+            return item;
+        }
+
+        /// <summary>
         /// The round-complete card. It sits inside the same canvas as the HUD
         /// and covers it, because it is a beat rather than a screen — the
         /// player should feel the round land and then be back in a diorama,
@@ -291,13 +570,13 @@ namespace SavePeps.EditorTools
             continueRt.anchorMin = continueRt.anchorMax = new Vector2(0.5f, 0.5f);
             continueRt.sizeDelta = new Vector2(520f, 124f);
             continueRt.anchoredPosition = new Vector2(0f, -60f);
-            continueGo.GetComponent<Image>().color = Hex("FFB53E");
+            StylePanel(continueGo.GetComponent<Image>(), Hex("FFB53E"));
             var continueLabel = Text(continueGo.transform, "Label", font, 46, ink,
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(500f, 110f));
-            continueLabel.text = "Continue";
+            continueLabel.text = "Keep playing";
 
-            // Replay is a link, not a button: it is the rarer intent and
-            // should not compete with Continue for the thumb.
+            // Direct round choice is a link, not a button: it is the rarer
+            // intent and should not compete with Keep playing for the thumb.
             var replayGo = new GameObject("Replay", typeof(Image), typeof(Button));
             replayGo.transform.SetParent(root.transform, false);
             var replayRt = replayGo.GetComponent<RectTransform>();
@@ -307,7 +586,7 @@ namespace SavePeps.EditorTools
             replayGo.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
             var replayLabel = Text(replayGo.transform, "Label", font, 36, ink,
                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(400f, 90f));
-            replayLabel.text = "Replay round";
+            replayLabel.text = "Choose round";
             replayLabel.color = new Color(ink.r, ink.g, ink.b, 0.6f);
 
             card = holder.AddComponent<RoundCompleteCard>();
@@ -317,6 +596,7 @@ namespace SavePeps.EditorTools
             Wire(card, "_continueButton", continueGo.GetComponent<Button>());
             Wire(card, "_continueLabel", continueLabel);
             Wire(card, "_replayButton", replayGo.GetComponent<Button>());
+            Wire(card, "_replayLabel", replayLabel);
 
             var so = new SerializedObject(card);
             var dotsProp = so.FindProperty("_dots");
@@ -357,6 +637,17 @@ namespace SavePeps.EditorTools
         /// </summary>
         private static Sprite Circle() =>
             UnityEditor.AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
+
+        private static Sprite PanelSprite() =>
+            UnityEditor.AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+
+        private static void StylePanel(Image image, Color color)
+        {
+            if (image == null) return;
+            image.sprite = PanelSprite();
+            image.type = Image.Type.Sliced;
+            image.color = color;
+        }
 
         private static void Stretch(RectTransform rt)
         {

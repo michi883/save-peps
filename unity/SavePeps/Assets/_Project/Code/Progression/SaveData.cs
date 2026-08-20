@@ -41,6 +41,8 @@ namespace SavePeps.Progression
         public const int CurrentSchemaVersion = 1;
 
         public int HighestUnlockedRound = 1;
+        /// <summary>Used only to keep random Play from immediately repeating itself.</summary>
+        public int LastPlayedRound;
         public int TotalRescuesSolved;
         public bool SoundMuted;
         public bool HapticsOff;
@@ -117,6 +119,7 @@ namespace SavePeps.Progression
             }
 
             if (HighestUnlockedRound < 1) HighestUnlockedRound = 1;
+            if (LastPlayedRound < 0) LastPlayedRound = 0;
             if (TotalRescuesSolved < 0) TotalRescuesSolved = 0;
         }
     }

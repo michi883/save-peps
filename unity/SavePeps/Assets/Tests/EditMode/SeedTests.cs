@@ -18,13 +18,13 @@ namespace SavePeps.Tests
     /// </summary>
     public sealed class SeedTests
     {
-        private const string DamPath = ContentPaths.RescueDir + "/r02_dam.asset";
+        private const string WakePath = ContentPaths.RescueDir + "/r02_wake.asset";
 
         [Test]
         public void SeedingKeepsInspectorEditsToARescue()
         {
-            var rescue = AssetDatabase.LoadAssetAtPath<RescueDefinition>(DamPath);
-            Assert.IsNotNull(rescue, $"No rescue at {DamPath}.");
+            var rescue = AssetDatabase.LoadAssetAtPath<RescueDefinition>(WakePath);
+            Assert.IsNotNull(rescue, $"No rescue at {WakePath}.");
 
             var originalGoal = rescue.Goal;
             var originalDuration = rescue.Objects[0].Duration;
@@ -36,9 +36,9 @@ namespace SavePeps.Tests
                 EditorUtility.SetDirty(rescue);
                 AssetDatabase.SaveAssets();
 
-                BrookRescues.Seed(overwrite: false);
+                ContentSeeder.Seed(overwrite: false);
 
-                var after = AssetDatabase.LoadAssetAtPath<RescueDefinition>(DamPath);
+                var after = AssetDatabase.LoadAssetAtPath<RescueDefinition>(WakePath);
                 Assert.AreEqual("Seed hazard sentinel.", after.Goal,
                     "Seeding overwrote an authored goal.");
                 Assert.AreEqual(3.05f, after.Objects[0].Duration, 0.0001f,
@@ -68,7 +68,7 @@ namespace SavePeps.Tests
                 EditorUtility.SetDirty(catalog);
                 AssetDatabase.SaveAssets();
 
-                BrookRescues.Seed(overwrite: false);
+                ContentSeeder.Seed(overwrite: false);
 
                 Assert.AreEqual(7, AssetDatabase.LoadAssetAtPath<Catalog>(ContentPaths.CatalogPath).FreeRoundCount,
                     "Seeding reset FreeRoundCount — the paywall would move without anyone noticing.");
@@ -84,8 +84,8 @@ namespace SavePeps.Tests
         [Test]
         public void SeedingAnAlreadySeededProjectWritesNothing()
         {
-            var log = new BrookRescues.SeedLog();
-            BrookRescues.Seed(overwrite: false, log);
+            var log = new ContentSeeder.SeedLog();
+            ContentSeeder.Seed(overwrite: false, log);
 
             Assert.IsEmpty(log.Written,
                 "Seeding is meant to be idempotent once the content exists; it wrote " +

@@ -12,6 +12,8 @@ A fixed-camera toy diorama shows two Peps separated by something small and silly
 
 A **round is 3 rescues**. Solve one on the first tap and it earns a ★, after a retry a ✓. Rounds 1–10 are free; **Peps Unlimited** unlocks the rest.
 
+The shell stays deliberately small: **Play** chooses a useful available round without immediately repeating the last one, while **Choose round** offers direct control. Finishing a round returns to **Keep playing** rather than forcing a strictly linear next button.
+
 ## Repo layout
 
 ```

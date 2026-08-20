@@ -7,7 +7,7 @@ namespace SavePeps.Progression
 {
     /// <summary>
     /// The one interstitial in the game: three dots resolving into their
-    /// marks, "Round 4 complete", Continue, and a quiet Replay link.
+    /// marks, "Round 4 complete", Keep playing, and a quiet round-picker link.
     ///
     /// PLAN §8 rules out a level select and a round map, which leaves this
     /// card carrying the whole of progression feedback. It stays deliberately
@@ -24,6 +24,7 @@ namespace SavePeps.Progression
         [SerializeField] private Button _continueButton;
         [SerializeField] private Text _continueLabel;
         [SerializeField] private Button _replayButton;
+        [SerializeField] private Text _replayLabel;
 
         private Action _onContinue;
         private Action _onReplay;
@@ -35,10 +36,10 @@ namespace SavePeps.Progression
             Hide();
         }
 
-        public void Show(int roundNumber, Mark[] marks, Action onContinue, Action onReplay)
+        public void Show(int roundNumber, Mark[] marks, Action onKeepPlaying, Action onChooseRound)
         {
-            _onContinue = onContinue;
-            _onReplay = onReplay;
+            _onContinue = onKeepPlaying;
+            _onReplay = onChooseRound;
 
             if (_title != null) _title.text = $"Round {roundNumber} complete";
 
@@ -65,10 +66,7 @@ namespace SavePeps.Progression
 
             PaintDots(marks);
 
-            if (_continueLabel != null) _continueLabel.text = "Continue";
-            if (_replayButton != null) _replayButton.gameObject.SetActive(true);
-            if (_continueButton != null) _continueButton.gameObject.SetActive(true);
-
+            SetActions("Keep playing", "Choose round");
             SetVisible(true);
         }
 
@@ -78,10 +76,10 @@ namespace SavePeps.Progression
         /// catches up with the content, so it gets an honest screen rather
         /// than a silent dead end.
         /// </summary>
-        public void ShowOutOfContent()
+        public void ShowOutOfContent(Action onKeepPlaying, Action onChooseRound)
         {
-            _onContinue = null;
-            _onReplay = null;
+            _onContinue = onKeepPlaying;
+            _onReplay = onChooseRound;
 
             if (_title != null) _title.text = "That is everything, for now.";
             if (_subtitle != null) _subtitle.text = "New rounds are on the way.";
@@ -93,10 +91,21 @@ namespace SavePeps.Progression
                 if (dot != null) dot.gameObject.SetActive(false);
             }
 
-            if (_continueButton != null) _continueButton.gameObject.SetActive(false);
-            if (_replayButton != null) _replayButton.gameObject.SetActive(false);
-
+            // Both ways out stay live. This screen used to hide its buttons,
+            // which left the player with nothing to tap and no way back into
+            // the game short of killing the app — a dead end reachable by
+            // anybody who finishes the last authored round.
+            SetActions("Keep playing", "Choose round");
             SetVisible(true);
+        }
+
+        /// <summary>Labels and re-enables both buttons.</summary>
+        private void SetActions(string continueText, string replayText)
+        {
+            if (_continueLabel != null) _continueLabel.text = continueText;
+            if (_replayLabel != null) _replayLabel.text = replayText;
+            if (_continueButton != null) _continueButton.gameObject.SetActive(true);
+            if (_replayButton != null) _replayButton.gameObject.SetActive(true);
         }
 
         public void Hide() => SetVisible(false);
