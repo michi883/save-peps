@@ -185,7 +185,7 @@ namespace SavePeps.Tests
             flow.ShowRoundPickerFromHome();
             yield return null;
             Assert.IsTrue(menu.PickerVisible);
-            Assert.AreEqual(3, menu.Items.Count);
+            Assert.AreEqual(flow.Catalog.Rounds.Length, menu.Items.Count);
 
             RoundPickerItem roundTwo = null;
             foreach (var item in menu.Items)

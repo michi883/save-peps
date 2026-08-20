@@ -91,6 +91,15 @@ namespace SavePeps.EditorTools
                 RoundOneRescues.SeedRound(overwrite, log),
                 RoundTwoRescues.SeedRound(overwrite, log),
                 RoundThreeRescues.SeedRound(overwrite, log),
+                RoundFourRescues.SeedRound(overwrite, log),
+                RoundFiveRescues.SeedRound(overwrite, log),
+                RoundSixRescues.SeedRound(overwrite, log),
+                RoundSevenRescues.SeedRound(overwrite, log),
+                RoundEightRescues.SeedRound(overwrite, log),
+                RoundNineRescues.SeedRound(overwrite, log),
+                RoundTenRescues.SeedRound(overwrite, log),
+                RoundElevenRescues.SeedRound(overwrite, log),
+                RoundTwelveRescues.SeedRound(overwrite, log),
             };
 
             var catalog = EnsureCatalog(rounds, overwrite, log);

@@ -8,7 +8,7 @@ Operating notes for coding agents. **This is the "how", not the "what"** — [`P
 
 ### Current phase
 
-As of **20 Aug 2026**, the repository contains **3 rounds / 9 rescues** and the complete mobile loop has passed its P2 polish pass. The interaction contract is now frozen in [`docs/core-ux.md`](docs/core-ux.md). The default next move is the **content sprint toward 12 rounds / 36 rescues**, or work that unblocks the Play release—not another core-loop redesign. Reopen the frozen UX only for a demonstrated device regression, accessibility issue, or release blocker.
+As of **20 Aug 2026**, the repository contains **12 rounds / 36 rescues**, completing the full target catalogue from PLAN.md across standard and extreme environments (deep ocean, space, factory, neon city). The complete mobile loop has passed its P2 polish pass plus the shell-and-feedback pass (pause sheet, progress shelf, inline sound/haptics settings, Android Back routing, and shared `UIPop`/`ToyButton` motion). Both are frozen in [`docs/core-ux.md`](docs/core-ux.md). The default next move is **Android APK/AAB build and Google Play closed testing track release**. Reopen the frozen UX only for a demonstrated device regression, accessibility issue, or release blocker.
 
 Keep this snapshot current when the catalogue or phase changes. A stale status paragraph wastes every future agent's first inspection.
 
@@ -32,7 +32,7 @@ Do not read the whole repository by default. Start with `git status --short`, lo
 | Documentation only | Review the rendered links/commands and run `git diff --check`; no Unity run. |
 | Rescue/round data only | Run `ContentValidator.ValidateFromMenu`; run EditMode tests when catalogue ordering, progression, or validator behaviour is involved. Preview all three outcomes before calling visual content done. |
 | Runtime or editor C# | Compile first, then the smallest relevant test suite. Use both suites for sequencing, save, progression, scene, or shared feedback changes. |
-| `BrookScene` / HUD / navigation | Rebuild `Game.unity`, run EditMode + PlayMode, then exercise the affected path on Pixel 4. |
+| `BrookScene` / HUD / navigation / shell | Rebuild `Game.unity`, run EditMode + PlayMode, then exercise the affected path on Pixel 4. Colour and tint problems are invisible in the editor — sample the screenshot's pixels rather than trusting your eye. |
 | Diorama, prop, material, choreography | Validate, preview every affected outcome, then inspect it on Pixel 4. Editor framing is not acceptance. |
 | Android, signing, monetization, release | Full compile + EditMode + PlayMode + APK/device pass; follow [`docs/release.md`](docs/release.md) for the AAB/track steps. |
 
@@ -184,7 +184,9 @@ Break these and things fail silently rather than loudly.
 - **One definition of the paywall.** `Access.CanPlay` is a pure function and the only gate. `GameFlow` delegates to it. Do not restate the rule anywhere.
 - **Entitlement is never persisted.** RevenueCat's `CustomerInfo` is the only source of truth. Writing "is subscribed" into `save.json` is both wrong and trivially defeated.
 - **Assembly definitions exist.** `SavePeps.Runtime`, `SavePeps.Editor` (Editor-only, never ships), and the two test assemblies. EditMode tests cannot reference `Assembly-CSharp`, which is why the asmdefs are not optional.
-- **The frozen loop has one shared implementation.** Retry timing, reunion, mastery marks, HUD, round completion, and Keep playing are shared paths documented in `docs/core-ux.md`. Content may configure outcomes and quips; it must not fork those systems per rescue.
+- **The frozen loop has one shared implementation.** Retry timing, reunion, mastery marks, HUD, round completion, Keep playing, and the pause/progress shell are shared paths documented in `docs/core-ux.md`. Content may configure outcomes and quips; it must not fork those systems per rescue.
+- **UI motion comes from `UIPop` and `ToyButton`.** Both run on unscaled time and on the same `Easing` curves as choreography, so the shell and the diorama move in one language. A new panel that hand-rolls its own fade is how the interface drifted back into looking like a form last time.
+- **Nothing suspends time.** Pause declines to open mid-outcome (`RescueRunner.AwaitingChoice`) rather than freezing one. The retry beat runs on unscaled time deliberately, so a `Time.timeScale` pause would not stop it anyway.
 
 ---
 
@@ -230,6 +232,12 @@ $ADB shell input tap 540 1730    # Play on home
 $ADB shell input tap 540 1888    # Choose round on home
 $ADB shell input tap 280 610     # Round 1 in the picker
 $ADB shell input tap 540 1320    # Keep playing on round card
+$ADB shell input tap 539 2018    # the earned-line chip on home, opens Progress
+$ADB shell input tap 956 104     # pause control, top-right of the HUD
+$ADB shell input tap 540 1582    # Resume on the pause sheet
+$ADB shell input tap 540 1736    # Progress on the pause sheet
+$ADB shell input tap 334 2140    # Sound toggle       (Buzz is at x=746)
+$ADB shell input keyevent 4      # Android Back
 ```
 
 Screen is 1080×2280; those coordinates are for that resolution. Object coordinates are environment-specific—`Slot_1` is not guaranteed to occupy the same screen position in every diorama. Confirm every choice landed with `grep 'Tapped'` on logcat before trusting a screenshot. Wrong answers now reset automatically after the gag and quip; wait for `[SavePeps] Retry ready.` rather than tapping a retry button. Also note that **a human holding the phone will be tapping**, which silently invalidates a scripted run.
@@ -258,6 +266,8 @@ Every one of these was found the hard way.
 - **`IReadOnlySet<T>` is not available** at this project's language level. Use `HashSet<T>`.
 - **`BuildReport.summary.totalSize` is not the artifact size** — it read 283 MB for an 18 MB APK. Stat the file.
 - **Unsigned local builds flip `androidUseCustomKeystore` to 0** in `ProjectSettings.asset`. That is incidental churn from building without the signing env vars; do not commit it.
+- **uGUI bakes its disabled tint into the CanvasRenderer, and turning the transition off afterwards does not undo it.** A panel activated while its CanvasGroup is still non-interactable gets `Selectable` multiplying its graphic by (0.78, 0.78, 0.78, 0.5) — gold renders as mud, and the Image colour in the inspector still says gold. Buttons in the shell are built with an identity `ColorBlock` (`BrookScene.NeutraliseTint`) so the ordering question cannot arise; `ToyButton` also clears it at runtime for instantiated templates. It was found by sampling pixels out of a device screenshot, which is the only place it is visible.
+- **Do not restore a rest pose you have not captured yet.** `GameFlow.Awake` calls `Hide()` on the menu and pause overlays, and Unity gives no ordering guarantee between two components' `Awake` methods. A `Hide()` that runs first will write default zeroes over an authored transform, and the scene file and the running game then disagree with each other. Both components capture lazily (`CaptureRest`) for exactly this reason; the symptom was a home-screen heart pinned to the tabletop no matter what `BrookScene` said.
 - **A wrong tap keeps input disabled through the gag and quip beat.** The automatic reset returns input after 1.1 s of quip reading time plus its 0.16 s exit; wait for `[SavePeps] Retry ready.` before sending the next synthetic tap.
 
 ---

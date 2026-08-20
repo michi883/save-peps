@@ -49,6 +49,29 @@ namespace SavePeps.Rescue
         /// <summary>The rescue currently staged, or null between rescues.</summary>
         public RescueDefinition Current => _rescue;
 
+        /// <summary>
+        /// True while a staged rescue is simply waiting for the player's tap.
+        ///
+        /// The shell uses this to decide whether the pause control is live.
+        /// Suspending the game between taps costs nothing; suspending it
+        /// halfway through a two-second gag would mean freezing a running
+        /// choreography, and the retry beat deliberately runs on unscaled time
+        /// so that a global time freeze would not stop it anyway.
+        /// </summary>
+        public bool AwaitingChoice =>
+            _rescue != null && !_solved && _tapped == null &&
+            _tapRouter != null && _tapRouter.InputEnabled;
+
+        /// <summary>
+        /// Holds tap input while a shell overlay is open, and hands it back on
+        /// close. Only ever called from a state where <see cref="AwaitingChoice"/>
+        /// was true, so restoring input is always the correct thing to do.
+        /// </summary>
+        public void SuspendInput(bool suspended)
+        {
+            if (_tapRouter != null) _tapRouter.InputEnabled = !suspended;
+        }
+
         private void Awake()
         {
             if (_player != null) _player.OnEvent += HandleEvent;

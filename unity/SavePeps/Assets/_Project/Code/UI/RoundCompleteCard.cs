@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using SavePeps.Core;
-using SavePeps.Rescue;
 using SavePeps.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -101,7 +100,11 @@ namespace SavePeps.Progression
                 _group.interactable = false;
                 _group.blocksRaycasts = false;
             }
-            if (_panel != null) _panel.localScale = Vector3.one;
+            if (_panel != null)
+            {
+                _panel.localScale = Vector3.one;
+                _panel.localRotation = Quaternion.identity;
+            }
             SetVisible(false);
         }
 
@@ -147,24 +150,9 @@ namespace SavePeps.Progression
 
         private IEnumerator RevealRoutine()
         {
-            if (_group != null)
-            {
-                _group.alpha = 0f;
-                _group.interactable = false;
-                _group.blocksRaycasts = true;
-            }
-            if (_panel != null) _panel.localScale = Vector3.one * 0.94f;
-
-            var elapsed = 0f;
-            const float duration = 0.22f;
-            while (elapsed < duration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                var t = Easing.Evaluate(EaseKind.Out, Mathf.Clamp01(elapsed / duration));
-                if (_group != null) _group.alpha = t;
-                if (_panel != null) _panel.localScale = Vector3.one * Mathf.Lerp(0.94f, 1f, t);
-                yield return null;
-            }
+            // The card is a toy landing on the table, not a dialog opening:
+            // it arrives slightly turned and overshoots before it settles.
+            yield return UIPop.In(_panel, _group, 0.26f, 0.86f, -3f);
 
             foreach (var mark in _marks ?? Array.Empty<MasteryMarkGraphic>())
             {
@@ -203,16 +191,7 @@ namespace SavePeps.Progression
             if (_replayButton != null) _replayButton.interactable = false;
             if (_group != null) _group.interactable = false;
 
-            var elapsed = 0f;
-            const float duration = 0.14f;
-            while (elapsed < duration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                var t = Easing.Evaluate(EaseKind.In, Mathf.Clamp01(elapsed / duration));
-                if (_group != null) _group.alpha = 1f - t;
-                if (_panel != null) _panel.localScale = Vector3.one * Mathf.Lerp(1f, 0.98f, t);
-                yield return null;
-            }
+            yield return UIPop.Out(_panel, _group, 0.14f, 0.94f);
 
             SetVisible(false);
             action?.Invoke();

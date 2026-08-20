@@ -97,6 +97,11 @@ namespace SavePeps.EditorTools
             var thaw = BuildThawDiorama(mats);
             var grow = BuildGrowDiorama(mats);
             var rain = BuildRainDiorama(mats);
+            var canyon = BuildCanyonDiorama(mats);
+            var ocean = BuildOceanDiorama(mats);
+            var space = BuildSpaceDiorama(mats);
+            var factory = BuildFactoryDiorama(mats);
+            var neon = BuildNeonDiorama(mats);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -106,7 +111,7 @@ namespace SavePeps.EditorTools
                       $"{stone.name}, {leaf.name}, {umbrella.name}, {rope.name}, {bell.name}, " +
                       $"{pillow.name}, {scissors.name}, {wateringCan.name}, {bone.name}, {mirror.name}, {hairDryer.name}, " +
                       $"{diorama.name}, {wake.name}, {vines.name}, {guard.name}, {lift.name}, {beam.name}, " +
-                      $"{thaw.name}, {grow.name}, {rain.name}.");
+                      $"{thaw.name}, {grow.name}, {rain.name}, {canyon.name}, {ocean.name}, {space.name}, {factory.name}, {neon.name}.");
         }
 
         // -------------------------------------------------------------------
@@ -1667,6 +1672,198 @@ namespace SavePeps.EditorTools
         }
 
         // -------------------------------------------------------------------
+        // Deep Ocean Trench Diorama (Round 9)
+        // -------------------------------------------------------------------
+
+        private static GameObject BuildOceanDiorama(IReadOnlyDictionary<string, Material> mats)
+        {
+            var root = new GameObject("Diorama_Ocean");
+
+            var slab = Primitive(PrimitiveType.Cube, "Platform", root.transform, mats["Night"]);
+            slab.transform.localPosition = new Vector3(0f, -0.16f, 0f);
+            slab.transform.localScale = new Vector3(1.5f, 0.32f, 3.4f);
+
+            var reefNear = Primitive(PrimitiveType.Cube, "Reef_Near", root.transform, mats["WaterLight"]);
+            reefNear.transform.localPosition = new Vector3(0f, 0.075f, -1.05f);
+            reefNear.transform.localScale = new Vector3(1.35f, 0.15f, 1.24f);
+
+            var reefFar = Primitive(PrimitiveType.Cube, "Reef_Far", root.transform, mats["Water"]);
+            reefFar.transform.localPosition = new Vector3(0f, 0.075f, 1.05f);
+            reefFar.transform.localScale = new Vector3(1.35f, 0.15f, 1.24f);
+
+            var abyss = Primitive(PrimitiveType.Cube, "AbyssTrench", root.transform, mats["Night"]);
+            abyss.transform.localPosition = new Vector3(0f, -0.01f, 0f);
+            abyss.transform.localScale = new Vector3(1.35f, 0.05f, 0.8f);
+
+            // Bioluminescent sea creature / anemone
+            var anemone = Mover(root.transform, "Anemone");
+            var body = Primitive(PrimitiveType.Sphere, "Body", anemone, mats["PepA"]);
+            body.transform.localPosition = new Vector3(0.48f, 0.22f, 0.15f);
+            body.transform.localScale = new Vector3(0.24f, 0.28f, 0.24f);
+            var lure = Primitive(PrimitiveType.Sphere, "Lure", anemone, mats["AccentLight"]);
+            lure.transform.localPosition = new Vector3(0.48f, 0.44f, 0.24f);
+            lure.transform.localScale = Vector3.one * 0.08f;
+
+            // Kelp barrier gate
+            var reefGate = Mover(root.transform, "ReefGate");
+            foreach (var (x, h) in new[] { (-0.3f, 0.35f), (-0.1f, 0.42f), (0.1f, 0.38f), (0.3f, 0.32f) })
+            {
+                var kelp = Primitive(PrimitiveType.Cylinder, "KelpStalk", reefGate, mats["FoliageDark"]);
+                kelp.transform.localPosition = new Vector3(x, 0.18f + h * 0.5f, 0f);
+                kelp.transform.localScale = new Vector3(0.04f, h * 0.5f, 0.04f);
+            }
+
+            Anchor(root.transform, "Anchor_PepA", new Vector3(0f, 0.15f, -0.62f));
+            Anchor(root.transform, "Anchor_PepB", new Vector3(0f, 0.15f, 0.62f));
+            Anchor(root.transform, "Anchor_Meet", new Vector3(0f, 0.15f, 0.5f));
+
+            Anchor(root.transform, "Slot_1", new Vector3(-0.42f, 0.15f, -1.25f));
+            Anchor(root.transform, "Slot_2", new Vector3(0.45f, 0.15f, -1.35f));
+            Anchor(root.transform, "Slot_3", new Vector3(-0.45f, 0.15f, 1.3f));
+
+            FinishDiorama(root, mats, DioramaMood.Ocean);
+            return SavePrefab(root, $"{EnvDir}/Diorama_Ocean.prefab");
+        }
+
+        // -------------------------------------------------------------------
+        // Space / Orbital Station Diorama (Round 10 - Grand Free Climax)
+        // -------------------------------------------------------------------
+
+        private static GameObject BuildSpaceDiorama(IReadOnlyDictionary<string, Material> mats)
+        {
+            var root = new GameObject("Diorama_Space");
+
+            var slab = Primitive(PrimitiveType.Cube, "Platform", root.transform, mats["Stone"]);
+            slab.transform.localPosition = new Vector3(0f, -0.16f, 0f);
+            slab.transform.localScale = new Vector3(1.5f, 0.32f, 3.4f);
+
+            var stationDeck = Primitive(PrimitiveType.Cube, "StationDeck", root.transform, mats["StoneLight"]);
+            stationDeck.transform.localPosition = new Vector3(0f, 0.075f, 0f);
+            stationDeck.transform.localScale = new Vector3(1.35f, 0.15f, 3.15f);
+
+            var vacuumChasm = Primitive(PrimitiveType.Cube, "SpaceVoid", root.transform, mats["Ink"]);
+            vacuumChasm.transform.localPosition = new Vector3(0f, -0.01f, 0f);
+            vacuumChasm.transform.localScale = new Vector3(1.35f, 0.05f, 0.72f);
+
+            // Orbital airlock hatch / door
+            var airlock = Mover(root.transform, "AirlockHatch");
+            var door = Primitive(PrimitiveType.Cube, "Door", airlock, mats["Accent"]);
+            door.transform.localPosition = new Vector3(0f, 0.32f, 0.02f);
+            door.transform.localScale = new Vector3(0.48f, 0.34f, 0.08f);
+
+            // Solar array wing
+            var solarWing = Mover(root.transform, "SolarWing");
+            var panel = Primitive(PrimitiveType.Cube, "Panel", solarWing, mats["Water"]);
+            panel.transform.localPosition = new Vector3(0.55f, 0.38f, 0.85f);
+            panel.transform.localScale = new Vector3(0.38f, 0.02f, 0.65f);
+
+            Anchor(root.transform, "Anchor_PepA", new Vector3(0f, 0.15f, -0.62f));
+            Anchor(root.transform, "Anchor_PepB", new Vector3(0f, 0.15f, 0.62f));
+            Anchor(root.transform, "Anchor_Meet", new Vector3(0f, 0.15f, 0.5f));
+
+            Anchor(root.transform, "Slot_1", new Vector3(-0.42f, 0.15f, -1.25f));
+            Anchor(root.transform, "Slot_2", new Vector3(0.45f, 0.15f, -1.35f));
+            Anchor(root.transform, "Slot_3", new Vector3(-0.45f, 0.15f, 1.3f));
+
+            FinishDiorama(root, mats, DioramaMood.Space);
+            return SavePrefab(root, $"{EnvDir}/Diorama_Space.prefab");
+        }
+
+        // -------------------------------------------------------------------
+        // Automated Foundry / Factory Diorama (Round 11 - Peps Unlimited Climax)
+        // -------------------------------------------------------------------
+
+        private static GameObject BuildFactoryDiorama(IReadOnlyDictionary<string, Material> mats)
+        {
+            var root = new GameObject("Diorama_Factory");
+
+            var slab = Primitive(PrimitiveType.Cube, "Platform", root.transform, mats["Stone"]);
+            slab.transform.localPosition = new Vector3(0f, -0.16f, 0f);
+            slab.transform.localScale = new Vector3(1.5f, 0.32f, 3.4f);
+
+            var factoryFloor = Primitive(PrimitiveType.Cube, "FactoryFloor", root.transform, mats["StoneLight"]);
+            factoryFloor.transform.localPosition = new Vector3(0f, 0.075f, 0f);
+            factoryFloor.transform.localScale = new Vector3(1.35f, 0.15f, 3.15f);
+
+            // Molten vat chasm
+            var moltenVat = Primitive(PrimitiveType.Cube, "MoltenVat", root.transform, mats["PepA"]);
+            moltenVat.transform.localPosition = new Vector3(0f, -0.01f, 0f);
+            moltenVat.transform.localScale = new Vector3(1.35f, 0.05f, 0.8f);
+
+            // Assembly conveyor belt
+            var conveyor = Mover(root.transform, "ConveyorBelt");
+            var belt = Primitive(PrimitiveType.Cube, "Belt", conveyor, mats["Ink"]);
+            belt.transform.localPosition = new Vector3(0f, 0.18f, 0f);
+            belt.transform.localScale = new Vector3(0.45f, 0.04f, 0.85f);
+
+            // Large factory cogs / gear assembly
+            var gear = Mover(root.transform, "GearAssembly");
+            var cog = Primitive(PrimitiveType.Cylinder, "Cog", gear, mats["Accent"]);
+            cog.transform.localPosition = new Vector3(0.52f, 0.32f, 0.15f);
+            cog.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            cog.transform.localScale = new Vector3(0.35f, 0.04f, 0.35f);
+
+            Anchor(root.transform, "Anchor_PepA", new Vector3(0f, 0.15f, -0.62f));
+            Anchor(root.transform, "Anchor_PepB", new Vector3(0f, 0.15f, 0.62f));
+            Anchor(root.transform, "Anchor_Meet", new Vector3(0f, 0.15f, 0.5f));
+
+            Anchor(root.transform, "Slot_1", new Vector3(-0.42f, 0.15f, -1.25f));
+            Anchor(root.transform, "Slot_2", new Vector3(0.45f, 0.15f, -1.35f));
+            Anchor(root.transform, "Slot_3", new Vector3(-0.45f, 0.15f, 1.3f));
+
+            FinishDiorama(root, mats, DioramaMood.Factory);
+            return SavePrefab(root, $"{EnvDir}/Diorama_Factory.prefab");
+        }
+
+        // -------------------------------------------------------------------
+        // Neon Metropolis Diorama (Round 12 - Grand Finale)
+        // -------------------------------------------------------------------
+
+        private static GameObject BuildNeonDiorama(IReadOnlyDictionary<string, Material> mats)
+        {
+            var root = new GameObject("Diorama_Neon");
+
+            var slab = Primitive(PrimitiveType.Cube, "Platform", root.transform, mats["Night"]);
+            slab.transform.localPosition = new Vector3(0f, -0.16f, 0f);
+            slab.transform.localScale = new Vector3(1.5f, 0.32f, 3.4f);
+
+            var helipad = Primitive(PrimitiveType.Cube, "Helipad", root.transform, mats["Ink"]);
+            helipad.transform.localPosition = new Vector3(0f, 0.075f, 0f);
+            helipad.transform.localScale = new Vector3(1.35f, 0.15f, 3.15f);
+
+            var skylineGap = Primitive(PrimitiveType.Cube, "SkylineGap", root.transform, mats["Night"]);
+            skylineGap.transform.localPosition = new Vector3(0f, -0.01f, 0f);
+            skylineGap.transform.localScale = new Vector3(1.35f, 0.05f, 0.8f);
+
+            // Glowing neon sign / cyber beacon
+            var neonSign = Mover(root.transform, "NeonSign");
+            var signBack = Primitive(PrimitiveType.Cube, "Backing", neonSign, mats["Ink"]);
+            signBack.transform.localPosition = new Vector3(0.54f, 0.42f, 0.85f);
+            signBack.transform.localScale = new Vector3(0.18f, 0.36f, 0.42f);
+            var neonBorder = Primitive(PrimitiveType.Cube, "GlowBorder", neonSign, mats["PepB"]);
+            neonBorder.transform.localPosition = new Vector3(0.53f, 0.42f, 0.85f);
+            neonBorder.transform.localScale = new Vector3(0.19f, 0.38f, 0.44f);
+
+            // Skyline suspension cable
+            var cable = Mover(root.transform, "SkylineCable");
+            var wire = Primitive(PrimitiveType.Cylinder, "Cable", cable, mats["PepA"]);
+            wire.transform.localPosition = new Vector3(0f, 0.22f, 0f);
+            wire.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+            wire.transform.localScale = new Vector3(0.025f, 0.65f, 0.025f);
+
+            Anchor(root.transform, "Anchor_PepA", new Vector3(0f, 0.15f, -0.62f));
+            Anchor(root.transform, "Anchor_PepB", new Vector3(0f, 0.15f, 0.62f));
+            Anchor(root.transform, "Anchor_Meet", new Vector3(0f, 0.15f, 0.5f));
+
+            Anchor(root.transform, "Slot_1", new Vector3(-0.42f, 0.15f, -1.25f));
+            Anchor(root.transform, "Slot_2", new Vector3(0.45f, 0.15f, -1.35f));
+            Anchor(root.transform, "Slot_3", new Vector3(-0.45f, 0.15f, 1.3f));
+
+            FinishDiorama(root, mats, DioramaMood.Neon);
+            return SavePrefab(root, $"{EnvDir}/Diorama_Neon.prefab");
+        }
+
+        // -------------------------------------------------------------------
         // Helpers
         // -------------------------------------------------------------------
 
@@ -1678,6 +1875,10 @@ namespace SavePeps.EditorTools
             Night,
             Snow,
             Rain,
+            Ocean,
+            Space,
+            Factory,
+            Neon,
         }
 
         /// <summary>
@@ -1787,6 +1988,53 @@ namespace SavePeps.EditorTools
                 case DioramaMood.Rain:
                     AddBush(root, mats, new Vector3(-0.59f, 0.17f, 1.38f), 0.09f);
                     AddBush(root, mats, new Vector3(0.59f, 0.17f, 1.22f), 0.08f);
+                    break;
+
+                case DioramaMood.Ocean:
+                    foreach (var (x, z, mat) in new[]
+                             {
+                                 (-0.58f, 0.95f, mats["PepB"]),
+                                 (0.56f, 1.15f, mats["WaterLight"]),
+                                 (-0.54f, -0.2f, mats["PepA"]),
+                             })
+                    {
+                        var coral = Primitive(PrimitiveType.Sphere, "CoralNode", root, mat);
+                        coral.transform.localPosition = new Vector3(x, 0.18f, z);
+                        coral.transform.localScale = new Vector3(0.08f, 0.12f, 0.08f);
+                    }
+                    break;
+
+                case DioramaMood.Space:
+                    foreach (var (x, z) in new[] { (-0.56f, 1.1f), (0.58f, 0.95f), (-0.52f, -0.25f) })
+                    {
+                        var beacon = Primitive(PrimitiveType.Cylinder, "Beacon", root, mats["AccentLight"]);
+                        beacon.transform.localPosition = new Vector3(x, 0.18f, z);
+                        beacon.transform.localScale = new Vector3(0.04f, 0.08f, 0.04f);
+                    }
+                    break;
+
+                case DioramaMood.Factory:
+                    foreach (var (x, z) in new[] { (-0.58f, 1.05f), (0.56f, 1.12f) })
+                    {
+                        var pipe = Primitive(PrimitiveType.Cylinder, "SteamPipe", root, mats["StoneLight"]);
+                        pipe.transform.localPosition = new Vector3(x, 0.22f, z);
+                        pipe.transform.localScale = new Vector3(0.06f, 0.18f, 0.06f);
+                    }
+                    break;
+
+                case DioramaMood.Neon:
+                    foreach (var (x, z, mat) in new[]
+                             {
+                                 (-0.58f, 1.15f, mats["PepB"]),
+                                 (0.58f, 1.15f, mats["PepA"]),
+                                 (-0.58f, -0.3f, mats["AccentLight"]),
+                                 (0.58f, -0.3f, mats["WaterLight"]),
+                             })
+                    {
+                        var pylon = Primitive(PrimitiveType.Cube, "NeonPylon", root, mat);
+                        pylon.transform.localPosition = new Vector3(x, 0.22f, z);
+                        pylon.transform.localScale = new Vector3(0.04f, 0.25f, 0.04f);
+                    }
                     break;
             }
         }

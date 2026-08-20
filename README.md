@@ -12,7 +12,7 @@ A fixed-camera toy diorama shows two Peps separated by something small and silly
 
 A **round is 3 rescues**. Solve one on the first tap and it earns a ★, after a retry a ✓. Rounds 1–10 are free; **Peps Unlimited** unlocks the rest.
 
-The shell stays deliberately small: **Play** chooses a useful available round without immediately repeating the last one, while **Choose round** offers direct control. Finishing a round returns to **Keep playing** rather than forcing a strictly linear next button.
+The shell stays deliberately small: **Play** chooses a useful available round without immediately repeating the last one, while **Choose round** offers direct control. Finishing a round returns to **Keep playing** rather than forcing a strictly linear next button. A pause control in the corner of the HUD opens a bottom sheet with Resume, Progress, Choose round, Home, and sound/buzz toggles, and Android Back walks the same path — the player is never stuck inside a rescue.
 
 ## Repo layout
 
@@ -46,6 +46,34 @@ open unity/SavePeps                  # via Unity Hub
 On a fresh clone, run **Tools > Save Peps > Apply Project Settings** once. Most build settings live in `ProjectSettings/` and travel with the repo, but a few (active build target, AAB-vs-APK) are machine-local and would otherwise silently default back to APK.
 
 The RevenueCat SDK does not run in the Unity Editor. Editor play uses `FakeEntitlementService`, which can simulate every subscription state; real purchase paths must be tested on a device.
+
+## Run on the Pixel 4
+
+From the repository root, use Unity's bundled `adb`; no separate Android SDK install is required:
+
+```bash
+ADB=/Applications/Unity/Hub/Editor/6000.3.21f1/PlaybackEngines/AndroidPlayer/SDK/platform-tools/adb
+
+# The Pixel should appear as `device`, not `unauthorized`.
+$ADB devices -l
+
+# Optional after making a new APK. `-r` preserves the current save.
+APK="$(ls -t unity/SavePeps/Build/Android/*.apk | head -1)"
+$ADB install -r "$APK"
+
+# Stop any old process and launch the installed game.
+$ADB shell am force-stop fan.sound.savepeps
+$ADB shell am start -n fan.sound.savepeps/com.unity3d.player.UnityPlayerActivity
+```
+
+If the device says `unauthorized`, unlock it and accept the USB debugging prompt, then run `$ADB devices -l` again. To confirm the launch or diagnose a blank screen:
+
+```bash
+$ADB shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity'
+$ADB logcat -d | grep -oE '\[SavePeps\].*'
+```
+
+Do not run `pm clear fan.sound.savepeps` unless a fresh-install state is intentional; it deletes the on-device save. The reference device is 1080×2280, and repeatable tap coordinates and screenshot commands live in [`AGENTS.md`](AGENTS.md#6-device-testing).
 
 ## Authoring a rescue
 

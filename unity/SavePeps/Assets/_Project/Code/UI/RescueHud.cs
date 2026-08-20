@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using SavePeps.UI;
 using UnityEngine;
@@ -15,9 +16,17 @@ namespace SavePeps.Rescue
     }
 
     /// <summary>
-    /// The deliberately small layer above the diorama: location, objective,
-    /// mastery marks, and a quip that briefly lands after a physical failure.
+    /// The deliberately small layer above the diorama: where you are, what the
+    /// Peps need, and a quip that briefly lands after a physical failure.
     /// It never congratulates over the characters; reunion owns success.
+    ///
+    /// Two rules keep it from drifting back into a notification bar. Nothing
+    /// here holds still — the objective arrives with a bounce and then shrinks
+    /// out of the way once it has been read, and the quip is sized to its own
+    /// sentence so a four-word joke is a tag rather than a banner. And the
+    /// only permanent text is the round number; which rescue is in play is
+    /// already said by the mastery marks, so printing "RESCUE 2/3" beside them
+    /// was the same fact twice in the language of a progress dialog.
     /// </summary>
     public sealed class RescueHud : MonoBehaviour
     {
@@ -25,12 +34,22 @@ namespace SavePeps.Rescue
         [SerializeField] private GameObject _root;
 
         [Header("Top")]
+        [SerializeField] private RectTransform _statusRect;
         [SerializeField] private Text _roundLabel;
         [SerializeField] private MasteryMarkGraphic[] _marks;
+
+        [Header("Menu")]
+        [SerializeField] private Button _menuButton;
+        [SerializeField] private CanvasGroup _menuGroup;
 
         [Header("Scene")]
         [Tooltip("2-4 words: what the Peps need, never how.")]
         [SerializeField] private Text _goal;
+        [SerializeField] private RectTransform _goalRect;
+        [SerializeField] private CanvasGroup _goalGroup;
+
+        [Tooltip("Seconds the objective stays at full size before shrinking out of the way.")]
+        [SerializeField, Range(0.6f, 6f)] private float _goalHold = 2.1f;
 
         [Header("Failure beat")]
         [SerializeField] private GameObject _tray;
@@ -38,13 +57,26 @@ namespace SavePeps.Rescue
         [SerializeField] private RectTransform _trayRect;
         [SerializeField] private Text _quip;
 
+        private const float GoalRestScale = 0.88f;
+        // Quiet, not disabled. Below about 0.65 on a Pixel 4 the objective
+        // stops reading as "still here if you need it" and starts reading as
+        // a greyed-out control.
+        private const float GoalRestAlpha = 0.74f;
+
         private Vector2 _trayFallback;
         private Vector2 _trayRest;
+        private Coroutine _quipRoutine;
+        private Coroutine _goalRoutine;
+        private int _quipCount;
 
         public bool QuipVisible => _tray != null && _tray.activeSelf;
 
+        /// <summary>Raised when the player asks for the pause sheet.</summary>
+        public event Action OnMenuRequested;
+
         private void Awake()
         {
+            if (_menuButton != null) _menuButton.onClick.AddListener(() => OnMenuRequested?.Invoke());
             if (_trayRect != null)
             {
                 _trayFallback = _trayRect.anchoredPosition;
@@ -55,10 +87,7 @@ namespace SavePeps.Rescue
 
         public void SetRound(int round, int rescueIndex, int rescuesPerRound)
         {
-            if (_roundLabel != null)
-            {
-                _roundLabel.text = $"ROUND {round}   •   RESCUE {rescueIndex + 1}/{rescuesPerRound}";
-            }
+            if (_roundLabel != null) _roundLabel.text = $"ROUND {round}";
 
             // Preview tooling does not have progression to call SetDots, so a
             // pristine row still needs one obvious "you are here" mark.
@@ -102,13 +131,54 @@ namespace SavePeps.Rescue
                     _ => false,
                 };
                 mark.SetState(next, animate: earnedNow);
+
+                // The plaque flinches with the mark it holds, so an earned
+                // star reads as one event in the corner of the eye rather
+                // than as a small icon quietly changing shape.
+                if (earnedNow && isActiveAndEnabled && _statusRect != null)
+                {
+                    StartCoroutine(UIPop.Punch(_statusRect, 1.06f));
+                }
             }
         }
 
+        /// <summary>
+        /// Announces the objective, then gets out of the way. A 2-4 word line
+        /// is read once; leaving it at full contrast for the whole rescue is
+        /// what made the top of the screen look like an app header.
+        /// </summary>
         public void Show(string goal)
         {
-            if (_goal != null) _goal.text = goal;
             ClearQuip();
+            if (_goal != null)
+            {
+                _goal.text = goal ?? string.Empty;
+                if (_goalRect != null)
+                {
+                    var width = Mathf.Clamp(_goal.preferredWidth + 120f, 440f, 900f);
+                    _goalRect.sizeDelta = new Vector2(width, _goalRect.sizeDelta.y);
+                }
+            }
+
+            if (_goalRoutine != null) StopCoroutine(_goalRoutine);
+            _goalRoutine = null;
+            if (!isActiveAndEnabled || _goalRect == null) return;
+            _goalRoutine = StartCoroutine(AnnounceGoal());
+        }
+
+        /// <summary>
+        /// Whether the pause control accepts a tap. It is switched off while
+        /// an outcome plays: a gag is under four seconds, and letting the
+        /// player suspend the game halfway through one would mean freezing a
+        /// running choreography rather than simply not starting a new one.
+        /// </summary>
+        public void SetMenuAvailable(bool available)
+        {
+            if (_menuButton != null && _menuButton.interactable != available)
+            {
+                _menuButton.interactable = available;
+            }
+            if (_menuGroup != null) _menuGroup.alpha = available ? 1f : 0.35f;
         }
 
         /// <summary>
@@ -117,18 +187,30 @@ namespace SavePeps.Rescue
         /// </summary>
         public void ShowQuip(string quip, Transform actionTarget)
         {
-            StopAllCoroutines();
+            if (_quipRoutine != null) StopCoroutine(_quipRoutine);
+            _quipRoutine = null;
+
             PositionQuip(actionTarget);
             if (_quip != null)
             {
                 _quip.text = (quip ?? string.Empty).Replace('\n', ' ').Replace('\r', ' ').Trim();
-            }
-            if (_tray == null) return;
 
+                // A tag cut to its own sentence reads as part of the gag; a
+                // fixed-width plaque reads as the app talking to the player.
+                var width = Mathf.Clamp(_quip.preferredWidth + 104f, 420f, 1000f);
+                if (_trayRect != null) _trayRect.sizeDelta = new Vector2(width, _trayRect.sizeDelta.y);
+                _quip.rectTransform.sizeDelta = new Vector2(width - 44f, _quip.rectTransform.sizeDelta.y);
+            }
+
+            if (_tray == null) return;
             _tray.SetActive(true);
-            if (_trayGroup != null) _trayGroup.alpha = 0f;
-            if (_trayRect != null) _trayRect.anchoredPosition = _trayRest + Vector2.down * 28f;
-            StartCoroutine(RevealQuip());
+            if (_trayRect != null) _trayRect.anchoredPosition = _trayRest;
+
+            // Alternating the tilt stops two quips in a row from landing in
+            // exactly the same pose, which is what makes a repeat feel scripted.
+            var tilt = (_quipCount++ % 2 == 0 ? 1f : -1f) * 4.5f;
+            UIPop.Prepare(_trayRect, _trayGroup, 0.68f, tilt);
+            _quipRoutine = StartCoroutine(UIPop.In(_trayRect, _trayGroup, 0.20f, 0.68f, tilt));
         }
 
         /// <summary>
@@ -181,15 +263,21 @@ namespace SavePeps.Rescue
         public void HideQuip()
         {
             if (!QuipVisible) return;
-            StopAllCoroutines();
-            StartCoroutine(HideQuipRoutine());
+            if (_quipRoutine != null) StopCoroutine(_quipRoutine);
+            _quipRoutine = StartCoroutine(HideQuipRoutine());
         }
 
         public void ClearQuip()
         {
-            StopAllCoroutines();
+            if (_quipRoutine != null) StopCoroutine(_quipRoutine);
+            _quipRoutine = null;
             if (_trayGroup != null) _trayGroup.alpha = 0f;
-            if (_trayRect != null) _trayRect.anchoredPosition = _trayRest;
+            if (_trayRect != null)
+            {
+                _trayRect.anchoredPosition = _trayRest;
+                _trayRect.localScale = Vector3.one;
+                _trayRect.localRotation = Quaternion.identity;
+            }
             if (_tray != null) _tray.SetActive(false);
         }
 
@@ -198,39 +286,41 @@ namespace SavePeps.Rescue
             if (_root != null && _root.activeSelf != visible) _root.SetActive(visible);
         }
 
-        private IEnumerator RevealQuip()
+        private IEnumerator AnnounceGoal()
         {
-            var elapsed = 0f;
-            const float duration = 0.16f;
-            while (elapsed < duration && _tray != null)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                var t = Easing.Evaluate(EaseKind.Out, Mathf.Clamp01(elapsed / duration));
-                if (_trayGroup != null) _trayGroup.alpha = t;
-                if (_trayRect != null) _trayRect.anchoredPosition = Vector2.LerpUnclamped(
-                    _trayRest + Vector2.down * 28f, _trayRest, t);
-                yield return null;
-            }
-
-            if (_trayGroup != null) _trayGroup.alpha = 1f;
-            if (_trayRect != null) _trayRect.anchoredPosition = _trayRest;
+            yield return UIPop.In(_goalRect, _goalGroup, 0.30f, 0.60f, -5f);
+            yield return new WaitForSecondsRealtime(_goalHold);
+            yield return UIPop.Settle(_goalRect, _goalGroup, GoalRestScale, GoalRestAlpha, 0.40f);
+            _goalRoutine = null;
         }
 
+        /// <summary>
+        /// The quip leaves by shrinking upward, as if the thought popped —
+        /// the same shape as its arrival, played backwards and faster, so the
+        /// retry starts the instant the eye has finished with it.
+        /// </summary>
         private IEnumerator HideQuipRoutine()
         {
+            var startScale = _trayRect != null ? _trayRect.localScale.x : 1f;
+            var startPosition = _trayRect != null ? _trayRect.anchoredPosition : Vector2.zero;
+
             var elapsed = 0f;
-            const float duration = 0.16f;
+            const float duration = 0.15f;
             while (elapsed < duration && _tray != null)
             {
                 elapsed += Time.unscaledDeltaTime;
                 var t = Easing.Evaluate(EaseKind.In, Mathf.Clamp01(elapsed / duration));
                 if (_trayGroup != null) _trayGroup.alpha = 1f - t;
-                if (_trayRect != null) _trayRect.anchoredPosition = Vector2.LerpUnclamped(
-                    _trayRest, _trayRest + Vector2.down * 18f, t);
+                if (_trayRect != null)
+                {
+                    _trayRect.localScale = Vector3.one * Mathf.Lerp(startScale, 0.74f, t);
+                    _trayRect.anchoredPosition = startPosition + Vector2.up * (26f * t);
+                }
                 yield return null;
             }
 
-            if (_tray != null) _tray.SetActive(false);
+            _quipRoutine = null;
+            ClearQuip();
         }
     }
 }

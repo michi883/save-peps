@@ -23,6 +23,16 @@ namespace SavePeps.Core
         [SerializeField] private Clip[] _clips;
         [SerializeField] private bool _hapticsEnabled = true;
 
+        /// <summary>
+        /// Player settings, applied by the shell from the save file. They are
+        /// separate from <c>_hapticsEnabled</c>, which is the hardware verdict
+        /// — a device with no vibrator switches that off permanently, and it
+        /// must not look to the player as though they turned buzz off.
+        /// </summary>
+        public bool SoundEnabled { get; set; } = true;
+
+        public bool HapticsAllowed { get; set; } = true;
+
         private readonly Dictionary<string, Clip> _byId = new();
         private readonly List<AudioClip> _generated = new();
 
@@ -35,6 +45,35 @@ namespace SavePeps.Core
             foreach (var c in _clips ?? System.Array.Empty<Clip>())
             {
                 if (c != null && !string.IsNullOrEmpty(c.Id)) _byId[c.Id] = c;
+            }
+
+            // Load recorded SFX from Resources
+            Dictionary<string, string> idMapping = new()
+            {
+                ["tap"] = "object_tap",
+                ["wrong"] = "failure_sting",
+                ["reunion"] = "reunion_hug",
+                ["star"] = "star_earned",
+                ["thud"] = "impact_soft",
+                ["bonk"] = "impact_soft"
+            };
+
+            foreach (var (id, filename) in idMapping)
+            {
+                var clip = Resources.Load<AudioClip>($"SFX/{filename}");
+                if (clip != null)
+                {
+                    float volume = filename switch
+                    {
+                        "object_tap" => 0.5f,
+                        "impact_soft" => 0.7f,
+                        "failure_sting" => 0.6f,
+                        "reunion_hug" => 0.9f,
+                        "star_earned" => 0.7f,
+                        _ => 0.8f
+                    };
+                    _byId[id] = new Clip { Id = id, Audio = clip, Volume = volume };
+                }
             }
 
             // Authored clips always win. The synthesized bank fills every
@@ -69,6 +108,7 @@ namespace SavePeps.Core
 
         public void Play(string id)
         {
+            if (!SoundEnabled) return;
             if (string.IsNullOrEmpty(id) || !_byId.TryGetValue(id, out var clip) || clip.Audio == null) return;
             _source.PlayOneShot(clip.Audio, clip.Volume);
         }
@@ -98,7 +138,7 @@ namespace SavePeps.Core
         /// </summary>
         public void Haptic(string strength)
         {
-            if (!_hapticsEnabled || string.IsNullOrEmpty(strength)) return;
+            if (!_hapticsEnabled || !HapticsAllowed || string.IsNullOrEmpty(strength)) return;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
             var (ms, amplitude) = strength.ToLowerInvariant() switch

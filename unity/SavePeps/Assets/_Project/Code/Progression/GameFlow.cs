@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using SavePeps.Core;
 using SavePeps.Monetization;
 using SavePeps.Rescue;
+using SavePeps.UI;
 using UnityEngine;
 
 namespace SavePeps.Progression
@@ -26,6 +28,9 @@ namespace SavePeps.Progression
         [SerializeField] private RescueHud _hud;
         [SerializeField] private RoundCompleteCard _card;
         [SerializeField] private GameMenu _menu;
+        [SerializeField] private PauseOverlay _pause;
+        [SerializeField] private ProgressPanel _progress;
+        [SerializeField] private Feedback _feedback;
 
         [Tooltip("Anything implementing IEntitlementService: the fake in the editor, RevenueCat on device.")]
         [SerializeField] private MonoBehaviour _entitlementSource;
@@ -39,7 +44,9 @@ namespace SavePeps.Progression
         private int _roundNumber;
         private int _rescueIndex;
         private int _pendingRound;
-        private bool _pickerOpenedFromHome;
+        private Action _pickerBack;
+        private bool _pickerShowsHomeDiorama;
+        private bool _progressFromPause;
 
         /// <summary>Raised with the round the player just tried to reach.</summary>
         public event Action<int> OnPaywallRequested;
@@ -49,6 +56,7 @@ namespace SavePeps.Progression
 
         public SaveData Save => _save;
         public int CurrentRound => _roundNumber;
+        public Catalog Catalog => _catalog;
 
         // -------------------------------------------------------------------
         // Boot
@@ -68,17 +76,22 @@ namespace SavePeps.Progression
             _hud?.SetVisible(false);
             _card?.Hide();
             _menu?.Hide();
+            _pause?.Hide();
+            _progress?.Hide();
+            ApplySettings();
         }
 
         private void OnEnable()
         {
             if (_runner != null) _runner.OnSolved += HandleSolved;
+            if (_hud != null) _hud.OnMenuRequested += OpenPause;
             if (_entitlements != null) _entitlements.Changed += HandleEntitlementChanged;
         }
 
         private void OnDisable()
         {
             if (_runner != null) _runner.OnSolved -= HandleSolved;
+            if (_hud != null) _hud.OnMenuRequested -= OpenPause;
             if (_entitlements != null) _entitlements.Changed -= HandleEntitlementChanged;
         }
 
@@ -135,7 +148,10 @@ namespace SavePeps.Progression
         {
             _hud?.SetVisible(false);
             _card?.Hide();
-            _menu?.ShowHome(PlayRecommendedRound, ShowRoundPickerFromHome);
+            _pause?.Hide();
+            _progress?.Hide();
+            _runner?.Teardown();
+            _menu?.ShowHome(PlayRecommendedRound, ShowRoundPickerFromHome, ShowProgressFromHome, HomeStatLine());
         }
 
         /// <summary>The dominant Play action: useful randomness over available rounds.</summary>
@@ -152,22 +168,25 @@ namespace SavePeps.Progression
             PlayRound(number);
         }
 
-        public void ShowRoundPickerFromHome()
-        {
-            _pickerOpenedFromHome = true;
-            _card?.Hide();
-            _hud?.SetVisible(false);
-            _menu?.ShowPicker(_catalog, _save, IsSubscribed, showHomeDiorama: true,
-                SelectRound, ShowHome);
-            Debug.Log($"[SavePeps] Round picker opened with {_catalog.RoundCount} rounds.");
-        }
+        public void ShowRoundPickerFromHome() => ShowRoundPicker(showHomeDiorama: true, back: ShowHome);
 
-        private void ShowRoundPickerFromResult()
+        private void ShowRoundPickerFromResult() =>
+            ShowRoundPicker(showHomeDiorama: false, back: ShowRoundCompleteCard);
+
+        /// <summary>
+        /// One picker, three ways in. The back action is remembered rather
+        /// than inferred, so a picker opened from the pause sheet returns to
+        /// the rescue the player is standing in instead of to the title.
+        /// </summary>
+        private void ShowRoundPicker(bool showHomeDiorama, Action back)
         {
-            _pickerOpenedFromHome = false;
+            _pickerShowsHomeDiorama = showHomeDiorama;
+            _pickerBack = back;
             _card?.Hide();
-            _menu?.ShowPicker(_catalog, _save, IsSubscribed, showHomeDiorama: false,
-                SelectRound, ShowRoundCompleteCard);
+            _pause?.Hide();
+            _progress?.Hide();
+            _hud?.SetVisible(false);
+            _menu?.ShowPicker(_catalog, _save, IsSubscribed, showHomeDiorama, SelectRound, back);
             Debug.Log($"[SavePeps] Round picker opened with {_catalog.RoundCount} rounds.");
         }
 
@@ -314,6 +333,130 @@ namespace SavePeps.Progression
         /// </summary>
         public void PlayFromStart() => PlayRound(1);
 
+        // -------------------------------------------------------------------
+        // The shell: pause, progress, settings, and Android Back
+        // -------------------------------------------------------------------
+
+        /// <summary>True while any non-gameplay surface owns the screen.</summary>
+        private bool ShellVisible =>
+            (_menu != null && (_menu.HomeVisible || _menu.PickerVisible)) ||
+            (_card != null && _card.Visible) ||
+            (_pause != null && _pause.Visible) ||
+            (_progress != null && _progress.Visible);
+
+        private void Update()
+        {
+            // The pause control is live exactly when a rescue is waiting for a
+            // tap. Driving it from here rather than from every state change
+            // means no path can leave the button lit over a running gag.
+            _hud?.SetMenuAvailable(_runner != null && _runner.AwaitingChoice && !ShellVisible);
+
+            // Android's Back button arrives as Escape through the legacy input
+            // module, which is what this project is configured for.
+            if (Input.GetKeyDown(KeyCode.Escape)) HandleBack();
+        }
+
+        /// <summary>The HUD's pause control, and the Back button during a rescue.</summary>
+        public void OpenPause()
+        {
+            if (_pause == null || ShellVisible) return;
+            if (_runner == null || !_runner.AwaitingChoice) return;
+
+            // Held for the whole visit, including a detour through Progress,
+            // and handed back only by an explicit resume.
+            _runner.SuspendInput(true);
+            Debug.Log("[SavePeps] Pause opened.");
+            ShowPauseSheet();
+        }
+
+        private void ShowPauseSheet() =>
+            _pause?.Show(_save, ResumeFromShell, ShowProgressFromPause, ShowRoundPickerFromPause,
+                ShowHome, ApplyAndPersistSettings);
+
+        private void ShowRoundPickerFromPause() =>
+            ShowRoundPicker(showHomeDiorama: false, back: ResumeFromShell);
+
+        /// <summary>Back into the rescue that was already on stage.</summary>
+        private void ResumeFromShell()
+        {
+            _hud?.SetVisible(true);
+            _runner?.SuspendInput(false);
+            Debug.Log("[SavePeps] Resumed.");
+        }
+
+        public void ShowProgressFromHome()
+        {
+            _progressFromPause = false;
+            _progress?.Show(_catalog, _save, IsSubscribed, CloseProgress);
+        }
+
+        private void ShowProgressFromPause()
+        {
+            _progressFromPause = true;
+            _progress?.Show(_catalog, _save, IsSubscribed, CloseProgress);
+        }
+
+        private void CloseProgress()
+        {
+            if (_progressFromPause) ShowPauseSheet();
+            else ShowHome();
+        }
+
+        /// <summary>
+        /// One Back key, resolved outermost surface first. The rule the player
+        /// feels is simply "Back undoes the last thing that opened", and the
+        /// only place it leaves the game is the title screen — Android's own
+        /// convention, and the one place where nothing is in progress.
+        /// </summary>
+        public void HandleBack()
+        {
+            if (_progress != null && _progress.Visible) { _progress.RequestClose(); return; }
+            if (_pause != null && _pause.Visible) { _pause.RequestClose(); return; }
+            if (_menu != null && _menu.PickerVisible) { _menu.RequestBack(); return; }
+            if (_card != null && _card.Visible) { ShowHome(); return; }
+            if (_menu != null && _menu.HomeVisible)
+            {
+                Persist();
+                Application.Quit();
+                return;
+            }
+
+            OpenPause();
+        }
+
+        private void ApplySettings()
+        {
+            if (_feedback == null || _save == null) return;
+            _feedback.SoundEnabled = !_save.SoundMuted;
+            _feedback.HapticsAllowed = !_save.HapticsOff;
+        }
+
+        private void ApplyAndPersistSettings()
+        {
+            ApplySettings();
+            Persist();
+        }
+
+        /// <summary>
+        /// The one line of self-description on the title screen. It is hidden
+        /// entirely until there is something to report, so a first launch
+        /// still opens on two choices and a couple.
+        /// </summary>
+        private string HomeStatLine()
+        {
+            if (_save == null || _catalog == null || _save.TotalRescuesSolved == 0) return null;
+
+            var stars = 0;
+            for (var number = 1; number <= _catalog.RoundCount; number++)
+            {
+                stars += RoundProgress.Read(_catalog.Round(number), _save).Stars;
+            }
+
+            return stars > 0
+                ? $"{_save.TotalRescuesSolved} SAVED   ·   {stars} FIRST TRY"
+                : $"{_save.TotalRescuesSolved} SAVED";
+        }
+
         /// <summary>
         /// A purchase or restore finished. If the player was stopped at the
         /// paywall, take them straight into the round they were reaching for —
@@ -332,8 +475,8 @@ namespace SavePeps.Progression
 
             if (_menu != null && _menu.PickerVisible)
             {
-                _menu.ShowPicker(_catalog, _save, IsSubscribed, _pickerOpenedFromHome,
-                    SelectRound, _pickerOpenedFromHome ? ShowHome : ShowRoundCompleteCard);
+                _menu.ShowPicker(_catalog, _save, IsSubscribed, _pickerShowsHomeDiorama,
+                    SelectRound, _pickerBack ?? ShowHome);
             }
         }
 
