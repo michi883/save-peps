@@ -48,7 +48,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "pillow", Prop = Prop("pillow"), AnchorId = "Slot_1", Label = "The soft pillow",
-                    Quip = "The ice is comfortable now.",
+                    Quip = "Ice stays frozen.",
                     Duration = 2.4f,
                     Steps = new[]
                     {
@@ -89,7 +89,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "bell", Prop = Prop("bell"), AnchorId = "Slot_3", Label = "The brass bell",
-                    Quip = "Very awake. Still frozen.",
+                    Quip = "Awake. Still frozen.",
                     Duration = 2.4f,
                     Steps = new[]
                     {
@@ -129,7 +129,7 @@ namespace SavePeps.EditorTools
                 {
                     Id = "scissors", Prop = Prop("scissors"), AnchorId = "Slot_1",
                     Label = "The red-handled scissors",
-                    Quip = "Remarkably tidy. Considerably shorter.",
+                    Quip = "Neat trim. Too short.",
                     Duration = 2.5f,
                     Steps = new[]
                     {
@@ -147,7 +147,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "balloon", Prop = Prop("balloon"), AnchorId = "Slot_2", Label = "The orange balloon",
-                    Quip = "The ledge was not in the clouds.",
+                    Quip = "Still out of reach.",
                     Duration = 2.7f,
                     Steps = new[]
                     {
@@ -235,7 +235,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "fan", Prop = Prop("fan"), AnchorId = "Slot_2", Label = "The caged electric fan",
-                    Quip = "Now it is raining sideways.",
+                    Quip = "Rain is sideways now.",
                     Duration = 2.5f,
                     Steps = new[]
                     {
@@ -253,7 +253,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "mirror", Prop = Prop("mirror"), AnchorId = "Slot_3", Label = "The framed hand mirror",
-                    Quip = "Bright idea. Persistent weather.",
+                    Quip = "Bright idea. Still raining.",
                     Duration = 2.4f,
                     Steps = new[]
                     {

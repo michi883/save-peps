@@ -343,7 +343,11 @@ namespace SavePeps.Rescue
         {
             _solved = true;
             var firstTap = _attempts == 1;
-            _hud?.ShowResult(firstTap ? "Perfect!" : "Together again!");
+            // Reunion is the message. The earned HUD mark adds one small
+            // punctuation sound after the physical celebration instead of
+            // covering the Peps with congratulatory copy.
+            _feedback?.Play(firstTap ? "star" : "check");
+            if (firstTap) _feedback?.Haptic("light");
             OnSolved?.Invoke(firstTap);
         }
 
@@ -352,11 +356,26 @@ namespace SavePeps.Rescue
             _feedback?.Wrong();
             _pepA?.ReactToWrong(coverEyes: _attempts % 2 == 1);
             _pepB?.ReactToWrong(coverEyes: _attempts % 2 == 0);
+            Transform actionTarget = null;
             if (_targets.TryGetValue(obj.Id, out var selectedTarget) && selectedTarget != null)
             {
+                actionTarget = selectedTarget.transform;
                 _gameFeel?.Wrong(selectedTarget.transform.position);
             }
-            _hud?.ShowQuip(obj.Quip, Retry);
+            _hud?.ShowQuip(obj.Quip, actionTarget);
+            Debug.Log($"[SavePeps] Wrong '{obj.Id}'. Quip shown; retry will reset automatically.");
+            StartCoroutine(RetryAfterFailureBeat());
+        }
+
+        private IEnumerator RetryAfterFailureBeat()
+        {
+            // Unscaled time keeps the joke readable in editor speed-up tests
+            // and through any future slow-motion choreography.
+            yield return new WaitForSecondsRealtime(1.10f);
+            _hud?.HideQuip();
+            yield return new WaitForSecondsRealtime(0.16f);
+            Debug.Log("[SavePeps] Retry ready.");
+            ResetScene();
         }
 
         /// <summary>

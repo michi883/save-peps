@@ -2,6 +2,7 @@ using SavePeps.Core;
 using SavePeps.Monetization;
 using SavePeps.Progression;
 using SavePeps.Rescue;
+using SavePeps.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -127,6 +128,7 @@ namespace SavePeps.EditorTools
             Wire(runner, "_feedback", feedback);
             Wire(runner, "_gameFeel", gameFeel);
             Wire(menuComponent, "_feedback", feedback);
+            Wire(cardComponent, "_feedback", feedback);
             // GameFlow owns sequencing now; the runner is handed one rescue
             // at a time rather than playing a fixed asset at boot.
             WireBool(runner, "_autoPlayOnStart", false);
@@ -152,9 +154,9 @@ namespace SavePeps.EditorTools
         }
 
         /// <summary>
-        /// Minimal HUD. The P1 question is whether any of this competes with
-        /// the scene, so everything is small, low-contrast and pinned to the
-        /// edges — it should be possible to forget it is there.
+        /// Compact toy-label HUD. Cream plaques keep the objective readable
+        /// over every diorama without growing into an overlay, while custom
+        /// marks make ★/✓ dependable on Android fonts.
         /// </summary>
         private static GameObject BuildHud(out RescueHud hud)
         {
@@ -184,69 +186,83 @@ namespace SavePeps.EditorTools
             hudRoot.transform.SetParent(canvasGo.transform, false);
             Stretch(hudRoot.GetComponent<RectTransform>());
 
-            var roundLabel = Text(hudRoot.transform, "RoundLabel", font, 34, ink,
-                new Vector2(0.5f, 1f), new Vector2(0f, -70f), new Vector2(900f, 50f));
-            roundLabel.color = new Color(ink.r, ink.g, ink.b, 0.65f);
+            var statusPlate = new GameObject("StatusPlate", typeof(Image));
+            statusPlate.transform.SetParent(hudRoot.transform, false);
+            var statusRt = statusPlate.GetComponent<RectTransform>();
+            statusRt.anchorMin = statusRt.anchorMax = new Vector2(0.5f, 1f);
+            statusRt.sizeDelta = new Vector2(820f, 68f);
+            statusRt.anchoredPosition = new Vector2(0f, -64f);
+            StylePanel(statusPlate.GetComponent<Image>(), new Color(1f, 0.97f, 0.88f, 0.84f));
+            statusPlate.GetComponent<Image>().raycastTarget = false;
+            AddShadow(statusPlate.GetComponent<Image>(), new Color(0.24f, 0.20f, 0.33f, 0.14f),
+                new Vector2(0f, -4f));
 
-            var dots = new Image[3];
-            for (var i = 0; i < 3; i++)
+            var roundLabel = Text(statusPlate.transform, "RoundLabel", font, 30, ink,
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(770f, 52f));
+            roundLabel.fontStyle = FontStyle.Bold;
+            roundLabel.color = new Color(ink.r, ink.g, ink.b, 0.78f);
+
+            var marks = new MasteryMarkGraphic[RoundDefinition.RescuesPerRound];
+            for (var i = 0; i < marks.Length; i++)
             {
-                var dotGo = new GameObject($"Dot_{i}", typeof(Image));
-                dotGo.transform.SetParent(hudRoot.transform, false);
-                dotGo.GetComponent<Image>().sprite = Circle();
-                var rt = dotGo.GetComponent<RectTransform>();
+                var markGo = new GameObject($"Mark_{i}", typeof(CanvasRenderer), typeof(MasteryMarkGraphic));
+                markGo.transform.SetParent(hudRoot.transform, false);
+                var rt = markGo.GetComponent<RectTransform>();
                 rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
-                rt.sizeDelta = new Vector2(22f, 22f);
-                rt.anchoredPosition = new Vector2((i - 1) * 40f, -128f);
-                dots[i] = dotGo.GetComponent<Image>();
+                rt.sizeDelta = new Vector2(44f, 44f);
+                rt.anchoredPosition = new Vector2((i - 1) * 58f, -128f);
+                marks[i] = markGo.GetComponent<MasteryMarkGraphic>();
             }
 
-            var goal = Text(hudRoot.transform, "Goal", font, 46, ink,
-                new Vector2(0.5f, 1f), new Vector2(0f, -196f), new Vector2(950f, 64f));
+            var goalPlate = new GameObject("GoalPlate", typeof(Image));
+            goalPlate.transform.SetParent(hudRoot.transform, false);
+            var goalRt = goalPlate.GetComponent<RectTransform>();
+            goalRt.anchorMin = goalRt.anchorMax = new Vector2(0.5f, 1f);
+            goalRt.sizeDelta = new Vector2(850f, 92f);
+            goalRt.anchoredPosition = new Vector2(0f, -207f);
+            StylePanel(goalPlate.GetComponent<Image>(), new Color(1f, 0.97f, 0.88f, 0.90f));
+            goalPlate.GetComponent<Image>().raycastTarget = false;
+            AddShadow(goalPlate.GetComponent<Image>(), new Color(0.24f, 0.20f, 0.33f, 0.13f),
+                new Vector2(0f, -5f));
 
-            // The tray only exists after a wrong answer.
-            var tray = new GameObject("Tray", typeof(RectTransform));
+            var goal = Text(goalPlate.transform, "Goal", font, 48, ink,
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(800f, 74f));
+            goal.fontStyle = FontStyle.Bold;
+
+            // Failure copy is one large glanceable line that follows the
+            // selected prop, not a footer or a modal to dismiss.
+            var tray = new GameObject("QuipRibbon", typeof(Image), typeof(CanvasGroup));
             tray.transform.SetParent(hudRoot.transform, false);
             var trayRt = tray.GetComponent<RectTransform>();
             trayRt.anchorMin = trayRt.anchorMax = new Vector2(0.5f, 0f);
-            trayRt.sizeDelta = new Vector2(1000f, 300f);
-            trayRt.anchoredPosition = new Vector2(0f, 220f);
+            trayRt.sizeDelta = new Vector2(990f, 158f);
+            trayRt.anchoredPosition = new Vector2(0f, 390f);
+            StylePanel(tray.GetComponent<Image>(), new Color(1f, 0.97f, 0.88f, 0.98f));
+            tray.GetComponent<Image>().raycastTarget = false;
+            AddShadow(tray.GetComponent<Image>(), new Color(0.24f, 0.20f, 0.33f, 0.20f),
+                new Vector2(0f, -7f));
 
-            var quip = Text(tray.transform, "Quip", font, 40, ink,
-                new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(940f, 90f));
-
-            var buttonGo = new GameObject("Retry", typeof(Image), typeof(Button));
-            buttonGo.transform.SetParent(tray.transform, false);
-            var buttonRt = buttonGo.GetComponent<RectTransform>();
-            buttonRt.anchorMin = buttonRt.anchorMax = new Vector2(0.5f, 0f);
-            buttonRt.sizeDelta = new Vector2(460f, 116f);
-            buttonRt.anchoredPosition = new Vector2(0f, 40f);
-            buttonGo.GetComponent<Image>().color = Hex("FFB53E");
-            var buttonLabel = Text(buttonGo.transform, "Label", font, 44, Hex("3D3354"),
-                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(440f, 100f));
-            buttonLabel.text = "Try again";
-
-            // High enough to clear the diorama: at the centre it lands right
-            // on top of the reunion, which is the one moment the player
-            // should be looking at the characters and not at text.
-            var stamp = Text(hudRoot.transform, "ResultStamp", font, 92, Hex("FF7660"),
-                new Vector2(0.5f, 1f), new Vector2(0f, -330f), new Vector2(900f, 140f));
+            var quip = Text(tray.transform, "Quip", font, 56, ink,
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(920f, 132f));
+            quip.fontStyle = FontStyle.Bold;
+            quip.horizontalOverflow = HorizontalWrapMode.Overflow;
+            quip.verticalOverflow = VerticalWrapMode.Truncate;
 
             hud = canvasGo.AddComponent<RescueHud>();
             Wire(hud, "_root", hudRoot);
             Wire(hud, "_roundLabel", roundLabel);
             Wire(hud, "_goal", goal);
             Wire(hud, "_tray", tray);
+            Wire(hud, "_trayGroup", tray.GetComponent<CanvasGroup>());
+            Wire(hud, "_trayRect", trayRt);
             Wire(hud, "_quip", quip);
-            Wire(hud, "_retryButton", buttonGo.GetComponent<Button>());
-            Wire(hud, "_resultStamp", stamp);
 
             var so = new SerializedObject(hud);
-            var dotsProp = so.FindProperty("_dots");
-            dotsProp.arraySize = dots.Length;
-            for (var i = 0; i < dots.Length; i++)
+            var marksProp = so.FindProperty("_marks");
+            marksProp.arraySize = marks.Length;
+            for (var i = 0; i < marks.Length; i++)
             {
-                dotsProp.GetArrayElementAtIndex(i).objectReferenceValue = dots[i];
+                marksProp.GetArrayElementAtIndex(i).objectReferenceValue = marks[i];
             }
             so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -482,17 +498,16 @@ namespace SavePeps.EditorTools
             statusLabel.text = "NEW";
             statusLabel.color = new Color(ink.r, ink.g, ink.b, 0.62f);
 
-            var dots = new Image[RoundDefinition.RescuesPerRound];
-            for (var i = 0; i < dots.Length; i++)
+            var marks = new MasteryMarkGraphic[RoundDefinition.RescuesPerRound];
+            for (var i = 0; i < marks.Length; i++)
             {
-                var dotGo = new GameObject($"Dot_{i}", typeof(Image));
-                dotGo.transform.SetParent(itemGo.transform, false);
-                var rt = dotGo.GetComponent<RectTransform>();
+                var markGo = new GameObject($"Mark_{i}", typeof(CanvasRenderer), typeof(MasteryMarkGraphic));
+                markGo.transform.SetParent(itemGo.transform, false);
+                var rt = markGo.GetComponent<RectTransform>();
                 rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
-                rt.sizeDelta = new Vector2(20f, 20f);
-                rt.anchoredPosition = new Vector2((i - 1) * 36f, -57f);
-                dots[i] = dotGo.GetComponent<Image>();
-                dots[i].sprite = Circle();
+                rt.sizeDelta = new Vector2(30f, 30f);
+                rt.anchoredPosition = new Vector2((i - 1) * 42f, -57f);
+                marks[i] = markGo.GetComponent<MasteryMarkGraphic>();
             }
 
             var item = itemGo.AddComponent<RoundPickerItem>();
@@ -502,11 +517,11 @@ namespace SavePeps.EditorTools
             Wire(item, "_statusLabel", statusLabel);
 
             var so = new SerializedObject(item);
-            var dotsProp = so.FindProperty("_dots");
-            dotsProp.arraySize = dots.Length;
-            for (var i = 0; i < dots.Length; i++)
+            var marksProp = so.FindProperty("_marks");
+            marksProp.arraySize = marks.Length;
+            for (var i = 0; i < marks.Length; i++)
             {
-                dotsProp.GetArrayElementAtIndex(i).objectReferenceValue = dots[i];
+                marksProp.GetArrayElementAtIndex(i).objectReferenceValue = marks[i];
             }
             so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -534,63 +549,98 @@ namespace SavePeps.EditorTools
             holder.transform.SetParent(canvas, false);
             Stretch(holder.GetComponent<RectTransform>());
 
-            var root = new GameObject("Panel", typeof(Image));
+            var root = new GameObject("Overlay", typeof(Image), typeof(CanvasGroup));
             root.transform.SetParent(holder.transform, false);
             Stretch(root.GetComponent<RectTransform>());
-            // A wash rather than a blackout: the solved diorama stays visible
-            // underneath, which is most of the reward.
-            // 0.88 washed the scene out almost entirely on device, which
-            // defeats the point of keeping it. This is light enough to read
-            // the reunion through and still hold dark text.
-            root.GetComponent<Image>().color = new Color(0.97f, 0.95f, 0.91f, 0.74f);
+            // The last reunion stays visible around a physical-looking card.
+            // A light ink veil grounds it without washing the solved toy away.
+            root.GetComponent<Image>().color = new Color(ink.r, ink.g, ink.b, 0.16f);
 
-            var title = Text(root.transform, "Title", font, 68, ink,
-                new Vector2(0.5f, 0.5f), new Vector2(0f, 300f), new Vector2(940f, 100f));
+            var shadow = new GameObject("CardShadow", typeof(Image));
+            shadow.transform.SetParent(root.transform, false);
+            var shadowRt = shadow.GetComponent<RectTransform>();
+            shadowRt.anchorMin = shadowRt.anchorMax = new Vector2(0.5f, 0.5f);
+            shadowRt.sizeDelta = new Vector2(900f, 900f);
+            shadowRt.anchoredPosition = new Vector2(0f, -18f);
+            StylePanel(shadow.GetComponent<Image>(), new Color(ink.r, ink.g, ink.b, 0.19f));
+            shadow.GetComponent<Image>().raycastTarget = false;
 
-            var subtitle = Text(root.transform, "Subtitle", font, 40, ink,
-                new Vector2(0.5f, 0.5f), new Vector2(0f, 210f), new Vector2(940f, 70f));
-            subtitle.color = new Color(ink.r, ink.g, ink.b, 0.7f);
+            var panelGo = new GameObject("ToyCard", typeof(Image));
+            panelGo.transform.SetParent(root.transform, false);
+            var panel = panelGo.GetComponent<RectTransform>();
+            panel.anchorMin = panel.anchorMax = new Vector2(0.5f, 0.5f);
+            panel.sizeDelta = new Vector2(880f, 900f);
+            panel.anchoredPosition = Vector2.zero;
+            StylePanel(panelGo.GetComponent<Image>(), new Color(1f, 0.97f, 0.88f, 0.98f));
+            panelGo.GetComponent<Image>().raycastTarget = false;
 
-            var dots = new Image[3];
-            for (var i = 0; i < dots.Length; i++)
+            var ribbon = new GameObject("Ribbon", typeof(Image));
+            ribbon.transform.SetParent(panel, false);
+            var ribbonRt = ribbon.GetComponent<RectTransform>();
+            ribbonRt.anchorMin = ribbonRt.anchorMax = new Vector2(0.5f, 0.5f);
+            ribbonRt.sizeDelta = new Vector2(270f, 14f);
+            ribbonRt.anchoredPosition = new Vector2(0f, 360f);
+            StylePanel(ribbon.GetComponent<Image>(), Hex("FFB53E"));
+            ribbon.GetComponent<Image>().raycastTarget = false;
+
+            var title = Text(panel, "Title", font, 36, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 296f), new Vector2(790f, 60f));
+            title.fontStyle = FontStyle.Bold;
+            title.color = new Color(ink.r, ink.g, ink.b, 0.72f);
+
+            var subtitle = Text(panel, "Subtitle", font, 42, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 224f), new Vector2(790f, 70f));
+            subtitle.fontStyle = FontStyle.Bold;
+
+            var marks = new MasteryMarkGraphic[RoundDefinition.RescuesPerRound];
+            for (var i = 0; i < marks.Length; i++)
             {
-                var dotGo = new GameObject($"CardDot_{i}", typeof(Image));
-                dotGo.transform.SetParent(root.transform, false);
-                var rt = dotGo.GetComponent<RectTransform>();
+                var markGo = new GameObject($"CardMark_{i}", typeof(CanvasRenderer), typeof(MasteryMarkGraphic));
+                markGo.transform.SetParent(panel, false);
+                var rt = markGo.GetComponent<RectTransform>();
                 rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
-                rt.sizeDelta = new Vector2(44f, 44f);
-                rt.anchoredPosition = new Vector2((i - 1) * 90f, 100f);
-                dots[i] = dotGo.GetComponent<Image>();
-                dots[i].sprite = Circle();
+                rt.sizeDelta = new Vector2(144f, 144f);
+                rt.anchoredPosition = new Vector2((i - 1) * 220f, 68f);
+                marks[i] = markGo.GetComponent<MasteryMarkGraphic>();
+
+                var number = Text(panel, $"Rescue_{i + 1}", font, 24, ink,
+                    new Vector2(0.5f, 0.5f), new Vector2((i - 1) * 220f, -24f), new Vector2(140f, 38f));
+                number.text = $"RESCUE {i + 1}";
+                number.color = new Color(ink.r, ink.g, ink.b, 0.52f);
             }
 
             var continueGo = new GameObject("Continue", typeof(Image), typeof(Button));
-            continueGo.transform.SetParent(root.transform, false);
+            continueGo.transform.SetParent(panel, false);
             var continueRt = continueGo.GetComponent<RectTransform>();
             continueRt.anchorMin = continueRt.anchorMax = new Vector2(0.5f, 0.5f);
-            continueRt.sizeDelta = new Vector2(520f, 124f);
-            continueRt.anchoredPosition = new Vector2(0f, -60f);
+            continueRt.sizeDelta = new Vector2(650f, 132f);
+            continueRt.anchoredPosition = new Vector2(0f, -182f);
             StylePanel(continueGo.GetComponent<Image>(), Hex("FFB53E"));
+            AddShadow(continueGo.GetComponent<Image>(), new Color(ink.r, ink.g, ink.b, 0.18f),
+                new Vector2(0f, -6f));
             var continueLabel = Text(continueGo.transform, "Label", font, 46, ink,
-                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(500f, 110f));
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(620f, 112f));
             continueLabel.text = "Keep playing";
+            continueLabel.fontStyle = FontStyle.Bold;
 
             // Direct round choice is a link, not a button: it is the rarer
             // intent and should not compete with Keep playing for the thumb.
             var replayGo = new GameObject("Replay", typeof(Image), typeof(Button));
-            replayGo.transform.SetParent(root.transform, false);
+            replayGo.transform.SetParent(panel, false);
             var replayRt = replayGo.GetComponent<RectTransform>();
             replayRt.anchorMin = replayRt.anchorMax = new Vector2(0.5f, 0.5f);
-            replayRt.sizeDelta = new Vector2(420f, 96f);
-            replayRt.anchoredPosition = new Vector2(0f, -190f);
-            replayGo.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+            replayRt.sizeDelta = new Vector2(480f, 96f);
+            replayRt.anchoredPosition = new Vector2(0f, -326f);
+            StylePanel(replayGo.GetComponent<Image>(), new Color(1f, 1f, 1f, 0.34f));
             var replayLabel = Text(replayGo.transform, "Label", font, 36, ink,
-                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(400f, 90f));
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(450f, 86f));
             replayLabel.text = "Choose round";
-            replayLabel.color = new Color(ink.r, ink.g, ink.b, 0.6f);
+            replayLabel.color = new Color(ink.r, ink.g, ink.b, 0.72f);
 
             card = holder.AddComponent<RoundCompleteCard>();
             Wire(card, "_root", root);
+            Wire(card, "_group", root.GetComponent<CanvasGroup>());
+            Wire(card, "_panel", panel);
             Wire(card, "_title", title);
             Wire(card, "_subtitle", subtitle);
             Wire(card, "_continueButton", continueGo.GetComponent<Button>());
@@ -599,11 +649,11 @@ namespace SavePeps.EditorTools
             Wire(card, "_replayLabel", replayLabel);
 
             var so = new SerializedObject(card);
-            var dotsProp = so.FindProperty("_dots");
-            dotsProp.arraySize = dots.Length;
-            for (var i = 0; i < dots.Length; i++)
+            var marksProp = so.FindProperty("_marks");
+            marksProp.arraySize = marks.Length;
+            for (var i = 0; i < marks.Length; i++)
             {
-                dotsProp.GetArrayElementAtIndex(i).objectReferenceValue = dots[i];
+                marksProp.GetArrayElementAtIndex(i).objectReferenceValue = marks[i];
             }
             so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -622,21 +672,15 @@ namespace SavePeps.EditorTools
             t.alignment = TextAnchor.MiddleCenter;
             t.horizontalOverflow = HorizontalWrapMode.Wrap;
             t.verticalOverflow = VerticalWrapMode.Overflow;
+            // Text is visual content, never a hit target. Leaving this on made
+            // transparent label rectangles steal taps from the 3D choices.
+            t.raycastTarget = false;
             var rt = go.GetComponent<RectTransform>();
             rt.anchorMin = rt.anchorMax = anchor;
             rt.anchoredPosition = position;
             rt.sizeDelta = size2;
             return t;
         }
-
-        /// <summary>
-        /// A round sprite for the progress dots. A bare Image with no sprite
-        /// draws a square, which is what shipped to the device — "three dots"
-        /// rendered as three little boxes. Knob is a built-in filled circle, so
-        /// this costs no asset.
-        /// </summary>
-        private static Sprite Circle() =>
-            UnityEditor.AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
 
         private static Sprite PanelSprite() =>
             UnityEditor.AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
@@ -647,6 +691,15 @@ namespace SavePeps.EditorTools
             image.sprite = PanelSprite();
             image.type = Image.Type.Sliced;
             image.color = color;
+        }
+
+        private static void AddShadow(Graphic graphic, Color color, Vector2 distance)
+        {
+            if (graphic == null) return;
+            var shadow = graphic.gameObject.AddComponent<Shadow>();
+            shadow.effectColor = color;
+            shadow.effectDistance = distance;
+            shadow.useGraphicAlpha = true;
         }
 
         private static void Stretch(RectTransform rt)

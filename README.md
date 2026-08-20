@@ -25,6 +25,7 @@ unity/SavePeps/    the Unity project
 ```
 
 Start with [`PLAN.md`](PLAN.md). It is the source of truth for what is being built and why.
+The polished interaction and feedback loop is frozen in [`docs/core-ux.md`](docs/core-ux.md); the content sprint should reuse that contract rather than reopen it per rescue.
 
 ## Toolchain
 

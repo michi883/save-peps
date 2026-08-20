@@ -31,8 +31,8 @@ namespace SavePeps.Progression
         [SerializeField] private MonoBehaviour _entitlementSource;
 
         [Header("Pacing")]
-        [Tooltip("Seconds the reunion is left on screen before the next rescue drops in.")]
-        [SerializeField, Range(0.5f, 5f)] private float _winDwell = 2.4f;
+        [Tooltip("Seconds after the authored outcome before the next rescue drops in. The reunion itself is already inside that outcome.")]
+        [SerializeField, Range(0.5f, 5f)] private float _winDwell = 1.35f;
 
         private IEntitlementService _entitlements;
         private SaveData _save;

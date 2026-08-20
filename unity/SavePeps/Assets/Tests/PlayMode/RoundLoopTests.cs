@@ -3,6 +3,7 @@ using NUnit.Framework;
 using SavePeps.Core;
 using SavePeps.Progression;
 using SavePeps.Rescue;
+using SavePeps.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
@@ -109,6 +110,14 @@ namespace SavePeps.Tests
             // The card is the visible end of the round.
             yield return WaitUntil(() => CardVisible(card), 8f);
             Assert.IsTrue(CardVisible(card), "The round-complete card never appeared.");
+            var resultMarks = card.GetComponentsInChildren<MasteryMarkGraphic>(includeInactive: false);
+            Assert.AreEqual(RoundDefinition.RescuesPerRound, resultMarks.Length,
+                "The completion card should make all three mastery marks the reward.");
+            foreach (var mark in resultMarks)
+            {
+                Assert.AreEqual(MasteryMarkState.Star, mark.State,
+                    "A first-tap round should resolve into three visible stars.");
+            }
 
             flow.KeepPlaying();
             Assert.AreEqual(2, flow.CurrentRound,
@@ -124,7 +133,9 @@ namespace SavePeps.Tests
             var flow = Object.FindFirstObjectByType<GameFlow>();
             var runner = Object.FindFirstObjectByType<RescueRunner>();
             var router = Object.FindFirstObjectByType<TapRouter>();
+            var hud = Object.FindFirstObjectByType<RescueHud>();
 
+            Assert.IsNotNull(hud, "The Game scene has no RescueHud.");
             flow.PlayRecommendedRound();
 
             var rescue = runner.Current;
@@ -132,23 +143,22 @@ namespace SavePeps.Tests
             var id = rescue.Id;
             yield return WaitUntil(() => router.InputEnabled, 5f);
 
-            // Tap a wrong object, then retry and solve it.
+            // Tap a wrong object. The quip gets one brief beat, then the scene
+            // resets itself without a generic Try Again interruption.
             var wrong = System.Array.Find(rescue.Objects, o => o != null && !rescue.IsCorrect(o));
             Assert.IsNotNull(wrong, "Every rescue must offer a wrong object.");
 
             var correctId = rescue.Correct.Id;
 
             router.SimulateTap(wrong.Id);
-            yield return WaitRealSeconds(wrong.Duration / Time.timeScale + 0.5f);
+            yield return WaitUntil(() => hud.QuipVisible, 8f);
 
             Assert.AreEqual(Mark.None, flow.Save.MarkFor(id), "A wrong tap must not mark the rescue solved.");
             Assert.IsFalse(router.InputEnabled,
-                "Input must stay locked after a wrong outcome until the player asks to retry.");
+                "Input must stay locked while the consequence and quip land.");
 
-            // Try Again. The scene resets and the same rescue is playable.
-            runner.Retry();
             yield return WaitUntil(() => router.InputEnabled, 5f);
-            Assert.IsTrue(router.InputEnabled, "Retry should hand input back.");
+            Assert.IsFalse(hud.QuipVisible, "The quip should leave with the automatic reset.");
 
             router.SimulateTap(correctId);
             yield return WaitUntil(() => flow.Save.MarkFor(id) != Mark.None, 12f);
@@ -186,6 +196,7 @@ namespace SavePeps.Tests
             Assert.IsNotNull(roundTwo);
             Assert.AreEqual(RoundAccess.Playable, roundTwo.AccessState);
             roundTwo.Select();
+            yield return WaitUntil(() => flow.CurrentRound == 2, 2f);
 
             Assert.AreEqual(2, flow.CurrentRound);
             Assert.IsFalse(router.InputEnabled,
@@ -220,12 +231,6 @@ namespace SavePeps.Tests
             }
 
             return false;
-        }
-
-        private static IEnumerator WaitRealSeconds(float seconds)
-        {
-            var until = Time.realtimeSinceStartup + seconds;
-            while (Time.realtimeSinceStartup < until) yield return null;
         }
 
         private static IEnumerator WaitUntil(System.Func<bool> condition, float timeoutSeconds)

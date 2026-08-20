@@ -1,4 +1,5 @@
 using System;
+using SavePeps.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +12,7 @@ namespace SavePeps.Progression
         [SerializeField] private Image _panel;
         [SerializeField] private Text _roundLabel;
         [SerializeField] private Text _statusLabel;
-        [SerializeField] private Image[] _dots;
+        [SerializeField] private MasteryMarkGraphic[] _marks;
 
         private Action<int> _onSelected;
 
@@ -68,7 +69,7 @@ namespace SavePeps.Progression
                 };
             }
 
-            PaintDots(round, save, access == RoundAccess.Playable ? 1f : 0.42f);
+            PaintMarks(round, save, access == RoundAccess.Playable);
         }
 
         /// <summary>Also used by PlayMode tests to exercise the real item callback.</summary>
@@ -78,21 +79,21 @@ namespace SavePeps.Progression
             _onSelected?.Invoke(RoundNumber);
         }
 
-        private void PaintDots(RoundDefinition round, SaveData save, float visibility)
+        private void PaintMarks(RoundDefinition round, SaveData save, bool playable)
         {
-            for (var i = 0; i < (_dots?.Length ?? 0); i++)
+            for (var i = 0; i < (_marks?.Length ?? 0); i++)
             {
-                var dot = _dots[i];
-                if (dot == null) continue;
+                var view = _marks[i];
+                if (view == null) continue;
 
                 var mark = save?.MarkFor(round?.RescueAt(i)?.Id) ?? Mark.None;
-                dot.color = mark switch
+                view.SetState(mark switch
                 {
-                    Mark.Star => new Color(1f, 0.71f, 0.24f, visibility),
-                    Mark.Check => new Color(1f, 0.71f, 0.24f, visibility * 0.58f),
-                    _ => new Color(0.24f, 0.20f, 0.33f, visibility * 0.22f),
-                };
-                dot.rectTransform.localScale = Vector3.one * (mark == Mark.Star ? 1.22f : 1f);
+                    Mark.Star => MasteryMarkState.Star,
+                    Mark.Check => MasteryMarkState.Check,
+                    _ => MasteryMarkState.Empty,
+                });
+                view.canvasRenderer.SetAlpha(playable ? 1f : 0.42f);
             }
         }
 

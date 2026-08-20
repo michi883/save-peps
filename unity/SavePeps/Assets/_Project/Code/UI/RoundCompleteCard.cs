@@ -1,38 +1,40 @@
 using System;
+using System.Collections;
+using SavePeps.Core;
 using SavePeps.Rescue;
+using SavePeps.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace SavePeps.Progression
 {
     /// <summary>
-    /// The one interstitial in the game: three dots resolving into their
-    /// marks, "Round 4 complete", Keep playing, and a quiet round-picker link.
-    ///
-    /// PLAN §8 rules out a level select and a round map, which leaves this
-    /// card carrying the whole of progression feedback. It stays deliberately
-    /// small — the reason to keep playing is the next diorama dropping in, not
-    /// a summary screen, so this should feel like a beat rather than a
-    /// destination.
+    /// The round's one result beat. Earned ★/✓ marks arrive first; copy and
+    /// actions support them rather than turning mastery into a score screen.
     /// </summary>
     public sealed class RoundCompleteCard : MonoBehaviour
     {
         [SerializeField] private GameObject _root;
+        [SerializeField] private CanvasGroup _group;
+        [SerializeField] private RectTransform _panel;
         [SerializeField] private Text _title;
         [SerializeField] private Text _subtitle;
-        [SerializeField] private Image[] _dots;
+        [SerializeField] private MasteryMarkGraphic[] _marks;
         [SerializeField] private Button _continueButton;
         [SerializeField] private Text _continueLabel;
         [SerializeField] private Button _replayButton;
         [SerializeField] private Text _replayLabel;
+        [SerializeField] private Feedback _feedback;
 
         private Action _onContinue;
         private Action _onReplay;
 
+        public bool Visible => _root != null && _root.activeSelf;
+
         private void Awake()
         {
-            if (_continueButton != null) _continueButton.onClick.AddListener(() => _onContinue?.Invoke());
-            if (_replayButton != null) _replayButton.onClick.AddListener(() => _onReplay?.Invoke());
+            if (_continueButton != null) _continueButton.onClick.AddListener(HandleContinue);
+            if (_replayButton != null) _replayButton.onClick.AddListener(HandleReplay);
             Hide();
         }
 
@@ -41,7 +43,7 @@ namespace SavePeps.Progression
             _onContinue = onKeepPlaying;
             _onReplay = onChooseRound;
 
-            if (_title != null) _title.text = $"Round {roundNumber} complete";
+            if (_title != null) _title.text = $"ROUND {roundNumber} COMPLETE";
 
             var perfect = 0;
             foreach (var mark in marks ?? Array.Empty<Mark>())
@@ -51,98 +53,175 @@ namespace SavePeps.Progression
 
             if (_subtitle != null)
             {
-                // Never a score and never a rebuke. Three of three is worth
-                // celebrating; anything less is just stated, because the brief
-                // is explicit that missing a first tap costs nothing.
                 _subtitle.text = perfect == RoundDefinition.RescuesPerRound
-                    ? "All three, first try."
-                    : $"{perfect} of {RoundDefinition.RescuesPerRound} first try.";
+                    ? "PERFECT ROUND"
+                    : "THREE RESCUES SAVED";
+                _subtitle.color = perfect == RoundDefinition.RescuesPerRound
+                    ? new Color(0.92f, 0.55f, 0.12f)
+                    : new Color(0.24f, 0.20f, 0.33f, 0.66f);
             }
 
-            foreach (var dot in _dots ?? System.Array.Empty<Image>())
+            foreach (var mark in _marks ?? Array.Empty<MasteryMarkGraphic>())
             {
-                if (dot != null) dot.gameObject.SetActive(true);
+                if (mark != null) mark.gameObject.SetActive(true);
             }
-
-            PaintDots(marks);
+            PaintMarks(marks);
 
             SetActions("Keep playing", "Choose round");
-            SetVisible(true);
+            Reveal();
         }
 
-        /// <summary>
-        /// The player has finished everything authored. This is a real state
-        /// during development and will be a real state for a subscriber who
-        /// catches up with the content, so it gets an honest screen rather
-        /// than a silent dead end.
-        /// </summary>
         public void ShowOutOfContent(Action onKeepPlaying, Action onChooseRound)
         {
             _onContinue = onKeepPlaying;
             _onReplay = onChooseRound;
 
-            if (_title != null) _title.text = "That is everything, for now.";
-            if (_subtitle != null) _subtitle.text = "New rounds are on the way.";
-
-            // No dots here: this card is not about a round, and three empty
-            // ones just read as three things the player failed to earn.
-            foreach (var dot in _dots ?? System.Array.Empty<Image>())
+            if (_title != null) _title.text = "ALL CAUGHT UP";
+            if (_subtitle != null)
             {
-                if (dot != null) dot.gameObject.SetActive(false);
+                _subtitle.text = "NEW RESCUES ARE ON THE WAY";
+                _subtitle.color = new Color(0.24f, 0.20f, 0.33f, 0.66f);
             }
 
-            // Both ways out stay live. This screen used to hide its buttons,
-            // which left the player with nothing to tap and no way back into
-            // the game short of killing the app — a dead end reachable by
-            // anybody who finishes the last authored round.
+            foreach (var mark in _marks ?? Array.Empty<MasteryMarkGraphic>())
+            {
+                if (mark != null) mark.gameObject.SetActive(false);
+            }
+
             SetActions("Keep playing", "Choose round");
-            SetVisible(true);
+            Reveal();
         }
 
-        /// <summary>Labels and re-enables both buttons.</summary>
+        public void Hide()
+        {
+            StopAllCoroutines();
+            if (_group != null)
+            {
+                _group.alpha = 0f;
+                _group.interactable = false;
+                _group.blocksRaycasts = false;
+            }
+            if (_panel != null) _panel.localScale = Vector3.one;
+            SetVisible(false);
+        }
+
         private void SetActions(string continueText, string replayText)
         {
             if (_continueLabel != null) _continueLabel.text = continueText;
             if (_replayLabel != null) _replayLabel.text = replayText;
-            if (_continueButton != null) _continueButton.gameObject.SetActive(true);
-            if (_replayButton != null) _replayButton.gameObject.SetActive(true);
+            if (_continueButton != null)
+            {
+                _continueButton.gameObject.SetActive(true);
+                _continueButton.interactable = false;
+            }
+            if (_replayButton != null)
+            {
+                _replayButton.gameObject.SetActive(true);
+                _replayButton.interactable = false;
+            }
         }
 
-        public void Hide() => SetVisible(false);
+        private void PaintMarks(Mark[] marks)
+        {
+            for (var i = 0; i < (_marks?.Length ?? 0); i++)
+            {
+                var view = _marks[i];
+                if (view == null) continue;
+
+                var mark = marks != null && i < marks.Length ? marks[i] : Mark.None;
+                view.SetState(mark switch
+                {
+                    Mark.Star => MasteryMarkState.Star,
+                    Mark.Check => MasteryMarkState.Check,
+                    _ => MasteryMarkState.Empty,
+                });
+            }
+        }
+
+        private void Reveal()
+        {
+            StopAllCoroutines();
+            SetVisible(true);
+            StartCoroutine(RevealRoutine());
+        }
+
+        private IEnumerator RevealRoutine()
+        {
+            if (_group != null)
+            {
+                _group.alpha = 0f;
+                _group.interactable = false;
+                _group.blocksRaycasts = true;
+            }
+            if (_panel != null) _panel.localScale = Vector3.one * 0.94f;
+
+            var elapsed = 0f;
+            const float duration = 0.22f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                var t = Easing.Evaluate(EaseKind.Out, Mathf.Clamp01(elapsed / duration));
+                if (_group != null) _group.alpha = t;
+                if (_panel != null) _panel.localScale = Vector3.one * Mathf.Lerp(0.94f, 1f, t);
+                yield return null;
+            }
+
+            foreach (var mark in _marks ?? Array.Empty<MasteryMarkGraphic>())
+            {
+                if (mark == null || !mark.gameObject.activeSelf) continue;
+                mark.Punch(mark.State == MasteryMarkState.Star ? 1.30f : 1.18f);
+                yield return new WaitForSecondsRealtime(0.09f);
+            }
+
+            if (_group != null)
+            {
+                _group.alpha = 1f;
+                _group.interactable = true;
+                _group.blocksRaycasts = true;
+            }
+            if (_continueButton != null) _continueButton.interactable = true;
+            if (_replayButton != null) _replayButton.interactable = true;
+        }
+
+        private void HandleContinue()
+        {
+            if (_continueButton != null && !_continueButton.interactable) return;
+            _feedback?.Tap();
+            StartCoroutine(DismissRoutine(_onContinue));
+        }
+
+        private void HandleReplay()
+        {
+            if (_replayButton != null && !_replayButton.interactable) return;
+            _feedback?.Tap();
+            StartCoroutine(DismissRoutine(_onReplay));
+        }
+
+        private IEnumerator DismissRoutine(Action action)
+        {
+            if (_continueButton != null) _continueButton.interactable = false;
+            if (_replayButton != null) _replayButton.interactable = false;
+            if (_group != null) _group.interactable = false;
+
+            var elapsed = 0f;
+            const float duration = 0.14f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                var t = Easing.Evaluate(EaseKind.In, Mathf.Clamp01(elapsed / duration));
+                if (_group != null) _group.alpha = 1f - t;
+                if (_panel != null) _panel.localScale = Vector3.one * Mathf.Lerp(1f, 0.98f, t);
+                yield return null;
+            }
+
+            SetVisible(false);
+            action?.Invoke();
+        }
 
         private void SetVisible(bool visible)
         {
             var target = _root != null ? _root : gameObject;
             if (target.activeSelf != visible) target.SetActive(visible);
-        }
-
-        /// <summary>
-        /// Marks are drawn as coloured dots rather than star and tick glyphs:
-        /// the built-in font has no dependable coverage for those codepoints,
-        /// and a missing-glyph box on the celebration screen is a worse bug
-        /// than a plainer symbol. Size carries the difference so the row still
-        /// reads at a glance.
-        /// </summary>
-        private void PaintDots(Mark[] marks)
-        {
-            if (_dots == null) return;
-
-            for (var i = 0; i < _dots.Length; i++)
-            {
-                var dot = _dots[i];
-                if (dot == null) continue;
-
-                var mark = marks != null && i < marks.Length ? marks[i] : Mark.None;
-                dot.color = mark switch
-                {
-                    Mark.Star  => new Color(1f, 0.71f, 0.24f),
-                    Mark.Check => new Color(1f, 0.71f, 0.24f, 0.55f),
-                    _          => new Color(1f, 1f, 1f, 0.35f),
-                };
-
-                var scale = mark == Mark.Star ? 1.35f : 1f;
-                dot.rectTransform.localScale = Vector3.one * scale;
-            }
         }
     }
 }

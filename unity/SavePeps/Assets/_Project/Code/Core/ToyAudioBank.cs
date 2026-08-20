@@ -24,6 +24,18 @@ namespace SavePeps.Core
             ["wrong"] = Make("wrong", 0.34f, (t, _) =>
                 BellPulse(t, 0f, 0.18f, 330f) * 0.55f + BellPulse(t, 0.13f, 0.20f, 247f) * 0.48f),
 
+            // Mastery punctuation comes after the reunion. A first-tap star
+            // gets the brighter three-note glint; a retry check lands softly
+            // and positively rather than sounding like a lesser win.
+            ["star"] = Make("star", 0.58f, (t, _) =>
+                BellPulse(t, 0f, 0.24f, 784f) * 0.26f +
+                BellPulse(t, 0.10f, 0.30f, 988f) * 0.30f +
+                BellPulse(t, 0.23f, 0.34f, 1319f) * 0.25f),
+
+            ["check"] = Make("check", 0.36f, (t, _) =>
+                BellPulse(t, 0f, 0.22f, 659f) * 0.25f +
+                BellPulse(t, 0.10f, 0.25f, 784f) * 0.25f),
+
             // It starts when Meet begins: two anticipation notes lead into a
             // warm chord near physical contact rather than congratulating the
             // player before the Peps have actually reached one another.

@@ -285,6 +285,21 @@ namespace SavePeps.EditorTools
                 {
                     report.Errors.Add($"{id}/{obj.Id}: a wrong object with no quip — failure has to land as a joke.");
                 }
+                else if (!correct)
+                {
+                    var quip = obj.Quip.Trim();
+                    if (quip.Contains("\n") || quip.Contains("\r"))
+                    {
+                        report.Errors.Add($"{id}/{obj.Id}: quip must stay on one line.");
+                    }
+
+                    if (quip.Length > RescueObject.MaxQuipCharacters)
+                    {
+                        report.Errors.Add(
+                            $"{id}/{obj.Id}: quip is {quip.Length} characters; " +
+                            $"{RescueObject.MaxQuipCharacters} is the Pixel 4 one-line limit.");
+                    }
+                }
 
                 if (obj.Duration < MinDuration || obj.Duration > MaxDuration)
                 {

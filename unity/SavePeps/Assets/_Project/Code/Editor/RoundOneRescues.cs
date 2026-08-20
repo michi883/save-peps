@@ -67,7 +67,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "bell", Prop = Prop("bell"), AnchorId = "Slot_2", Label = "The brass bell",
-                    Quip = "The brook is awake now.",
+                    Quip = "The brook is awake.",
                     Duration = 2.3f,
                     Steps = new[]
                     {
@@ -85,7 +85,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "balloon", Prop = Prop("balloon"), AnchorId = "Slot_3", Label = "The orange balloon",
-                    Quip = "Further apart. Vertically.",
+                    Quip = "Up is not across.",
                     Duration = 2.5f,
                     Steps = PropGags.Balloon(),
                 },
@@ -113,7 +113,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "pillow", Prop = Prop("pillow"), AnchorId = "Slot_1", Label = "The soft pillow",
-                    Quip = "The helper has never slept better.",
+                    Quip = "Still asleep.",
                     Duration = 2.4f,
                     Steps = new[]
                     {
@@ -130,7 +130,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "bone", Prop = Prop("bone"), AnchorId = "Slot_2", Label = "The white dog bone",
-                    Quip = "Wrong species. Excellent bone.",
+                    Quip = "Good bone. Wrong helper.",
                     Duration = 2.4f,
                     Steps = new[]
                     {
@@ -199,7 +199,7 @@ namespace SavePeps.EditorTools
                 {
                     Id = "watering_can", Prop = Prop("watering_can"), AnchorId = "Slot_1",
                     Label = "The blue watering can",
-                    Quip = "Well watered. Extremely vigorous.",
+                    Quip = "Too much water.",
                     Duration = 2.5f,
                     Steps = new[]
                     {
@@ -240,7 +240,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "fan", Prop = Prop("fan"), AnchorId = "Slot_3", Label = "The caged electric fan",
-                    Quip = "The leaves are impressed. The roots are not.",
+                    Quip = "Leaves up. Roots stuck.",
                     Duration = 2.4f,
                     Steps = new[]
                     {

@@ -53,6 +53,33 @@ namespace SavePeps.Tests
             }
         }
 
+        [TestCase("This quip breaks onto\ntwo lines.", "one line")]
+        [TestCase("12345678901234567890123456789", "Pixel 4 one-line limit")]
+        public void WrongAnswerQuipsStayGlanceable(string quip, string expectedError)
+        {
+            var rescue = ScriptableObject.CreateInstance<RescueDefinition>();
+            try
+            {
+                rescue.Id = "quip-test";
+                rescue.Objects = new[]
+                {
+                    new RescueObject { Id = "right" },
+                    new RescueObject { Id = "wrong", Quip = quip },
+                    new RescueObject { Id = "other-wrong", Quip = "Nope." },
+                };
+                rescue.CorrectIndex = 0;
+
+                var report = ContentValidator.Validate(rescue);
+
+                Assert.IsTrue(report.Errors.Exists(e => e.Contains(expectedError)),
+                    $"Expected a quip readability error containing '{expectedError}'. Got:\n{report}");
+            }
+            finally
+            {
+                Object.DestroyImmediate(rescue);
+            }
+        }
+
         /// <summary>
         /// Guards the rule that came out of the first device playthrough: the
         /// whole round was winnable by tapping one screen position three

@@ -38,6 +38,7 @@ namespace SavePeps.Progression
         private Action _onChoose;
         private Action _onBack;
         private Action<int> _onRoundSelected;
+        private bool _transitioning;
 
         public bool HomeVisible => _homeRoot != null && _homeRoot.activeSelf;
         public bool PickerVisible => _pickerRoot != null && _pickerRoot.activeSelf;
@@ -75,6 +76,7 @@ namespace SavePeps.Progression
         public void Hide()
         {
             StopAllCoroutines();
+            _transitioning = false;
             SetVisible(_homeRoot, false);
             SetVisible(_pickerRoot, false);
             SetVisible(_homeDiorama, false);
@@ -121,26 +123,30 @@ namespace SavePeps.Progression
 
         private void HandlePlay()
         {
+            if (_transitioning) return;
             _feedback?.Tap();
-            _onPlay?.Invoke();
+            Dismiss(_homeRoot, _onPlay);
         }
 
         private void HandleChoose()
         {
+            if (_transitioning) return;
             _feedback?.Tap();
-            _onChoose?.Invoke();
+            Dismiss(_homeRoot, _onChoose);
         }
 
         private void HandleBack()
         {
+            if (_transitioning) return;
             _feedback?.Tap();
-            _onBack?.Invoke();
+            Dismiss(_pickerRoot, _onBack);
         }
 
         private void HandleRoundSelected(int number)
         {
+            if (_transitioning) return;
             _feedback?.Tap();
-            _onRoundSelected?.Invoke(number);
+            Dismiss(_pickerRoot, () => _onRoundSelected?.Invoke(number));
         }
 
         private void PrepareHomePeps()
@@ -157,9 +163,49 @@ namespace SavePeps.Progression
         private void Reveal(GameObject root)
         {
             StopAllCoroutines();
+            _transitioning = false;
             if (root == null) return;
             root.SetActive(true);
             StartCoroutine(RevealRoutine(root));
+        }
+
+        private void Dismiss(GameObject root, Action action)
+        {
+            StopAllCoroutines();
+            if (root == null)
+            {
+                action?.Invoke();
+                return;
+            }
+
+            _transitioning = true;
+            StartCoroutine(DismissRoutine(root, action));
+        }
+
+        private IEnumerator DismissRoutine(GameObject root, Action action)
+        {
+            var group = root.GetComponent<CanvasGroup>();
+            var rect = root.transform as RectTransform;
+            if (group != null)
+            {
+                group.interactable = false;
+                group.blocksRaycasts = false;
+            }
+
+            var elapsed = 0f;
+            const float duration = 0.13f;
+            while (elapsed < duration && root != null)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                var t = Easing.Evaluate(EaseKind.In, Mathf.Clamp01(elapsed / duration));
+                if (group != null) group.alpha = 1f - t;
+                if (rect != null) rect.localScale = Vector3.one * Mathf.Lerp(1f, 0.985f, t);
+                yield return null;
+            }
+
+            SetVisible(root, false);
+            _transitioning = false;
+            action?.Invoke();
         }
 
         private static IEnumerator RevealRoutine(GameObject root)

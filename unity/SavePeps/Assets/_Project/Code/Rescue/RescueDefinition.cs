@@ -38,6 +38,12 @@ namespace SavePeps.Rescue
     [Serializable]
     public sealed class RescueObject
     {
+        /// <summary>
+        /// Device-tested ceiling for the large failure ribbon. Quips are a
+        /// glanceable reaction, not a second objective to read.
+        /// </summary>
+        public const int MaxQuipCharacters = 28;
+
         [Tooltip("Stable id: plank, balloon, fan.")]
         public string Id;
 
@@ -50,8 +56,7 @@ namespace SavePeps.Rescue
         [Tooltip("Screen-reader label.")]
         public string Label;
 
-        [Tooltip("Wrong objects only: the Try Again caption. Dry, short, never scolding.")]
-        [TextArea]
+        [Tooltip("Wrong objects only: one line, at most 28 characters. Plain, playful, never scolding.")]
         public string Quip;
 
         [Tooltip("Seconds from tap until the result appears. 2.0-3.6 keeps outcomes paced like a gag.")]
@@ -139,6 +144,14 @@ namespace SavePeps.Rescue
                 if (!IsCorrect(o) && string.IsNullOrWhiteSpace(o.Quip))
                 {
                     Debug.LogWarning($"[SavePeps] '{name}': wrong object '{o.Id}' needs a quip — failures must land as jokes.", this);
+                }
+                else if (!IsCorrect(o) &&
+                         (o.Quip.Contains("\n") || o.Quip.Contains("\r") ||
+                          o.Quip.Trim().Length > RescueObject.MaxQuipCharacters))
+                {
+                    Debug.LogWarning(
+                        $"[SavePeps] '{name}': wrong object '{o.Id}' needs one quip line of at most " +
+                        $"{RescueObject.MaxQuipCharacters} characters.", this);
                 }
             }
         }

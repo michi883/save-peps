@@ -48,7 +48,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "umbrella", Prop = Prop("umbrella"), AnchorId = "Slot_1", Label = "The orange umbrella",
-                    Quip = "The guard appreciates the shade.",
+                    Quip = "Cool shade. Guard stays.",
                     Duration = 2.4f,
                     Steps = new[]
                     {
@@ -85,7 +85,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "fan", Prop = Prop("fan"), AnchorId = "Slot_3", Label = "The caged electric fan",
-                    Quip = "Excellent ear flaps. Impeccable guarding.",
+                    Quip = "Warm ears. Guard stays.",
                     Duration = 2.4f,
                     Steps = new[]
                     {
@@ -151,7 +151,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "pillow", Prop = Prop("pillow"), AnchorId = "Slot_2", Label = "The soft pillow",
-                    Quip = "A counterweight with excellent lumbar support.",
+                    Quip = "Comfy seat. Still tilted.",
                     Duration = 2.5f,
                     Steps = new[]
                     {
@@ -170,7 +170,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "balloon", Prop = Prop("balloon"), AnchorId = "Slot_3", Label = "The orange balloon",
-                    Quip = "That is the opposite of counterweight.",
+                    Quip = "Now it tips farther.",
                     Duration = 2.6f,
                     Steps = new[]
                     {
@@ -210,7 +210,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "stone", Prop = Prop("stone"), AnchorId = "Slot_1", Label = "The heavy cracked stone",
-                    Quip = "A flawless demonstration of blocking light.",
+                    Quip = "The light is blocked.",
                     Duration = 2.4f,
                     Steps = new[]
                     {
@@ -228,7 +228,7 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "umbrella", Prop = Prop("umbrella"), AnchorId = "Slot_2", Label = "The orange umbrella",
-                    Quip = "Perfect shade. Sensors prefer light.",
+                    Quip = "Nice shade. No light.",
                     Duration = 2.4f,
                     Steps = new[]
                     {

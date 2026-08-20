@@ -122,7 +122,7 @@ Save Pip's real asset is not its code, it is a **proven authoring discipline**. 
 7. **The round rules** (`rounds.ts`): no two rescues from the same category, no repeated correct object, mixed difficulty. In Save Peps rounds are authored rather than rolled, so these become **editor-time validators** rather than a runtime sampler.
 8. **Star / check marks.** First-tap save = ★, save after retries = ✓, three stars = a perfect round. Keep exactly this.
 9. **Zero-text telegraphing.** Destination flags glow, sleepers show zzz, wind lines sweep, edge-perched props teeter, streams visibly pour. Translate each into a 3D equivalent.
-10. **The quip voice.** Dry, short, affectionate. *"Lovely flower. Still not a ladder." / "Please do not fan the boulder."* Two sentences maximum, never scolding. This voice is a genuine asset — reuse it verbatim in tone.
+10. **The quip voice.** Plain, short, affectionate. One line and at most 28 characters, never scolding; Pixel 4 glance readability outranks clever wording. The large shared ribbon follows the failed prop so the copy reads as part of the gag.
 
 **Reuse as source material, redesigned:**
 
@@ -309,7 +309,7 @@ bool CanPlay(int round) =>
      (round <= Progress.HighestUnlocked && round <= Config.FreeRoundCount));
 ```
 
-- **UI, kept deliberately thin.** Home has one dominant **Play** button and a quiet **Choose round** link. Play avoids the immediately previous round, lightly favours new or imperfect available rounds, and otherwise chooses randomly. The compact picker shows only number, marks, new/completed state, and lock state—never a map. In-scene remains `Round 4 · Rescue 2 of 3`, three dots, and a goal line. Round-complete keeps the ★/✓ card with **Keep playing** and **Choose round**.
+- **UI, kept deliberately thin.** Home has one dominant **Play** button and a quiet **Choose round** link. Play avoids the immediately previous round, lightly favours new or imperfect available rounds, and otherwise chooses randomly. The compact picker shows only number, marks, new/completed state, and lock state—never a map. In-scene remains a compact round/rescue label, three actual ★/✓ mastery marks, and a goal line. Round-complete keeps those marks dominant with **Keep playing** and **Choose round**. The device-verified loop is frozen in [`docs/core-ux.md`](docs/core-ux.md).
 - **Onboarding is one rescue, not a tutorial.** Round 1 rescue 1 is the easiest, most legible scene in the game with a single pulsing hint ring after 3 seconds of inactivity. Nothing else.
 
 ---
@@ -434,7 +434,7 @@ The brief fixes the gate at round 11, which makes **30 polished rescues a hard f
 ## 15. Testing strategy
 
 **EditMode unit tests** (fast, run on every commit):
-- **Content validator** — the direct heir to `catalog.test.ts`, and the highest-value tests in the project: exactly 3 objects with unique ids and exactly 1 correct; unique verb; 2–4 word unique goal line; a quip on every wrong object; duration in 2.0–3.6 s; every step's `At` and `At + Duration` inside the outcome window; **every step target resolving to a real anchor/fx in the environment prefab**; the protean-object rule (no prop is always correct or always wrong).
+- **Content validator** — the direct heir to `catalog.test.ts`, and the highest-value tests in the project: exactly 3 objects with unique ids and exactly 1 correct; unique verb; 2–4 word unique goal line; a one-line quip of at most 28 characters on every wrong object; duration in 2.0–3.6 s; every step's `At` and `At + Duration` inside the outcome window; **every step target resolving to a real anchor/fx in the environment prefab**; the protean-object rule (no prop is always correct or always wrong).
 - **Round validator** — no repeated category or correct object within a round; difficulty mix as a warning.
 - **Progression and gating** — unlock order, `FreeRoundCount` boundary, behaviour with a `FakeEntitlementService` in every state (subscribed, not, lapsed mid-session).
 - **Save** — round-trip, corrupt file, missing fields, schema migration.
