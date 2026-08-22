@@ -12,6 +12,8 @@ A fixed-camera toy diorama shows two Peps separated by something small and silly
 
 A **round is 3 rescues**. Solve one on the first tap and it earns a ★, after a retry a ✓. Rounds 1–10 are free; **Peps Unlimited** unlocks the rest.
 
+Every round owns a **world**, and a world is more than a colour scheme: its own ground silhouette, camera, sky, key light, fog, ambient motion and sound bed, plus a physical rule its three rescues all obey — the clockwork courtyard never moves until a linkage moves it, the orbital station has no ground at all, the crystal cave is the only enclosed space in the game. Twelve rounds are twelve worlds and thirty-six rescues are thirty-six stages; [`design/ROUND_CATALOG.md`](design/ROUND_CATALOG.md) is the source of truth for all of it.
+
 The shell stays deliberately small: **Play** chooses a useful available round without immediately repeating the last one, while **Choose round** offers direct control. Finishing a round returns to **Keep playing** rather than forcing a strictly linear next button. A pause control in the corner of the HUD opens a bottom sheet with Resume, Progress, Choose round, Home, and sound/buzz toggles, and Android Back walks the same path — the player is never stuck inside a rescue.
 
 ## Repo layout
@@ -46,6 +48,26 @@ open unity/SavePeps                  # via Unity Hub
 On a fresh clone, run **Tools > Save Peps > Apply Project Settings** once. Most build settings live in `ProjectSettings/` and travel with the repo, but a few (active build target, AAB-vs-APK) are machine-local and would otherwise silently default back to APK.
 
 The RevenueCat SDK does not run in the Unity Editor. Editor play uses `FakeEntitlementService`, which can simulate every subscription state; real purchase paths must be tested on a device.
+
+### Tester Mode
+
+The editor and Unity **Development Builds** always boot in ordinary User Mode with no debug control visible. On the title tableau, tap:
+
+`heart → green Pep → pink Pep → heart → green Pep → pink Pep → heart`
+
+That switches on Tester Mode, opens its compact target sheet, and shows a small `TESTER` indicator until the same title sequence switches back to User Mode. Choose a round and optional rescue, select **Return to title**, then use the title's Play button; Play keeps that exact target and bypasses progression and premium gates without writing `save.json`. The normal round picker also bypasses its locks while Tester Mode is active.
+
+The secondary controls restart the current rescue, preview any of its three outcomes, reset the profile, apply Fresh/Partial/All completed/All perfect states, unlock progression without adding marks, and switch the existing fake entitlement between Free and Premium. Profile changes happen only from those explicit buttons; navigation, Play, and outcome preview remain profile-safe.
+
+Build the device QA artifact with **Tools > Save Peps > Build Android Development APK (Tester Mode)** or:
+
+```bash
+Unity -batchmode -quit -nographics -projectPath /absolute/path/to/unity/SavePeps \
+  -executeMethod SavePeps.EditorTools.BuildScript.BuildAndroidDevelopmentApk \
+  -logFile /tmp/save-peps-dev-apk.log
+```
+
+The secret hit areas, indicator, and controls are disabled before the first frame of a non-development APK/AAB. Tester Play and outcome previews never alter `save.json`, and fake entitlement remains separate from local profile data.
 
 ## Run on the Pixel 4
 
@@ -83,9 +105,11 @@ A rescue is data, never C#: a `RescueDefinition` asset naming a diorama, two Pep
 |---|---|
 | **Rescue inspector** | Select any rescue asset. Validation shows inline, and the preview buttons enter play mode and run one outcome — the cost of checking a gag has to be one click. |
 | **Rescue Gauntlet** | Plays every outcome in the catalogue back to back, unattended. Wrong outcomes first, correct one last, so each rescue ends on the reunion. This is how a polish pass takes an hour instead of a day. |
-| **Validate Content** | The catalogue-wide rules: unique verbs, round composition, and the protean-object rule. Also runs on save, and as an EditMode test. |
+| **Validate Content** | The catalogue-wide rules: unique verbs, round composition, one world per round, one stage per rescue, one *(prop, reasoning)* answer per catalogue, and the protean-object rule. Also runs on save, and as an EditMode test. |
+| **Render Stage Contact Sheet** | Renders all 36 opening frames in their own world's light and framing. The screenshot test — hide the HUD, look at one frame, know which round it is — made cheap enough to run every pass. |
 | **Show Anchor Gizmos** | Draws `Anchor_*`, `Slot_*` and movers in the scene view while dressing a diorama. |
 | **Save >** | Delete the save, unlock all rounds, or reveal the file — the loop progression work needs over and over. |
+| **Tester Mode** | In Editor play or a Development APK, stage any catalogue rescue/outcome and apply deterministic profile/access states without weakening the player path. |
 | **Build Game Scene** | Regenerates the Game scene only. Reads the catalogue off disk; never writes content. |
 | **Seed Round One Content** | Creates any missing round-one assets. Existing ones are left alone. |
 
@@ -102,6 +126,20 @@ Unity -batchmode -runTests -testPlatform PlayMode -projectPath unity/SavePeps
 ```
 
 The EditMode suite validates the real authored catalogue, so a rescue with a step aimed at a target that does not exist fails the build rather than silently doing nothing on stage.
+
+### Worlds and atmosphere
+
+Sky, ambient, fog, sun, fill and camera framing are authored per world on a `DioramaAtmosphere` component sitting on every diorama prefab, and applied by `AtmosphereDirector` — the single writer of scene-wide lighting — which cross-fades them over 0.38 s when a rescue is built and pushes framing through `GameFeel.SetFraming`. Nothing about lighting lives in `Game.unity` any more.
+
+Continuous environmental motion is `AmbientMotion` (`Sway`, `Bob`, `Drift`, `Spin`, `Pulse`, `Flicker`, `Beat`). It never shares a transform with an `AnimTarget`, because choreography composes additively onto an idle and can never cancel one: anything that has to *stop* moving is a Hide/Show swap between a moving twin and a still twin. `Flicker` is deterministic, so the same world always screenshots the same.
+
+The art pipeline builds everything from Unity primitives: `ToyShapes` (helpers) → `PropLibrary` (36 props) → `WorldKits` (12 world kits: base silhouette, dressing, atmosphere) → `DioramaLibrary` (36 stages) → `PrototypeArt.Generate`. Regenerate with:
+
+```bash
+Unity -batchmode -quit -nographics -projectPath /absolute/path/to/unity/SavePeps   -executeMethod SavePeps.EditorTools.PrototypeArt.Generate -logFile /tmp/art.log
+```
+
+The contact sheet is the one batchmode tool that must **not** be given `-nographics`: that forces a Null GfxDevice and every PNG comes back uniform grey with nothing in the log.
 
 ## Relationship to Save Pip
 

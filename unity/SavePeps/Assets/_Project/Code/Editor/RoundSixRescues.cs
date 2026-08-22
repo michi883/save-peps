@@ -8,16 +8,27 @@ using static SavePeps.EditorTools.Steps;
 namespace SavePeps.EditorTools
 {
     /// <summary>
-    /// Round six challenges optical redirection, storm shelter traversal,
-    /// and soft cushion physics over dramatic vertical drops.
+    /// **Round 6 — Storm rooftop.** *World rule: the wind has a direction and
+    /// it is taking things. Anything loose is already leaving, and there is
+    /// nothing underneath.*
+    ///
+    /// A narrow roof on a shaft that drops out of frame, under the first
+    /// near-black sky in the game, with rain crossing the whole picture
+    /// and a lightning flash on a long duty cycle. The umbrella that glided a
+    /// canyon and sheltered a terrace is now a liability, and the round says so
+    /// in its first wrong answer.
+    ///
+    /// Only-here rescue: **r17**, planting the rod so the next strike has
+    /// somewhere better to go. It is the only rescue in the game where the
+    /// answer does not remove the hazard — it redirects it.
     /// </summary>
     public static class RoundSixRescues
     {
         public static RoundDefinition SeedRound(bool overwrite, ContentSeeder.SeedLog log)
         {
-            var r16 = BuildDeflect(overwrite, log);
-            var r17 = BuildCover(overwrite, log);
-            var r18 = BuildCushion(overwrite, log);
+            var r16 = BuildPin(overwrite, log);
+            var r17 = BuildGround(overwrite, log);
+            var r18 = BuildChute(overwrite, log);
 
             if (ContentSeeder.Claim<RoundDefinition>(
                     $"{ContentPaths.RoundDir}/Round_06.asset", overwrite, log, out var round))
@@ -30,203 +41,74 @@ namespace SavePeps.EditorTools
             return round;
         }
 
-        private static RescueDefinition BuildDeflect(bool overwrite, ContentSeeder.SeedLog log)
+        private static RescueDefinition BuildPin(bool overwrite, ContentSeeder.SeedLog log)
         {
             if (!ContentSeeder.Claim<RescueDefinition>(
-                    $"{ContentPaths.RescueDir}/r16_deflect.asset", overwrite, log, out var rescue))
+                    $"{ContentPaths.RescueDir}/r16_pin.asset", overwrite, log, out var rescue))
             {
                 return rescue;
             }
 
-            Stage(rescue, "r16", "deflect", "Aim the beam.", Difficulty.Medium,
-                ReasoningKind.Reflection, "Diorama_Beam",
-                "A light beam travels horizontally across the night diorama; aiming it into the sensor unlocks the light gate.");
+            Author.Stage(rescue, "r16", "pin", "Tame the tarp.", Difficulty.Medium,
+                ReasoningKind.Airflow, "Diorama_Storm_Tarp",
+                "A tarp held down on one side only cracks and whips across the rooftop walkway between " +
+                "the Peps.");
 
             rescue.Objects = new[]
             {
                 new RescueObject
                 {
-                    Id = "mirror", Prop = Prop("mirror"), AnchorId = "Slot_1", Label = "The framed mirror",
-                    Duration = 2.9f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "slide"),
-                        Move(0f, 0.6f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.42f, 0.15f, 1.25f), amplitude: 0.3f, ease: EaseKind.Hop),
-                        Rotate(0.55f, 0.3f, SceneRef.Self, new Vector3(0f, 45f, 0f), EaseKind.Back),
-                        Sfx(0.65f, "chime"),
-                        Move(0.7f, 0.35f, StepKind.Fly, "SensorGlow", new Vector3(0f, 0.1f, 0f)),
-                        Move(0.8f, 0.65f, StepKind.Fly, "LightGate", new Vector3(0f, -0.55f, 0f), ease: EaseKind.InOut),
-                        Sfx(0.9f, "click"),
-                        Face(0.95f, SceneRef.PepA, PepFace.Hopeful),
-                        Move(1.2f, 0.6f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0f, 0f, 0.95f), amplitude: 0.15f, ease: EaseKind.Hop),
-                        Meet(1.85f, 0.75f),
-                        Sfx(1.9f, "reunion"),
-                    },
+                    Id = "umbrella", Prop = Author.Prop("umbrella"), AnchorId = "Slot_1",
+                    Label = "The orange umbrella",
+                    Quip = "Inside out. Then gone.",
+                    Duration = 2.6f,
+                    Steps = PropGags.Umbrella(),
                 },
                 new RescueObject
                 {
-                    Id = "umbrella", Prop = Prop("umbrella"), AnchorId = "Slot_2", Label = "The orange umbrella",
-                    Quip = "Blocks the sensor.",
-                    Duration = 2.3f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "pop"),
-                        Move(0f, 0.6f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.45f, 0.2f, 1.35f), amplitude: 0.25f, ease: EaseKind.Hop),
-                        Rotate(0.55f, 0.3f, SceneRef.Self, new Vector3(0f, 90f, 0f)),
-                        Face(0.75f, SceneRef.PepA, PepFace.Worried),
-                    },
-                },
-                new RescueObject
-                {
-                    Id = "pillow", Prop = Prop("pillow"), AnchorId = "Slot_3", Label = "The soft pillow",
-                    Quip = "Pillows absorb beams.",
-                    Duration = 2.3f,
+                    Id = "rope", Prop = Author.Prop("rope"), AnchorId = "Slot_2", Label = "The coil of rope",
+                    Quip = "The wind untied it.",
+                    Duration = 2.6f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.6f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.45f, 0.15f, -1.3f), amplitude: 0.28f, ease: EaseKind.Hop),
-                        Sfx(0.6f, "poof"),
-                        Face(0.7f, SceneRef.PepA, PepFace.Worried),
+                        Move(0f, 0.60f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.54f, 0.23f, 1.50f), amplitude: 0.46f, ease: EaseKind.Hop),
+                        Sfx(0.66f, "wind"),
+                        Move(0.66f, 0.90f, StepKind.Shake, "Tarp", Vector3.zero,
+                            amplitude: 14f, ease: EaseKind.InOut),
+                        Move(0.70f, 0.86f, StepKind.Shake, "TarpCorner", Vector3.zero,
+                            amplitude: 20f, ease: EaseKind.InOut),
+                        Move(1.58f, 0.90f, StepKind.FlyOff, SceneRef.Self,
+                            new Vector3(-0.80f, 0.60f, -0.40f), ease: EaseKind.In),
+                        Face(0.90f, SceneRef.PepA, PepFace.Panic),
                     },
                 },
-            };
-
-            rescue.CorrectIndex = 0;
-            EditorUtility.SetDirty(rescue);
-            return rescue;
-        }
-
-        private static RescueDefinition BuildCover(bool overwrite, ContentSeeder.SeedLog log)
-        {
-            if (!ContentSeeder.Claim<RescueDefinition>(
-                    $"{ContentPaths.RescueDir}/r17_cover.asset", overwrite, log, out var rescue))
-            {
-                return rescue;
-            }
-
-            Stage(rescue, "r17", "cover", "Brave the rain.", Difficulty.Medium,
-                ReasoningKind.Shelter, "Diorama_Rain",
-                "Rain lashes the walkway between the separated Peps; a sturdy shelter lets Pep A cross safely.");
-
-            rescue.Objects = new[]
-            {
                 new RescueObject
                 {
-                    Id = "leaf", Prop = Prop("leaf"), AnchorId = "Slot_1", Label = "The broad leaf",
-                    Quip = "Tears in heavy rain.",
-                    Duration = 2.3f,
+                    Id = "sandbag", Prop = Author.Prop("sandbag"), AnchorId = "Slot_3", Label = "The sandbag",
+                    Duration = 3.3f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.6f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.42f, 0.15f, 1.25f), amplitude: 0.25f, ease: EaseKind.Hop),
-                        Move(0.6f, 0.4f, StepKind.Shake, SceneRef.Self, Vector3.zero, amplitude: 5f),
-                        Face(0.7f, SceneRef.PepA, PepFace.Panic),
-                    },
-                },
-                new RescueObject
-                {
-                    Id = "umbrella", Prop = Prop("umbrella"), AnchorId = "Slot_2", Label = "The orange umbrella",
-                    Duration = 2.9f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "pop"),
-                        Rotate(0f, 0.35f, SceneRef.Self, new Vector3(0f, 180f, 0f), EaseKind.Back),
-                        Move(0.1f, 0.5f, StepKind.Fly, SceneRef.Self, new Vector3(-0.45f, 0.45f, 0.75f)),
-                        Face(0.6f, SceneRef.PepA, PepFace.Happy),
-                        Move(0.7f, 0.85f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0f, 0f, 1.12f), amplitude: 0.16f, ease: EaseKind.Hop),
-                        Move(0.7f, 0.85f, StepKind.Fly, SceneRef.Self,
-                            new Vector3(0.45f, 0f, 0.37f), ease: EaseKind.InOut),
-                        Meet(1.85f, 0.75f),
-                        Sfx(1.9f, "reunion"),
-                    },
-                },
-                new RescueObject
-                {
-                    Id = "scissors", Prop = Prop("scissors"), AnchorId = "Slot_3", Label = "The shears",
-                    Quip = "Does not stop raindrops.",
-                    Duration = 2.3f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "slide"),
-                        Move(0f, 0.55f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.45f, 0.15f, -1.3f), amplitude: 0.25f, ease: EaseKind.Hop),
-                        Rotate(0.55f, 0.3f, SceneRef.Self, new Vector3(0f, 0f, 45f)),
-                        Face(0.7f, SceneRef.PepA, PepFace.Worried),
-                    },
-                },
-            };
-
-            rescue.CorrectIndex = 1;
-            EditorUtility.SetDirty(rescue);
-            return rescue;
-        }
-
-        private static RescueDefinition BuildCushion(bool overwrite, ContentSeeder.SeedLog log)
-        {
-            if (!ContentSeeder.Claim<RescueDefinition>(
-                    $"{ContentPaths.RescueDir}/r18_cushion.asset", overwrite, log, out var rescue))
-            {
-                return rescue;
-            }
-
-            Stage(rescue, "r18", "cushion", "Soft landing.", Difficulty.Surprising,
-                ReasoningKind.Activation, "Diorama_Canyon",
-                "A perilous drop into the canyon can be turned into a safe bouncy landing pad.");
-
-            rescue.Objects = new[]
-            {
-                new RescueObject
-                {
-                    Id = "plank", Prop = Prop("plank"), AnchorId = "Slot_1", Label = "The wooden plank",
-                    Quip = "Hard wooden landing.",
-                    Duration = 2.3f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "slide"),
-                        Move(0f, 0.6f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.42f, -0.15f, 1.25f), amplitude: 0.25f, ease: EaseKind.Hop),
-                        Sfx(0.6f, "thud"),
-                        Face(0.7f, SceneRef.PepA, PepFace.Panic),
-                    },
-                },
-                new RescueObject
-                {
-                    Id = "bone", Prop = Prop("bone"), AnchorId = "Slot_2", Label = "The dog bone",
-                    Quip = "Ouch! Hard bone.",
-                    Duration = 2.2f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "slide"),
-                        Move(0f, 0.55f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.45f, -0.15f, 1.35f), amplitude: 0.25f, ease: EaseKind.Hop),
-                        Sfx(0.55f, "thud"),
-                        Face(0.65f, SceneRef.PepA, PepFace.Worried),
-                    },
-                },
-                new RescueObject
-                {
-                    Id = "pillow", Prop = Prop("pillow"), AnchorId = "Slot_3", Label = "The soft pillow",
-                    Duration = 2.9f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.65f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.45f, -0.15f, -1.3f), amplitude: 0.35f, ease: EaseKind.Hop),
-                        Sfx(0.65f, "poof"),
-                        Face(0.7f, SceneRef.PepA, PepFace.Hopeful),
-                        Move(0.75f, 0.45f, StepKind.Arc, SceneRef.PepA,
-                            new Vector3(0f, -0.15f, 0.62f), amplitude: 0.2f, ease: EaseKind.Hop),
-                        Sfx(1.2f, "boing"),
-                        Move(1.25f, 0.55f, StepKind.Arc, SceneRef.PepA,
-                            new Vector3(0f, 0.15f, 0.5f), amplitude: 0.3f, ease: EaseKind.Hop),
-                        Meet(1.85f, 0.75f),
-                        Sfx(1.9f, "reunion"),
+                        Move(0f, 0.58f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.34f, 0.07f, 0.72f), amplitude: 0.40f, ease: EaseKind.Hop),
+                        Sfx(0.60f, "thud"),
+                        Haptic(0.62f, "medium"),
+                        // The tarp's flap and the taut tarp are two objects.
+                        // Choreography can add motion to an idle but never
+                        // remove one, so going still is a swap.
+                        Move(0.80f, 0.14f, StepKind.Hide, "Tarp", Vector3.zero),
+                        Move(0.80f, 0.14f, StepKind.Hide, "TarpCorner", Vector3.zero),
+                        Move(0.80f, 0.16f, StepKind.Show, "TautTarp", Vector3.zero),
+                        Move(0.80f, 0.16f, StepKind.Show, "PinnedCorner", Vector3.zero),
+                        Sfx(0.96f, "creak"),
+                        Face(1.02f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(1.02f, SceneRef.PepB, PepFace.Hopeful),
+                        Move(1.16f, 1.02f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.04f, 0f, 1.58f), amplitude: 0.15f, ease: EaseKind.Hop),
+                        Meet(2.36f, 0.72f),
+                        Sfx(2.42f, "reunion"),
                     },
                 },
             };
@@ -236,30 +118,176 @@ namespace SavePeps.EditorTools
             return rescue;
         }
 
-        private static void Stage(RescueDefinition rescue, string id, string verb, string goal,
-            Difficulty difficulty, ReasoningKind reasoning, string environment, string description)
+        private static RescueDefinition BuildGround(bool overwrite, ContentSeeder.SeedLog log)
         {
-            rescue.Id = id;
-            rescue.Verb = verb;
-            rescue.Goal = goal;
-            rescue.Difficulty = difficulty;
-            rescue.Reasoning = reasoning;
-            rescue.SceneDescription = description;
-            rescue.Environment = Load<GameObject>($"{ContentPaths.EnvironmentDir}/{environment}.prefab");
-            rescue.PepAPrefab = Load<GameObject>($"{ContentPaths.CharacterDir}/Pep_A.prefab");
-            rescue.PepBPrefab = Load<GameObject>($"{ContentPaths.CharacterDir}/Pep_B.prefab");
-            rescue.PepAAnchor = "Anchor_PepA";
-            rescue.PepBAnchor = "Anchor_PepB";
-            rescue.MeetAnchor = "Anchor_Meet";
+            if (!ContentSeeder.Claim<RescueDefinition>(
+                    $"{ContentPaths.RescueDir}/r17_ground.asset", overwrite, log, out var rescue))
+            {
+                return rescue;
+            }
+
+            Author.Stage(rescue, "r17", "ground", "Stop the lightning.", Difficulty.Surprising,
+                ReasoningKind.Signal, "Diorama_Storm_Mast",
+                "Lightning keeps finding the metal walkway between the Peps, and there are scorch " +
+                "marks where it has already hit.");
+
+            rescue.Objects = new[]
+            {
+                new RescueObject
+                {
+                    Id = "lightning_rod", Prop = Author.Prop("lightning_rod"), AnchorId = "Slot_1",
+                    Label = "The lightning rod",
+                    Duration = 3.5f,
+                    Steps = new[]
+                    {
+                        Sfx(0.03f, "slide"),
+                        Move(0f, 0.64f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.88f, 0.02f, 1.24f), amplitude: 0.46f, ease: EaseKind.Hop),
+                        Sfx(0.66f, "clank"),
+                        Move(0.90f, 0.18f, StepKind.Show, "Arc", Vector3.zero),
+                        Move(0.94f, 0.16f, StepKind.Show, "Strike", Vector3.zero),
+                        Sfx(0.94f, "zap"),
+                        Haptic(0.96f, "medium"),
+                        Move(1.12f, 0.26f, StepKind.Hide, "Strike", Vector3.zero),
+                        Move(1.20f, 0.30f, StepKind.Hide, "Arc", Vector3.zero),
+                        Move(1.24f, 0.60f, StepKind.Shake, "Mast", Vector3.zero,
+                            amplitude: 6f, ease: EaseKind.InOut),
+                        Move(1.30f, 0.24f, StepKind.Hide, "Scorch", Vector3.zero),
+                        Face(1.36f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(1.36f, SceneRef.PepB, PepFace.Hopeful),
+                        Move(1.52f, 0.86f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.22f, 0f, 0.94f), amplitude: 0.14f, ease: EaseKind.Hop),
+                        Move(1.52f, 0.86f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.24f, 0f, -0.78f), amplitude: 0.14f, ease: EaseKind.Hop),
+                        Meet(2.62f, 0.74f),
+                        Sfx(2.68f, "reunion"),
+                    },
+                },
+                new RescueObject
+                {
+                    Id = "lantern", Prop = Author.Prop("lantern"), AnchorId = "Slot_2", Label = "The cage lantern",
+                    Quip = "The gale blew it out.",
+                    Duration = 2.6f,
+                    Steps = new[]
+                    {
+                        Sfx(0.03f, "whoosh"),
+                        Move(0f, 0.62f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.24f, 0.33f, 1.06f), amplitude: 0.44f, ease: EaseKind.Hop),
+                        Face(0.68f, SceneRef.PepA, PepFace.Hopeful),
+                        Sfx(0.86f, "wind"),
+                        Move(0.86f, 0.80f, StepKind.Shake, SceneRef.Self, Vector3.zero,
+                            amplitude: 22f, ease: EaseKind.InOut),
+                        Move(1.70f, 0.60f, StepKind.Hide, SceneRef.Self, Vector3.zero),
+                        Face(1.76f, SceneRef.PepA, PepFace.Worried),
+                    },
+                },
+                new RescueObject
+                {
+                    Id = "plank", Prop = Author.Prop("plank"), AnchorId = "Slot_3", Label = "The wooden plank",
+                    Quip = "Wet wood. Still a spark.",
+                    Duration = 2.6f,
+                    Steps = new[]
+                    {
+                        Sfx(0.03f, "slide"),
+                        Move(0f, 0.60f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.02f, 0.03f, 1.48f), amplitude: 0.40f, ease: EaseKind.Hop),
+                        Sfx(0.62f, "thud"),
+                        Move(0.92f, 0.14f, StepKind.Show, "Arc", Vector3.zero),
+                        Sfx(0.94f, "zap"),
+                        Move(1.10f, 0.24f, StepKind.Hide, "Arc", Vector3.zero),
+                        Move(0.98f, 0.70f, StepKind.Shake, SceneRef.Self, Vector3.zero,
+                            amplitude: 9f, ease: EaseKind.InOut),
+                        Face(1.02f, SceneRef.PepA, PepFace.Panic),
+                        Face(1.02f, SceneRef.PepB, PepFace.Panic),
+                    },
+                },
+            };
+
+            rescue.CorrectIndex = 0;
+            EditorUtility.SetDirty(rescue);
+            return rescue;
         }
 
-        private static GameObject Prop(string id) => Load<GameObject>($"{ContentPaths.PropDir}/{id}.prefab");
-
-        private static T Load<T>(string path) where T : Object
+        private static RescueDefinition BuildChute(bool overwrite, ContentSeeder.SeedLog log)
         {
-            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
-            if (asset == null) Debug.LogError($"[SavePeps] Missing asset: {path}");
-            return asset;
+            if (!ContentSeeder.Claim<RescueDefinition>(
+                    $"{ContentPaths.RescueDir}/r18_chute.asset", overwrite, log, out var rescue))
+            {
+                return rescue;
+            }
+
+            Author.Stage(rescue, "r18", "chute", "Slide down safely.", Difficulty.Medium,
+                ReasoningKind.Momentum, "Diorama_Storm_Gutter",
+                "A steep empty gutter runs from this roof down to a lower annex where the other Pep " +
+                "shelters.");
+
+            rescue.Objects = new[]
+            {
+                new RescueObject
+                {
+                    Id = "pillow", Prop = Author.Prop("pillow"), AnchorId = "Slot_1", Label = "The soft pillow",
+                    Quip = "It drank the whole roof.",
+                    Duration = 2.6f,
+                    Steps = new[]
+                    {
+                        Sfx(0.03f, "whoosh"),
+                        Move(0f, 0.64f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.52f, 0.07f, 2.04f), amplitude: 0.52f, ease: EaseKind.Hop),
+                        Sfx(0.66f, "splash"),
+                        Resize(0.70f, 0.80f, SceneRef.Self, 0.74f, EaseKind.Out),
+                        Move(0.70f, 0.80f, StepKind.Fly, SceneRef.Self, new Vector3(0f, -0.03f, 0f)),
+                        Face(0.92f, SceneRef.PepA, PepFace.Worried),
+                    },
+                },
+                new RescueObject
+                {
+                    Id = "plank", Prop = Author.Prop("plank"), AnchorId = "Slot_2", Label = "The wooden plank",
+                    Duration = 3.5f,
+                    Steps = new[]
+                    {
+                        Sfx(0.03f, "slide"),
+                        Move(0f, 0.66f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.36f, 0.07f, 2.12f), amplitude: 0.60f, ease: EaseKind.Hop),
+                        Rotate(0.60f, 0.34f, SceneRef.Self, new Vector3(28f, 0f, 0f)),
+                        Sfx(0.68f, "thud"),
+                        Face(0.80f, SceneRef.PepA, PepFace.Hopeful),
+                        Move(0.90f, 0.60f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.32f, 0.05f, 1.22f), amplitude: 0.16f, ease: EaseKind.Hop),
+                        Sfx(1.52f, "glide_hiss"),
+                        Move(1.52f, 0.62f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(0.06f, -0.13f, 1.10f), ease: EaseKind.In),
+                        Move(2.10f, 0.20f, StepKind.Show, "Spray", Vector3.zero),
+                        Sfx(2.12f, "splash"),
+                        Haptic(2.14f, "light"),
+                        Move(2.34f, 0.34f, StepKind.Hide, "Spray", Vector3.zero),
+                        Meet(2.70f, 0.74f),
+                        Sfx(2.76f, "reunion"),
+                    },
+                },
+                new RescueObject
+                {
+                    Id = "stone", Prop = Author.Prop("stone"), AnchorId = "Slot_3", Label = "The grey stone",
+                    Quip = "It kept going. Alone.",
+                    Duration = 2.6f,
+                    Steps = new[]
+                    {
+                        Sfx(0.03f, "slide"),
+                        Move(0f, 0.60f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.08f, 0.07f, 2.16f), amplitude: 0.56f, ease: EaseKind.Hop),
+                        Sfx(0.62f, "thud"),
+                        Move(0.68f, 0.72f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(0.06f, -0.14f, 0.86f), ease: EaseKind.In),
+                        Sfx(1.42f, "clunk"),
+                        Move(1.44f, 0.86f, StepKind.FlyOff, SceneRef.Self,
+                            new Vector3(0.20f, -1.30f, 0.42f), ease: EaseKind.In),
+                        Face(1.50f, SceneRef.PepB, PepFace.Panic),
+                    },
+                },
+            };
+
+            rescue.CorrectIndex = 1;
+            EditorUtility.SetDirty(rescue);
+            return rescue;
         }
     }
 }

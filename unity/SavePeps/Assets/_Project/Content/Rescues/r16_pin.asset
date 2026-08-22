@@ -1,0 +1,330 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2ed5e3ba2ba4bd3866af2cedd8abaa, type: 3}
+  m_Name: r16_pin
+  m_EditorClassIdentifier: SavePeps.Runtime::SavePeps.Rescue.RescueDefinition
+  Id: r16
+  Verb: pin
+  Reasoning: 12
+  Goal: Tame the tarp.
+  Difficulty: 1
+  SceneDescription: A tarp held down on one side only cracks and whips across the
+    rooftop walkway between the Peps.
+  Environment: {fileID: 4295584687848397325, guid: b0adb3ae677034bae8542a0e0c308f2b, type: 3}
+  PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
+  PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
+  PepAAnchor: Anchor_PepA
+  PepBAnchor: Anchor_PepB
+  MeetAnchor: Anchor_Meet
+  Objects:
+  - Id: umbrella
+    Prop: {fileID: 3406375913897992646, guid: 9a680c9f59e96425393f84857b1c7b56, type: 3}
+    AnchorId: Slot_1
+    Label: The orange umbrella
+    Quip: Inside out. Then gone.
+    Duration: 2.6
+    Steps:
+    - At: 0.05
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: pop
+    - At: 0
+      Duration: 0.4
+      Kind: 5
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 160
+      Ease: 0
+      Param: 
+    - At: 0.1
+      Duration: 0.35
+      Kind: 0
+      Target: $self
+      Delta: {x: 0, y: 0.18, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.5
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+    - At: 0.5
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+    - At: 0.6
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: whoosh
+    - At: 0.55
+      Duration: 1.1
+      Kind: 8
+      Target: $self
+      Delta: {x: 0.9, y: 0.55, z: -0.4}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+  - Id: rope
+    Prop: {fileID: 990983975125652325, guid: e25b2013dec394766b8acc040394c44b, type: 3}
+    AnchorId: Slot_2
+    Label: The coil of rope
+    Quip: The wind untied it.
+    Duration: 2.6
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: whoosh
+    - At: 0
+      Duration: 0.6
+      Kind: 1
+      Target: $self
+      Delta: {x: -0.54, y: 0.23, z: 1.5}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.46
+      Ease: 5
+      Param: 
+    - At: 0.66
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: wind
+    - At: 0.66
+      Duration: 0.9
+      Kind: 4
+      Target: Tarp
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 14
+      Ease: 2
+      Param: 
+    - At: 0.7
+      Duration: 0.86
+      Kind: 4
+      Target: TarpCorner
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 20
+      Ease: 2
+      Param: 
+    - At: 1.58
+      Duration: 0.9
+      Kind: 8
+      Target: $self
+      Delta: {x: -0.8, y: 0.6, z: -0.4}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 0.9
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Panic
+  - Id: sandbag
+    Prop: {fileID: 2567151540319280369, guid: 8937366521c8c41fa959c3553c29f2f7, type: 3}
+    AnchorId: Slot_3
+    Label: The sandbag
+    Quip: 
+    Duration: 3.3
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: whoosh
+    - At: 0
+      Duration: 0.58
+      Kind: 1
+      Target: $self
+      Delta: {x: -0.34, y: 0.07, z: 0.72}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.4
+      Ease: 5
+      Param: 
+    - At: 0.6
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: thud
+    - At: 0.62
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: medium
+    - At: 0.8
+      Duration: 0.14
+      Kind: 7
+      Target: Tarp
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.8
+      Duration: 0.14
+      Kind: 7
+      Target: TarpCorner
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.8
+      Duration: 0.16
+      Kind: 6
+      Target: TautTarp
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.8
+      Duration: 0.16
+      Kind: 6
+      Target: PinnedCorner
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.96
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: creak
+    - At: 1.02
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.02
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.16
+      Duration: 1.02
+      Kind: 2
+      Target: $pepA
+      Delta: {x: 0.04, y: 0, z: 1.58}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.15
+      Ease: 5
+      Param: 
+    - At: 2.36
+      Duration: 0.72
+      Kind: 103
+      Target: $peps
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.42
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: reunion
+  CorrectIndex: 2

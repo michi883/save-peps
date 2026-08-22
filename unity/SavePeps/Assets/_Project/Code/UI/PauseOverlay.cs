@@ -33,6 +33,7 @@ namespace SavePeps.UI
         [SerializeField] private Button _progressButton;
         [SerializeField] private Button _chooseButton;
         [SerializeField] private Button _homeButton;
+        [SerializeField] private Button _testerToolsButton;
 
         [Header("Settings")]
         [SerializeField] private Button _soundToggle;
@@ -54,6 +55,7 @@ namespace SavePeps.UI
         private Action _onChooseRound;
         private Action _onHome;
         private Action _onSettingsChanged;
+        private Action _onTesterTools;
         private SaveData _save;
         private Coroutine _motion;
         private float _sheetRestY;
@@ -70,13 +72,14 @@ namespace SavePeps.UI
             if (_progressButton != null) _progressButton.onClick.AddListener(() => Leave(() => _onProgress?.Invoke()));
             if (_chooseButton != null) _chooseButton.onClick.AddListener(() => Leave(() => _onChooseRound?.Invoke()));
             if (_homeButton != null) _homeButton.onClick.AddListener(() => Leave(() => _onHome?.Invoke()));
+            if (_testerToolsButton != null) _testerToolsButton.onClick.AddListener(() => Leave(() => _onTesterTools?.Invoke()));
             if (_soundToggle != null) _soundToggle.onClick.AddListener(ToggleSound);
             if (_hapticsToggle != null) _hapticsToggle.onClick.AddListener(ToggleHaptics);
             Hide();
         }
 
-        public void Show(SaveData save, Action onResume, Action onProgress, Action onChooseRound,
-            Action onHome, Action onSettingsChanged)
+        public void Show(SaveData save, bool testerActive, Action onResume, Action onProgress, Action onChooseRound,
+            Action onHome, Action onSettingsChanged, Action onTesterTools = null)
         {
             _save = save;
             _onResume = onResume;
@@ -84,6 +87,12 @@ namespace SavePeps.UI
             _onChooseRound = onChooseRound;
             _onHome = onHome;
             _onSettingsChanged = onSettingsChanged;
+            _onTesterTools = onTesterTools;
+
+            if (_testerToolsButton != null)
+            {
+                _testerToolsButton.gameObject.SetActive(testerActive && _onTesterTools != null);
+            }
 
             PaintSettings();
             SetVisible(true);
@@ -92,6 +101,10 @@ namespace SavePeps.UI
             if (_motion != null) StopCoroutine(_motion);
             _motion = StartCoroutine(RiseRoutine());
         }
+
+        public void Show(SaveData save, Action onResume, Action onProgress, Action onChooseRound,
+            Action onHome, Action onSettingsChanged) =>
+            Show(save, testerActive: false, onResume, onProgress, onChooseRound, onHome, onSettingsChanged, onTesterTools: null);
 
         /// <summary>Resume, whether that came from Android Back, the scrim, or the button.</summary>
         public void RequestClose() => Leave(() => _onResume?.Invoke());

@@ -1,0 +1,340 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2ed5e3ba2ba4bd3866af2cedd8abaa, type: 3}
+  m_Name: r35_board
+  m_EditorClassIdentifier: SavePeps.Runtime::SavePeps.Rescue.RescueDefinition
+  Id: r35
+  Verb: board
+  Reasoning: 10
+  Goal: Catch the tram.
+  Difficulty: 2
+  SceneDescription: A tram runs past the roof edge on a loop, far too fast to step
+    onto, and the other Pep is stranded on the tower it passes.
+  Environment: {fileID: 8524838327580759098, guid: 2d490d6db6e7f48a7b66becfde503261, type: 3}
+  PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
+  PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
+  PepAAnchor: Anchor_PepA
+  PepBAnchor: Anchor_PepB
+  MeetAnchor: Anchor_Meet
+  Objects:
+  - Id: balloon
+    Prop: {fileID: 8136335957201776383, guid: b9f2d7418424c46f4a81f14ba4cfb185, type: 3}
+    AnchorId: Slot_1
+    Label: The orange balloon
+    Quip: Too slow. Far too slow.
+    Duration: 2.6
+    Steps:
+    - At: 0
+      Duration: 0.6
+      Kind: 1
+      Target: $self
+      Delta: {x: 0.14, y: 0.255, z: 0.42}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.34
+      Ease: 5
+      Param: 
+    - At: 0.62
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: boing
+    - At: 0.66
+      Duration: 0.8
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0, y: 0.3, z: 0.1}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.66
+      Duration: 0.8
+      Kind: 0
+      Target: $self
+      Delta: {x: 0, y: 0.3, z: 0.1}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.1
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: transit
+    - At: 1.16
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Panic
+    - At: 1.48
+      Duration: 0.7
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0, y: -0.3, z: -0.1}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.48
+      Duration: 0.7
+      Kind: 0
+      Target: $self
+      Delta: {x: 0, y: -0.3, z: -0.1}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+  - Id: pillow
+    Prop: {fileID: 902861018288436469, guid: 99b5dfd33e5ad41ad81c75f25b871a2e, type: 3}
+    AnchorId: Slot_2
+    Label: The soft pillow
+    Quip: The tram did not care.
+    Duration: 2.5
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: whoosh
+    - At: 0
+      Duration: 0.6
+      Kind: 1
+      Target: $self
+      Delta: {x: -0.34, y: 0.66, z: 1.72}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.62
+      Ease: 5
+      Param: 
+    - At: 0.62
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: transit
+    - At: 0.64
+      Duration: 0.8
+      Kind: 8
+      Target: $self
+      Delta: {x: -0.86, y: -0.3, z: -0.4}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.78
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+    - At: 1.6
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+  - Id: zip_grip
+    Prop: {fileID: 8716434570575437288, guid: f76280f5199784b38b98ba1cbb61798e, type: 3}
+    AnchorId: Slot_3
+    Label: The trolley grip
+    Quip: 
+    Duration: 3.4
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: slide
+    - At: 0
+      Duration: 0.5
+      Kind: 1
+      Target: $self
+      Delta: {x: -0.28, y: 0.255, z: 0.14}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.3
+      Ease: 5
+      Param: 
+    - At: 0.56
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 0.62
+      Duration: 0.62
+      Kind: 1
+      Target: $pepA
+      Delta: {x: 0.1, y: 0.66, z: 1.1}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.34
+      Ease: 5
+      Param: 
+    - At: 0.62
+      Duration: 0.62
+      Kind: 1
+      Target: $self
+      Delta: {x: 0.1, y: 0.66, z: 1.1}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.34
+      Ease: 5
+      Param: 
+    - At: 1.24
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: transit
+    - At: 1.26
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: medium
+    - At: 1.26
+      Duration: 0.2
+      Kind: 6
+      Target: RailSpark
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.48
+      Duration: 0.3
+      Kind: 7
+      Target: RailSpark
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.28
+      Duration: 0.56
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0.4, y: -0.04, z: 0.2}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.28
+      Duration: 0.56
+      Kind: 0
+      Target: $self
+      Delta: {x: 0.4, y: -0.04, z: 0.2}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.32
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Happy
+    - At: 1.88
+      Duration: 0.26
+      Kind: 7
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.6
+      Duration: 0.72
+      Kind: 103
+      Target: $peps
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.66
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: reunion
+  CorrectIndex: 2

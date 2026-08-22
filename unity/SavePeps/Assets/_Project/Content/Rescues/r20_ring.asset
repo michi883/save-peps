@@ -1,0 +1,390 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2ed5e3ba2ba4bd3866af2cedd8abaa, type: 3}
+  m_Name: r20_ring
+  m_EditorClassIdentifier: SavePeps.Runtime::SavePeps.Rescue.RescueDefinition
+  Id: r20
+  Verb: ring
+  Reasoning: 11
+  Goal: Ring the crystal.
+  Difficulty: 2
+  SceneDescription: A seam of crystal runs the length of the cave roof, and a curtain
+    of loose rock seals the tunnel where the other Pep waits.
+  Environment: {fileID: 1793160090952690688, guid: 86d784aa28373497d9e0f150da0c6a6e, type: 3}
+  PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
+  PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
+  PepAAnchor: Anchor_PepA
+  PepBAnchor: Anchor_PepB
+  MeetAnchor: Anchor_Meet
+  Objects:
+  - Id: pillow
+    Prop: {fileID: 902861018288436469, guid: 99b5dfd33e5ad41ad81c75f25b871a2e, type: 3}
+    AnchorId: Slot_1
+    Label: The soft pillow
+    Quip: The cave said nothing.
+    Duration: 2.5
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: whoosh
+    - At: 0
+      Duration: 0.66
+      Kind: 1
+      Target: $self
+      Delta: {x: 0.33, y: 0.86, z: 1.28}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.66
+      Ease: 5
+      Param: 
+    - At: 0.68
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: poof
+    - At: 0.7
+      Duration: 0.6
+      Kind: 4
+      Target: CrystalVein
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.6
+      Ease: 2
+      Param: 
+    - At: 1.32
+      Duration: 0.8
+      Kind: 3
+      Target: $self
+      Delta: {x: 0, y: -0.8, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.96
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+  - Id: bell
+    Prop: {fileID: 7881338109127064626, guid: 60ebe3d049b024b569ca49e33d584c13, type: 3}
+    AnchorId: Slot_2
+    Label: The brass bell
+    Quip: Wrong note. Just dust.
+    Duration: 2.6
+    Steps:
+    - At: 0
+      Duration: 0.6
+      Kind: 1
+      Target: $self
+      Delta: {x: -0.28, y: 0.51, z: 1.23}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.5
+      Ease: 5
+      Param: 
+    - At: 0.62
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: bell
+    - At: 0.62
+      Duration: 0.6
+      Kind: 4
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 18
+      Ease: 2
+      Param: 
+    - At: 0.98
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: clunk
+    - At: 1
+      Duration: 0.24
+      Kind: 6
+      Target: Dust
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.02
+      Duration: 0.6
+      Kind: 0
+      Target: Dust
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.3
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.7
+      Duration: 0.44
+      Kind: 7
+      Target: Dust
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.06
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+  - Id: chime_crystal
+    Prop: {fileID: 6791392732649850643, guid: 5eaa81dd98b6e408ba364a5c87a7ea71, type: 3}
+    AnchorId: Slot_3
+    Label: The tuned crystal
+    Quip: 
+    Duration: 3.5
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: slide
+    - At: 0
+      Duration: 0.66
+      Kind: 1
+      Target: $self
+      Delta: {x: 0, y: 0.66, z: 1.54}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.58
+      Ease: 5
+      Param: 
+    - At: 0.7
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: crystal
+    - At: 0.72
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: light
+    - At: 0.72
+      Duration: 0.9
+      Kind: 4
+      Target: CrystalVein
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 3
+      Ease: 2
+      Param: 
+    - At: 0.86
+      Duration: 0.16
+      Kind: 6
+      Target: VeinRing
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.88
+      Duration: 0.86
+      Kind: 0
+      Target: VeinRing
+      Delta: {x: 0, y: 0, z: 0.9}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.88
+      Duration: 0.86
+      Kind: 0
+      Target: VeinRing
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.45
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.76
+      Duration: 0.3
+      Kind: 7
+      Target: VeinRing
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.74
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: rumble
+    - At: 1.72
+      Duration: 0.36
+      Kind: 4
+      Target: RockCurtain
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 7
+      Ease: 2
+      Param: 
+    - At: 2.06
+      Duration: 0.26
+      Kind: 6
+      Target: Dust
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.08
+      Duration: 0.6
+      Kind: 0
+      Target: Dust
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.8
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.08
+      Duration: 0.24
+      Kind: 7
+      Target: RockCurtain
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.72
+      Duration: 0.34
+      Kind: 7
+      Target: Dust
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.14
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 2.14
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 2.24
+      Duration: 0.74
+      Kind: 2
+      Target: $pepB
+      Delta: {x: -0.31, y: -0.26, z: -1.08}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.14
+      Ease: 5
+      Param: 
+    - At: 2.98
+      Duration: 0.5
+      Kind: 103
+      Target: $peps
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 3.02
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: reunion
+  CorrectIndex: 2

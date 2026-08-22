@@ -26,6 +26,32 @@ namespace SavePeps.Rescue
         Temperature = 6,
         Growth = 7,
         Shelter = 8,
+
+        // The nine kinds above described a catalogue of gardens and
+        // courtyards. Once the twelve rounds became twelve worlds with their
+        // own physics, nine kinds across thirty-six rescues forced every idea
+        // to be asked four times, and the validator could not tell a canyon's
+        // updraft from a rooftop gale from an airlock's vent. Values are
+        // appended, never reordered: they are serialized as integers in every
+        // authored rescue asset.
+
+        /// <summary>Floating and sinking: it must displace, or it must not.</summary>
+        Buoyancy = 9,
+
+        /// <summary>A mass already moving, or about to: rolling, toppling, swinging, riding.</summary>
+        Momentum = 10,
+
+        /// <summary>Sound as a force. Pitch, ringing, and what a space does to a noise.</summary>
+        Resonance = 11,
+
+        /// <summary>Moving air as a force: updrafts, gales, packing, and its absence in vacuum.</summary>
+        Airflow = 12,
+
+        /// <summary>Attraction and repulsion, and knowing what is even made of steel.</summary>
+        Magnetism = 13,
+
+        /// <summary>Electricity and circuits: powering, grounding, completing a path.</summary>
+        Signal = 14,
     }
 
     /// <summary>

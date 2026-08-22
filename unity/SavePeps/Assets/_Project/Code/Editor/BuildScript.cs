@@ -27,7 +27,7 @@ namespace SavePeps.EditorTools
 
         public static void BuildAndroid()
         {
-            var report = Run(appBundle: true);
+            var report = Run(appBundle: true, development: false);
             // Batchmode swallows a non-zero exit unless we ask for one.
             if (report.summary.result != BuildResult.Succeeded)
             {
@@ -41,7 +41,21 @@ namespace SavePeps.EditorTools
         /// </summary>
         public static void BuildAndroidApk()
         {
-            var report = Run(appBundle: false);
+            var report = Run(appBundle: false, development: false);
+            if (report.summary.result != BuildResult.Succeeded)
+            {
+                EditorApplication.Exit(1);
+            }
+        }
+
+        /// <summary>
+        /// Side-loadable APK with Unity's Development Build flag. This is the
+        /// only Android artifact in which the runtime Tester Mode entry point
+        /// is visible.
+        /// </summary>
+        public static void BuildAndroidDevelopmentApk()
+        {
+            var report = Run(appBundle: false, development: true);
             if (report.summary.result != BuildResult.Succeeded)
             {
                 EditorApplication.Exit(1);
@@ -49,12 +63,15 @@ namespace SavePeps.EditorTools
         }
 
         [MenuItem("Tools/Save Peps/Build Android AAB")]
-        public static void BuildAndroidMenu() => Run(appBundle: true);
+        public static void BuildAndroidMenu() => Run(appBundle: true, development: false);
 
         [MenuItem("Tools/Save Peps/Build Android APK (device)")]
-        public static void BuildAndroidApkMenu() => Run(appBundle: false);
+        public static void BuildAndroidApkMenu() => Run(appBundle: false, development: false);
 
-        private static BuildReport Run(bool appBundle)
+        [MenuItem("Tools/Save Peps/Build Android Development APK (Tester Mode)")]
+        public static void BuildAndroidDevelopmentApkMenu() => Run(appBundle: false, development: true);
+
+        private static BuildReport Run(bool appBundle, bool development)
         {
             ProjectBootstrap.Apply();
             ApplySigningFromEnvironment();
@@ -62,7 +79,8 @@ namespace SavePeps.EditorTools
             EditorUserBuildSettings.buildAppBundle = appBundle;
 
             Directory.CreateDirectory(OutputDir);
-            var name = $"SavePeps-{DateTime.Now:yyyyMMdd-HHmm}.{(appBundle ? "aab" : "apk")}";
+            var flavour = development ? "-dev" : string.Empty;
+            var name = $"SavePeps{flavour}-{DateTime.Now:yyyyMMdd-HHmm}.{(appBundle ? "aab" : "apk")}";
             var path = Path.Combine(OutputDir, name);
 
             var scenes = EditorBuildSettings.scenes
@@ -83,7 +101,7 @@ namespace SavePeps.EditorTools
                 locationPathName = path,
                 target = BuildTarget.Android,
                 targetGroup = BuildTargetGroup.Android,
-                options = BuildOptions.None,
+                options = development ? BuildOptions.Development : BuildOptions.None,
             };
 
             var report = BuildPipeline.BuildPlayer(options);

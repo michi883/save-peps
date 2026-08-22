@@ -37,6 +37,59 @@ namespace SavePeps.EditorTools
             }
         }
 
+
+        /// <summary>
+        /// Every rename a rescue asset has been through, oldest first.
+        ///
+        /// These are moves rather than recreations, which is the whole point:
+        /// the asset GUID survives, so the round assets, the catalogue and any
+        /// inspector history keep pointing at the same object. The twelve-world
+        /// revamp renamed thirty of the thirty-six, because a filename that
+        /// still says "cushion" for a rescue that is now a rooftop gutter slide
+        /// is a trap for the next reader.
+        /// </summary>
+        private static readonly (string From, string To)[] LegacyRescueNames =
+        {
+            // The first prototype's crossing-specific names.
+            ("r02_dam", "r02_wake"),
+            ("r03_ferry", "r03_free"),
+            ("r04_swing", "r04_distract"),
+            ("r05_lift", "r05_balance"),
+            ("r06_glide", "r06_reflect"),
+
+            // The twelve-world revamp.
+            ("r03_free", "r03_prune"),
+            ("r04_distract", "r04_hoist"),
+            ("r05_balance", "r05_mesh"),
+            ("r08_grow", "r08_sprout"),
+            ("r11_soothe", "r11_plumb"),
+            ("r12_sever", "r12_topple"),
+            ("r13_ferry", "r13_bail"),
+            ("r14_drop", "r14_paddle"),
+            ("r15_chill", "r15_drift"),
+            ("r16_deflect", "r16_pin"),
+            ("r17_cover", "r17_ground"),
+            ("r18_cushion", "r18_chute"),
+            ("r19_unfreeze", "r19_kindle"),
+            ("r20_nourish", "r20_ring"),
+            ("r21_entice", "r21_hew"),
+            ("r22_elevate", "r22_crust"),
+            ("r23_propel", "r23_sled"),
+            ("r24_zipline", "r24_traverse"),
+            ("r25_signal", "r25_rise"),
+            ("r26_distract", "r26_beckon"),
+            ("r27_sever", "r27_moor"),
+            ("r28_warm", "r28_push"),
+            ("r29_shield", "r29_attract"),
+            ("r30_balance", "r30_seal"),
+            ("r31_propel", "r31_feed"),
+            ("r32_nurture", "r32_quench"),
+            ("r33_bridge", "r33_jam"),
+            ("r34_bounce", "r34_power"),
+            ("r35_snip", "r35_board"),
+            ("r36_float", "r36_soar"),
+        };
+
         // -------------------------------------------------------------------
         // Menu
         // -------------------------------------------------------------------
@@ -80,11 +133,7 @@ namespace SavePeps.EditorTools
             Directory.CreateDirectory(ContentPaths.RescueDir);
             Directory.CreateDirectory(ContentPaths.RoundDir);
 
-            MigrateLegacyRescuePath("r02_dam", "r02_wake", log);
-            MigrateLegacyRescuePath("r03_ferry", "r03_free", log);
-            MigrateLegacyRescuePath("r04_swing", "r04_distract", log);
-            MigrateLegacyRescuePath("r05_lift", "r05_balance", log);
-            MigrateLegacyRescuePath("r06_glide", "r06_reflect", log);
+            foreach (var (from, to) in LegacyRescueNames) MigrateLegacyRescuePath(from, to, log);
 
             var rounds = new[]
             {

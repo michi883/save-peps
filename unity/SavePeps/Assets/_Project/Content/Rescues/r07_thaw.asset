@@ -17,9 +17,9 @@ MonoBehaviour:
   Reasoning: 6
   Goal: Melt the ice.
   Difficulty: 0
-  SceneDescription: A mint Pep peers through a faceted ice shell while their coral
-    partner waits diagonally across a snowy toy field.
-  Environment: {fileID: 309305237735587202, guid: 0eb20df9a604a448ab45974685057cb9, type: 3}
+  SceneDescription: Snow is falling on the top terrace and one Pep peers out of a
+    shell of faceted ice.
+  Environment: {fileID: 2450626639072889604, guid: 450bd10aa149248688889d6c3b976788, type: 3}
   PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
   PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
   PepAAnchor: Anchor_PepA
@@ -31,7 +31,7 @@ MonoBehaviour:
     AnchorId: Slot_1
     Label: The soft pillow
     Quip: Ice stays frozen.
-    Duration: 2.4
+    Duration: 2.5
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -44,16 +44,16 @@ MonoBehaviour:
       Ease: 0
       Param: whoosh
     - At: 0
-      Duration: 0.68
+      Duration: 0.72
       Kind: 1
       Target: $self
-      Delta: {x: 0.7, y: 0.2, z: 1.82}
+      Delta: {x: 0.74, y: 0.77, z: 2.66}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.36
+      Amplitude: 0.78
       Ease: 5
       Param: 
-    - At: 0.68
+    - At: 0.74
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -63,27 +63,17 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: poof
-    - At: 0.66
-      Duration: 0.24
-      Kind: 0
-      Target: $self
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 0.82
-      Amplitude: 0
-      Ease: 5
-      Param: 
-    - At: 0.72
-      Duration: 0.62
+    - At: 0.76
+      Duration: 0.6
       Kind: 4
       Target: IceShell
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 3
+      Amplitude: 2
       Ease: 2
       Param: 
-    - At: 0.82
+    - At: 0.92
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -93,12 +83,69 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Worried
+  - Id: bell
+    Prop: {fileID: 7881338109127064626, guid: 60ebe3d049b024b569ca49e33d584c13, type: 3}
+    AnchorId: Slot_2
+    Label: The brass bell
+    Quip: Awake. Still frozen.
+    Duration: 2.4
+    Steps:
+    - At: 0.05
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: bell
+    - At: 0
+      Duration: 0.95
+      Kind: 4
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 17
+      Ease: 2
+      Param: 
+    - At: 0.24
+      Duration: 0.85
+      Kind: 4
+      Target: IceShell
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 2.5
+      Ease: 2
+      Param: 
+    - At: 0.3
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Panic
+    - At: 0.42
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
   - Id: hair_dryer
     Prop: {fileID: 3592372137084346974, guid: 4d061b690b0224e848557c53548b3538, type: 3}
-    AnchorId: Slot_2
-    Label: The coral hair dryer
+    AnchorId: Slot_3
+    Label: The warm hair dryer
     Quip: 
-    Duration: 3.3
+    Duration: 3.4
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -109,28 +156,18 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: whoosh
+      Param: slide
     - At: 0
-      Duration: 0.62
+      Duration: 0.66
       Kind: 1
       Target: $self
-      Delta: {x: 0.15, y: 0.16, z: 1.38}
+      Delta: {x: 0, y: 0.77, z: 1.92}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.3
+      Amplitude: 0.6
       Ease: 5
       Param: 
-    - At: 0.6
-      Duration: 0.72
-      Kind: 4
-      Target: $self
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 4
-      Ease: 2
-      Param: 
-    - At: 0.64
+    - At: 0.66
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -140,18 +177,38 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: whoosh
-    - At: 0.76
-      Duration: 0.18
-      Kind: 7
-      Target: IceShell
+    - At: 0.66
+      Duration: 0.9
+      Kind: 4
+      Target: $self
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0
-      Ease: 0
+      Amplitude: 5
+      Ease: 2
       Param: 
-    - At: 0.78
-      Duration: 0.16
+    - At: 0.74
+      Duration: 0.8
+      Kind: 0
+      Target: IceShell
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 0.06
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 0.74
+      Duration: 0.8
+      Kind: 0
+      Target: IceShell
+      Delta: {x: 0, y: -0.16, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.5
+      Duration: 0.22
       Kind: 6
       Target: MeltPuddle
       Delta: {x: 0, y: 0, z: 0}
@@ -160,7 +217,17 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 0.8
+    - At: 1.52
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: splash
+    - At: 1.54
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -170,7 +237,17 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: light
-    - At: 0.84
+    - At: 1.58
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.58
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -180,28 +257,18 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 0.84
-      Duration: 0.5
-      Kind: 100
-      Target: $pepB
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: Hopeful
-    - At: 1.12
+    - At: 1.72
       Duration: 0.72
       Kind: 2
       Target: $pepB
-      Delta: {x: -0.22, y: 0, z: -0.34}
+      Delta: {x: -0.38, y: 0, z: -0.28}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0.13
       Ease: 5
       Param: 
-    - At: 2.02
-      Duration: 0.72
+    - At: 2.54
+      Duration: 0.7
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -210,7 +277,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.07
+    - At: 2.6
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -220,71 +287,4 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: reunion
-  - Id: bell
-    Prop: {fileID: 7881338109127064626, guid: 60ebe3d049b024b569ca49e33d584c13, type: 3}
-    AnchorId: Slot_3
-    Label: The brass bell
-    Quip: Awake. Still frozen.
-    Duration: 2.4
-    Steps:
-    - At: 0
-      Duration: 0.62
-      Kind: 1
-      Target: $self
-      Delta: {x: -0.1, y: 0.2, z: 1.62}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0.34
-      Ease: 5
-      Param: 
-    - At: 0.6
-      Duration: 0.5
-      Kind: 101
-      Target: $self
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: bell
-    - At: 0.58
-      Duration: 0.7
-      Kind: 4
-      Target: $self
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 17
-      Ease: 2
-      Param: 
-    - At: 0.68
-      Duration: 0.72
-      Kind: 4
-      Target: IceShell
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 4
-      Ease: 2
-      Param: 
-    - At: 0.78
-      Duration: 0.5
-      Kind: 100
-      Target: $pepA
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: Worried
-    - At: 0.78
-      Duration: 0.5
-      Kind: 100
-      Target: $pepB
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: Panic
-  CorrectIndex: 1
+  CorrectIndex: 2

@@ -115,7 +115,134 @@ namespace SavePeps.EditorTools
 
             ValidateAdjacentReasoning(ordered, report);
             ValidateProtean(seen, report);
+            ValidateWorlds(catalog, report);
+            ValidateStagesAreUnique(catalog, report);
+            ValidateSolutionsAreUnique(ordered, report);
             return report;
+        }
+
+        /// <summary>
+        /// One round is one world, and no world is visited twice.
+        ///
+        /// This is the rule the first catalogue most needed and did not have.
+        /// Round 4 was "Canyon" and contained one canyon rescue plus two
+        /// garden ones borrowed from round 1; round 7 was three scenes
+        /// borrowed from rounds 2 and 3. Every individual rescue passed
+        /// validation, and the round still felt like nowhere. The world id
+        /// lives on the environment prefab's <see cref="DioramaAtmosphere"/>,
+        /// beside the light and sky it names.
+        /// </summary>
+        private static void ValidateWorlds(Catalog catalog, Report report)
+        {
+            var owners = new Dictionary<string, int>();
+
+            for (var number = 1; number <= catalog.RoundCount; number++)
+            {
+                var round = catalog.Round(number);
+                if (round == null) continue;
+
+                string world = null;
+                foreach (var rescue in round.Rescues ?? System.Array.Empty<RescueDefinition>())
+                {
+                    if (rescue?.Environment == null) continue;
+
+                    var atmosphere = rescue.Environment.GetComponent<DioramaAtmosphere>();
+                    if (atmosphere == null || string.IsNullOrWhiteSpace(atmosphere.WorldId))
+                    {
+                        report.Errors.Add(
+                            $"{rescue.Id}: '{rescue.Environment.name}' has no DioramaAtmosphere world id — " +
+                            "it would play under the previous world's sky.");
+                        continue;
+                    }
+
+                    var id = atmosphere.WorldId.Trim();
+                    if (world == null) world = id;
+                    else if (world != id)
+                    {
+                        report.Errors.Add(
+                            $"Round {number}: '{rescue.Id}' is set in '{id}' while the round is '{world}' — " +
+                            "a round is one world.");
+                    }
+                }
+
+                if (world == null) continue;
+
+                if (owners.TryGetValue(world, out var other))
+                {
+                    report.Errors.Add(
+                        $"Round {number} revisits the world '{world}', already used by round {other}.");
+                }
+                else
+                {
+                    owners[world] = number;
+                }
+            }
+        }
+
+        /// <summary>
+        /// No two rescues share a diorama.
+        ///
+        /// Reusing an environment was the original content plan — eight
+        /// dioramas were budgeted for thirty-six rescues — and it is exactly
+        /// what made neighbouring rounds indistinguishable: the same slab,
+        /// the same three slots, the same camera, a different prop. A world
+        /// may repeat its palette and its base; it must not repeat its stage.
+        /// </summary>
+        private static void ValidateStagesAreUnique(Catalog catalog, Report report)
+        {
+            var owners = new Dictionary<GameObject, string>();
+
+            for (var number = 1; number <= catalog.RoundCount; number++)
+            {
+                foreach (var rescue in catalog.Round(number)?.Rescues ?? System.Array.Empty<RescueDefinition>())
+                {
+                    if (rescue?.Environment == null) continue;
+
+                    if (owners.TryGetValue(rescue.Environment, out var owner))
+                    {
+                        report.Errors.Add(
+                            $"{rescue.Id}: stages '{rescue.Environment.name}', already used by {owner} — " +
+                            "two rescues on identical geometry read as one rescue asked twice.");
+                    }
+                    else
+                    {
+                        owners[rescue.Environment] = rescue.Id;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// No prop may solve the same physical idea twice.
+        ///
+        /// Verb uniqueness never caught this and neither did the reasoning
+        /// rules: "melt the ice" and "melt the frost" had different verbs, sat
+        /// four rounds apart, and were the same tap on the same hair dryer
+        /// producing the same shrinking shell. A prop may absolutely recur —
+        /// the umbrella shelters in one world and glides in another — but the
+        /// pair of (what solves it, why it solves it) has to be new.
+        /// </summary>
+        private static void ValidateSolutionsAreUnique(IReadOnlyList<RescueDefinition> rescues, Report report)
+        {
+            var owners = new Dictionary<string, string>();
+
+            foreach (var rescue in rescues)
+            {
+                var prop = rescue.Correct?.Id;
+                if (string.IsNullOrEmpty(prop)) continue;
+
+                var key = $"{prop}+{rescue.Reasoning}";
+                if (owners.TryGetValue(key, out var owner))
+                {
+                    report.Errors.Add(
+                        $"{rescue.Id}: solved by '{prop}' using {rescue.Reasoning} reasoning, exactly like " +
+                        $"{owner} — that is the same puzzle in different scenery.");
+                }
+                else
+                {
+                    owners[key] = rescue.Id;
+                }
+            }
         }
 
         // -------------------------------------------------------------------

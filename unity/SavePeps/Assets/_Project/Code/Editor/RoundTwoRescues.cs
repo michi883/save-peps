@@ -8,16 +8,26 @@ using static SavePeps.EditorTools.Steps;
 namespace SavePeps.EditorTools
 {
     /// <summary>
-    /// Round two changes the subject and the motion again: lure an animal
-    /// sideways, operate a vertical counterweight, then redirect light around
-    /// a corner. None is a disguised crossing puzzle.
+    /// **Round 2 — Clockwork courtyard.** *World rule: nothing moves until a
+    /// linkage moves it. You never act on a Pep; you act on a machine that
+    /// acts on the world.*
+    ///
+    /// Every solution here is put *into* a mechanism — mass into a tray, a cog
+    /// onto a shaft, a mirror onto a pedestal — and the result arrives second
+    /// hand, through gearing. That indirection is the round's grammar and it
+    /// belongs to no other world: the canyon and the peak answer immediately,
+    /// the foundry's machines are already running whether you help or not.
+    ///
+    /// Only-here rescue: **r05**, fitting the missing cog. It is the one
+    /// puzzle in the game whose answer is a spare part, and it can only exist
+    /// somewhere made of gears.
     /// </summary>
     public static class RoundTwoRescues
     {
         public static RoundDefinition SeedRound(bool overwrite, ContentSeeder.SeedLog log)
         {
-            var r04 = BuildDistract(overwrite, log);
-            var r05 = BuildBalance(overwrite, log);
+            var r04 = BuildHoist(overwrite, log);
+            var r05 = BuildMesh(overwrite, log);
             var r06 = BuildReflect(overwrite, log);
 
             if (ContentSeeder.Claim<RoundDefinition>(
@@ -31,74 +41,90 @@ namespace SavePeps.EditorTools
             return round;
         }
 
-        private static RescueDefinition BuildDistract(bool overwrite, ContentSeeder.SeedLog log)
+        private static RescueDefinition BuildHoist(bool overwrite, ContentSeeder.SeedLog log)
         {
             if (!ContentSeeder.Claim<RescueDefinition>(
-                    $"{ContentPaths.RescueDir}/r04_distract.asset", overwrite, log, out var rescue))
+                    $"{ContentPaths.RescueDir}/r04_hoist.asset", overwrite, log, out var rescue))
             {
                 return rescue;
             }
 
-            Stage(rescue, "r04", "distract", "Distract the guard.", Difficulty.Easy,
-                ReasoningKind.Luring, "Diorama_Guard",
-                "A large toy dog sits in a diagonal garden opening between a foreground Pep and their partner behind the hedge.");
+            Author.Stage(rescue, "r04", "hoist", "Raise the platform.", Difficulty.Easy,
+                ReasoningKind.Counterweight, "Diorama_Clock_Pulley",
+                "One Pep waits on a high wooden deck; the other stands on a lift platform in the pit, " +
+                "roped over a pulley to an empty tray.");
 
             rescue.Objects = new[]
             {
                 new RescueObject
                 {
-                    Id = "umbrella", Prop = Prop("umbrella"), AnchorId = "Slot_1", Label = "The orange umbrella",
-                    Quip = "Cool shade. Guard stays.",
+                    Id = "pillow", Prop = Author.Prop("pillow"), AnchorId = "Slot_1", Label = "The soft pillow",
+                    Quip = "Fluff is not mass.",
                     Duration = 2.4f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "pop"),
-                        Move(0f, 0.62f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.42f, 0.34f, 1.36f), amplitude: 0.32f, ease: EaseKind.Hop),
-                        Rotate(0.10f, 0.52f, SceneRef.Self, new Vector3(0f, 160f, 0f), EaseKind.Back),
-                        Move(0.66f, 0.45f, StepKind.Drop, "Guard", new Vector3(0f, -0.045f, 0f)),
-                        Face(0.76f, SceneRef.PepB, PepFace.Worried),
-                        Sfx(0.82f, "sigh"),
-                    },
-                },
-                new RescueObject
-                {
-                    Id = "bone", Prop = Prop("bone"), AnchorId = "Slot_2", Label = "The white dog bone",
-                    Duration = 3.2f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.62f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.52f, 0.05f, 1.18f), amplitude: 0.30f, ease: EaseKind.Hop),
-                        Sfx(0.62f, "thud"),
-                        Move(0.64f, 0.72f, StepKind.Hop, "Guard",
-                            new Vector3(0.60f, 0f, 0.08f), amplitude: 0.12f, ease: EaseKind.Hop),
-                        Face(0.78f, SceneRef.PepA, PepFace.Hopeful),
-                        Face(0.78f, SceneRef.PepB, PepFace.Hopeful),
-                        Move(1.38f, 0.72f, StepKind.Hop, SceneRef.PepB,
-                            new Vector3(0.47f, 0f, -0.90f), amplitude: 0.14f, ease: EaseKind.Hop),
-                        Haptic(1.42f, "light"),
-                        Meet(2.20f, 0.70f),
-                        Sfx(2.25f, "reunion"),
+                        Move(0f, 0.66f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.96f, 0.63f, 1.56f), amplitude: 0.55f, ease: EaseKind.Hop),
+                        Sfx(0.66f, "poof"),
+                        Move(0.68f, 0.60f, StepKind.Fly, "Counterweight", new Vector3(0f, -0.025f, 0f)),
+                        Move(0.70f, 0.60f, StepKind.Shake, "Pulley", Vector3.zero,
+                            amplitude: 3f, ease: EaseKind.InOut),
+                        Face(0.86f, SceneRef.PepB, PepFace.Worried),
                     },
                 },
                 new RescueObject
                 {
-                    Id = "fan", Prop = Prop("fan"), AnchorId = "Slot_3", Label = "The caged electric fan",
-                    Quip = "Warm ears. Guard stays.",
-                    Duration = 2.4f,
+                    Id = "stone", Prop = Author.Prop("stone"), AnchorId = "Slot_2", Label = "The grey stone",
+                    Duration = 3.3f,
                     Steps = new[]
                     {
-                        Sfx(0.05f, "whoosh"),
-                        Move(0f, 1.0f, StepKind.Shake, SceneRef.Self, Vector3.zero,
-                            amplitude: 7f, ease: EaseKind.InOut),
-                        Move(0.18f, 0.72f, StepKind.Shake, "Guard", Vector3.zero,
-                            amplitude: 8f, ease: EaseKind.InOut),
-                        Move(0.28f, 0.45f, StepKind.Fly, "Guard", new Vector3(-0.07f, 0f, 0f)),
-                        Move(0.80f, 0.42f, StepKind.Fly, "Guard", new Vector3(0.07f, 0f, 0f),
+                        Sfx(0.03f, "slide"),
+                        Move(0f, 0.62f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.08f, 0.63f, 1.56f), amplitude: 0.50f, ease: EaseKind.Hop),
+                        Sfx(0.62f, "thud"),
+                        Haptic(0.64f, "medium"),
+                        Move(0.66f, 0.70f, StepKind.Fly, "Counterweight",
+                            new Vector3(0f, -0.22f, 0f), ease: EaseKind.InOut),
+                        Move(0.66f, 0.70f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(0f, -0.22f, 0f), ease: EaseKind.InOut),
+                        Move(0.66f, 0.70f, StepKind.Spin, "Pulley", Vector3.zero, amplitude: 180f,
                             ease: EaseKind.InOut),
-                        Face(0.42f, SceneRef.PepB, PepFace.Hopeful),
-                        Face(1.15f, SceneRef.PepB, PepFace.Worried),
+                        Sfx(0.70f, "ratchet"),
+                        Move(0.66f, 0.70f, StepKind.Fly, "LiftPlatform",
+                            new Vector3(0f, 0.16f, 0f), ease: EaseKind.InOut),
+                        Move(0.66f, 0.70f, StepKind.Fly, SceneRef.PepB,
+                            new Vector3(0f, 0.16f, 0f), ease: EaseKind.InOut),
+                        Face(0.80f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(0.80f, SceneRef.PepB, PepFace.Hopeful),
+                        Sfx(1.36f, "click"),
+                        Move(1.42f, 0.78f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.40f, -0.02f, -0.53f), amplitude: 0.14f, ease: EaseKind.Hop),
+                        Meet(2.32f, 0.72f),
+                        Sfx(2.38f, "reunion"),
+                    },
+                },
+                new RescueObject
+                {
+                    Id = "balloon", Prop = Author.Prop("balloon"), AnchorId = "Slot_3",
+                    Label = "The orange balloon",
+                    Quip = "Now it tips farther.",
+                    Duration = 2.6f,
+                    Steps = new[]
+                    {
+                        Move(0f, 0.60f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.52f, 0.63f, 1.28f), amplitude: 0.45f, ease: EaseKind.Hop),
+                        Sfx(0.60f, "boing"),
+                        Move(0.64f, 0.72f, StepKind.Fly, "Counterweight",
+                            new Vector3(0f, 0.20f, 0f), ease: EaseKind.InOut),
+                        Move(0.64f, 0.72f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(0f, 0.20f, 0f), ease: EaseKind.InOut),
+                        Move(0.64f, 0.72f, StepKind.Fly, "LiftPlatform",
+                            new Vector3(0f, -0.14f, 0f), ease: EaseKind.InOut),
+                        Move(0.64f, 0.72f, StepKind.Fly, SceneRef.PepB,
+                            new Vector3(0f, -0.14f, 0f), ease: EaseKind.InOut),
+                        Face(0.78f, SceneRef.PepB, PepFace.Panic),
+                        Face(0.90f, SceneRef.PepA, PepFace.Worried),
                     },
                 },
             };
@@ -108,82 +134,84 @@ namespace SavePeps.EditorTools
             return rescue;
         }
 
-        private static RescueDefinition BuildBalance(bool overwrite, ContentSeeder.SeedLog log)
+        private static RescueDefinition BuildMesh(bool overwrite, ContentSeeder.SeedLog log)
         {
             if (!ContentSeeder.Claim<RescueDefinition>(
-                    $"{ContentPaths.RescueDir}/r05_balance.asset", overwrite, log, out var rescue))
+                    $"{ContentPaths.RescueDir}/r05_mesh.asset", overwrite, log, out var rescue))
             {
                 return rescue;
             }
 
-            Stage(rescue, "r05", "balance", "Balance the lift.", Difficulty.Medium,
-                ReasoningKind.Counterweight, "Diorama_Lift",
-                "One Pep waits on a raised deck while the other stands below on a yellow lift connected to an empty high tray.");
+            Author.Stage(rescue, "r05", "mesh", "Turn the gears.", Difficulty.Medium,
+                ReasoningKind.Activation, "Diorama_Clock_Gearwall",
+                "A wall of brass gearing stands dead with one bare shaft between two cogs, and a " +
+                "portcullis holds the far Pep behind it.");
 
             rescue.Objects = new[]
             {
                 new RescueObject
                 {
-                    Id = "stone", Prop = Prop("stone"), AnchorId = "Slot_1", Label = "The heavy cracked stone",
+                    Id = "gear", Prop = Author.Prop("gear"), AnchorId = "Slot_1", Label = "The brass cog",
                     Duration = 3.4f,
                     Steps = new[]
                     {
-                        Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.72f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-1.01f, 0.62f, 1.66f), amplitude: 0.50f, ease: EaseKind.Hop),
-                        Sfx(0.72f, "thud"),
-                        Haptic(0.74f, "medium"),
-                        Move(0.76f, 0.72f, StepKind.Drop, "Counterweight",
-                            new Vector3(0f, -0.55f, 0f), ease: EaseKind.InOut),
-                        Move(0.76f, 0.72f, StepKind.Fly, "LiftPlatform",
-                            new Vector3(0f, 0.36f, 0f), ease: EaseKind.InOut),
-                        Move(0.76f, 0.72f, StepKind.Fly, SceneRef.PepB,
-                            new Vector3(0f, 0.36f, 0f), ease: EaseKind.InOut),
-                        Rotate(0.76f, 0.72f, "Pulley", new Vector3(0f, 0f, 200f), EaseKind.InOut),
-                        Face(1.02f, SceneRef.PepA, PepFace.Hopeful),
-                        Face(1.02f, SceneRef.PepB, PepFace.Hopeful),
-                        Move(1.56f, 0.72f, StepKind.Hop, SceneRef.PepB,
-                            new Vector3(-0.38f, -0.17f, -0.48f), amplitude: 0.13f, ease: EaseKind.Hop),
-                        Meet(2.38f, 0.72f),
-                        Sfx(2.44f, "reunion"),
+                        Sfx(0.03f, "slide"),
+                        Move(0f, 0.68f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.56f, 0.51f, 2.20f), amplitude: 0.62f, ease: EaseKind.Hop),
+                        Sfx(0.66f, "clank"),
+                        Haptic(0.68f, "medium"),
+                        Move(0.72f, 0.90f, StepKind.Spin, SceneRef.Self, Vector3.zero, amplitude: -260f,
+                            ease: EaseKind.Out),
+                        Move(0.72f, 0.90f, StepKind.Spin, "GearTrain", Vector3.zero, amplitude: 240f,
+                            ease: EaseKind.Out),
+                        Sfx(0.78f, "ratchet"),
+                        Move(0.74f, 0.86f, StepKind.Spin, "Governor", Vector3.zero, amplitude: 620f,
+                            ease: EaseKind.Out),
+                        Move(0.74f, 0.86f, StepKind.Fly, "Governor", new Vector3(0f, 0.05f, 0f)),
+                        Move(1.10f, 0.72f, StepKind.Fly, "Portcullis",
+                            new Vector3(0f, 0.62f, 0f), ease: EaseKind.InOut),
+                        Face(1.16f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(1.16f, SceneRef.PepB, PepFace.Hopeful),
+                        Move(1.60f, 0.78f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.36f, 0f, -1.02f), amplitude: 0.15f, ease: EaseKind.Hop),
+                        Meet(2.48f, 0.72f),
+                        Sfx(2.54f, "reunion"),
                     },
                 },
                 new RescueObject
                 {
-                    Id = "pillow", Prop = Prop("pillow"), AnchorId = "Slot_2", Label = "The soft pillow",
-                    Quip = "Comfy seat. Still tilted.",
+                    Id = "rope", Prop = Author.Prop("rope"), AnchorId = "Slot_2", Label = "The coil of rope",
+                    Quip = "It only made a knot.",
                     Duration = 2.5f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.68f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.03f, 0.58f, 1.66f), amplitude: 0.42f, ease: EaseKind.Hop),
-                        Sfx(0.68f, "boing"),
-                        Resize(0.66f, 0.24f, SceneRef.Self, 0.72f, EaseKind.Hop),
-                        Move(0.70f, 0.34f, StepKind.Drop, "Counterweight", new Vector3(0f, -0.06f, 0f)),
-                        Move(1.06f, 0.34f, StepKind.Fly, "Counterweight", new Vector3(0f, 0.06f, 0f),
-                            ease: EaseKind.Back),
-                        Face(0.78f, SceneRef.PepB, PepFace.Hopeful),
-                        Face(1.32f, SceneRef.PepB, PepFace.Worried),
+                        Move(0f, 0.66f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.32f, 0.51f, 2.20f), amplitude: 0.60f, ease: EaseKind.Hop),
+                        Sfx(0.68f, "clunk"),
+                        Move(0.70f, 0.62f, StepKind.Shake, "GearTrain", Vector3.zero,
+                            amplitude: 4f, ease: EaseKind.InOut),
+                        Resize(0.72f, 0.55f, SceneRef.Self, 0.72f, EaseKind.Back),
+                        Face(0.90f, SceneRef.PepB, PepFace.Worried),
                     },
                 },
                 new RescueObject
                 {
-                    Id = "balloon", Prop = Prop("balloon"), AnchorId = "Slot_3", Label = "The orange balloon",
-                    Quip = "Now it tips farther.",
+                    Id = "wrench", Prop = Author.Prop("wrench"), AnchorId = "Slot_3", Label = "The steel spanner",
+                    Quip = "Wrong size. Wrong hole.",
                     Duration = 2.6f,
                     Steps = new[]
                     {
-                        Sfx(0.03f, "slide"),
-                        Move(0f, 0.62f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.52f, 0.60f, 1.38f), amplitude: 0.36f, ease: EaseKind.Hop),
-                        Sfx(0.64f, "boing"),
-                        Move(0.68f, 0.82f, StepKind.Fly, SceneRef.Self, new Vector3(0f, 0.40f, 0f)),
-                        Move(0.68f, 0.82f, StepKind.Fly, "Counterweight", new Vector3(0f, 0.32f, 0f)),
-                        Move(0.68f, 0.82f, StepKind.Drop, "LiftPlatform", new Vector3(0f, -0.12f, 0f)),
-                        Move(0.68f, 0.82f, StepKind.Drop, SceneRef.PepB, new Vector3(0f, -0.12f, 0f)),
-                        Rotate(0.68f, 0.82f, "Pulley", new Vector3(0f, 0f, -120f), EaseKind.InOut),
-                        Face(0.82f, SceneRef.PepB, PepFace.Panic),
+                        Sfx(0.03f, "whoosh"),
+                        Move(0f, 0.64f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.12f, 0.51f, 1.92f), amplitude: 0.55f, ease: EaseKind.Hop),
+                        Sfx(0.66f, "clank"),
+                        Move(0.66f, 0.50f, StepKind.Shake, SceneRef.Self, Vector3.zero,
+                            amplitude: 14f, ease: EaseKind.InOut),
+                        Move(1.18f, 0.70f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.06f, -0.48f, -0.30f), amplitude: 0.12f, ease: EaseKind.Hop),
+                        Sfx(1.84f, "clunk"),
+                        Face(1.20f, SceneRef.PepA, PepFace.Worried),
                     },
                 },
             };
@@ -201,68 +229,70 @@ namespace SavePeps.EditorTools
                 return rescue;
             }
 
-            Stage(rescue, "r06", "reflect", "Bounce the beam.", Difficulty.Medium,
-                ReasoningKind.Reflection, "Diorama_Beam",
-                "A yellow lamp beam stops at an empty pedestal while a dark sensor beside the background Pep keeps a coral gate closed.");
+            Author.Stage(rescue, "r06", "reflect", "Bounce the beam.", Difficulty.Medium,
+                ReasoningKind.Reflection, "Diorama_Clock_Optics",
+                "A lamp beam ends on an empty pedestal while a dark sensor keeps the iris gate shut.");
 
             rescue.Objects = new[]
             {
                 new RescueObject
                 {
-                    Id = "stone", Prop = Prop("stone"), AnchorId = "Slot_1", Label = "The heavy cracked stone",
-                    Quip = "The light is blocked.",
-                    Duration = 2.4f,
+                    Id = "magnet", Prop = Author.Prop("magnet"), AnchorId = "Slot_1", Label = "The horseshoe magnet",
+                    Quip = "Brass is not magnetic.",
+                    Duration = 2.5f,
                     Steps = new[]
                     {
-                        Sfx(0.03f, "slide"),
-                        Move(0f, 0.62f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.52f, 0.05f, 1.25f), amplitude: 0.30f, ease: EaseKind.Hop),
-                        Sfx(0.62f, "thud"),
-                        Move(0.62f, 0.14f, StepKind.Hide, "BeamIn", Vector3.zero),
-                        Move(0.74f, 0.65f, StepKind.Shake, "LightGate", Vector3.zero,
-                            amplitude: 3f, ease: EaseKind.InOut),
-                        Face(0.82f, SceneRef.PepA, PepFace.Worried),
-                        Face(0.82f, SceneRef.PepB, PepFace.Worried),
+                        Sfx(0.03f, "whoosh"),
+                        Move(0f, 0.66f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.96f, 0.30f, 1.56f), amplitude: 0.48f, ease: EaseKind.Hop),
+                        Move(0.68f, 0.85f, StepKind.Shake, SceneRef.Self, Vector3.zero,
+                            amplitude: 11f, ease: EaseKind.InOut),
+                        Sfx(0.72f, "clunk"),
+                        Face(0.92f, SceneRef.PepA, PepFace.Worried),
+                        Face(1.30f, SceneRef.PepB, PepFace.Worried),
                     },
                 },
                 new RescueObject
                 {
-                    Id = "umbrella", Prop = Prop("umbrella"), AnchorId = "Slot_2", Label = "The orange umbrella",
+                    Id = "umbrella", Prop = Author.Prop("umbrella"), AnchorId = "Slot_2",
+                    Label = "The orange umbrella",
                     Quip = "Nice shade. No light.",
-                    Duration = 2.4f,
+                    Duration = 2.5f,
                     Steps = new[]
                     {
-                        Sfx(0.03f, "pop"),
-                        Move(0f, 0.62f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.48f, 0.20f, 1.25f), amplitude: 0.34f, ease: EaseKind.Hop),
-                        Rotate(0.10f, 0.52f, SceneRef.Self, new Vector3(0f, 150f, 0f), EaseKind.Back),
-                        Move(0.62f, 0.14f, StepKind.Hide, "BeamIn", Vector3.zero),
-                        Face(0.78f, SceneRef.PepA, PepFace.Worried),
-                        Face(0.78f, SceneRef.PepB, PepFace.Worried),
+                        Sfx(0.05f, "pop"),
+                        Move(0f, 0.60f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.42f, 0.42f, 1.30f), amplitude: 0.42f, ease: EaseKind.Hop),
+                        Move(0.60f, 0.34f, StepKind.Spin, SceneRef.Self, Vector3.zero, amplitude: 150f),
+                        Move(0.94f, 0.30f, StepKind.Hide, "BeamIn", Vector3.zero),
+                        Face(1.06f, SceneRef.PepA, PepFace.Worried),
+                        Face(1.06f, SceneRef.PepB, PepFace.Worried),
                     },
                 },
                 new RescueObject
                 {
-                    Id = "mirror", Prop = Prop("mirror"), AnchorId = "Slot_3", Label = "The framed hand mirror",
+                    Id = "mirror", Prop = Author.Prop("mirror"), AnchorId = "Slot_3", Label = "The hand mirror",
                     Duration = 3.3f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "slide"),
-                        Move(0f, 0.62f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.02f, 0.15f, 0.93f), amplitude: 0.28f, ease: EaseKind.Hop),
-                        Rotate(0.52f, 0.34f, SceneRef.Self, new Vector3(0f, 42f, 0f), EaseKind.Back),
-                        Sfx(0.66f, "chime"),
-                        Move(0.66f, 0.12f, StepKind.Show, "BeamBounce", Vector3.zero),
-                        Move(0.72f, 0.12f, StepKind.Show, "SensorGlow", Vector3.zero),
-                        Haptic(0.75f, "light"),
-                        Move(0.84f, 0.56f, StepKind.Fly, "LightGate",
-                            new Vector3(0f, 0.66f, 0f), ease: EaseKind.InOut),
-                        Face(0.94f, SceneRef.PepA, PepFace.Hopeful),
-                        Face(0.94f, SceneRef.PepB, PepFace.Hopeful),
-                        Move(1.42f, 0.72f, StepKind.Hop, SceneRef.PepB,
-                            new Vector3(-0.46f, 0f, -0.84f), amplitude: 0.14f, ease: EaseKind.Hop),
-                        Meet(2.26f, 0.70f),
-                        Sfx(2.32f, "reunion"),
+                        Move(0f, 0.64f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.02f, 0.13f, 0.93f), amplitude: 0.38f, ease: EaseKind.Hop),
+                        Rotate(0.60f, 0.34f, SceneRef.Self, new Vector3(0f, 44f, 0f)),
+                        Sfx(0.66f, "click"),
+                        Move(0.86f, 0.20f, StepKind.Show, "BeamBounce", Vector3.zero),
+                        Move(0.98f, 0.22f, StepKind.Show, "SensorGlow", Vector3.zero),
+                        Sfx(1.00f, "chime"),
+                        Haptic(1.02f, "light"),
+                        Move(1.10f, 0.60f, StepKind.Spin, "IrisGate", Vector3.zero, amplitude: 92f,
+                            ease: EaseKind.InOut),
+                        Resize(1.10f, 0.60f, "IrisGate", 0.16f, EaseKind.InOut),
+                        Face(1.18f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(1.18f, SceneRef.PepB, PepFace.Hopeful),
+                        Move(1.52f, 0.78f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.42f, 0f, -1.00f), amplitude: 0.14f, ease: EaseKind.Hop),
+                        Meet(2.40f, 0.72f),
+                        Sfx(2.46f, "reunion"),
                     },
                 },
             };
@@ -270,32 +300,6 @@ namespace SavePeps.EditorTools
             rescue.CorrectIndex = 2;
             EditorUtility.SetDirty(rescue);
             return rescue;
-        }
-
-        private static void Stage(RescueDefinition rescue, string id, string verb, string goal,
-            Difficulty difficulty, ReasoningKind reasoning, string environment, string description)
-        {
-            rescue.Id = id;
-            rescue.Verb = verb;
-            rescue.Goal = goal;
-            rescue.Difficulty = difficulty;
-            rescue.Reasoning = reasoning;
-            rescue.SceneDescription = description;
-            rescue.Environment = Load<GameObject>($"{ContentPaths.EnvironmentDir}/{environment}.prefab");
-            rescue.PepAPrefab = Load<GameObject>($"{ContentPaths.CharacterDir}/Pep_A.prefab");
-            rescue.PepBPrefab = Load<GameObject>($"{ContentPaths.CharacterDir}/Pep_B.prefab");
-            rescue.PepAAnchor = "Anchor_PepA";
-            rescue.PepBAnchor = "Anchor_PepB";
-            rescue.MeetAnchor = "Anchor_Meet";
-        }
-
-        private static GameObject Prop(string id) => Load<GameObject>($"{ContentPaths.PropDir}/{id}.prefab");
-
-        private static T Load<T>(string path) where T : Object
-        {
-            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
-            if (asset == null) Debug.LogError($"[SavePeps] Missing asset: {path}");
-            return asset;
         }
     }
 }

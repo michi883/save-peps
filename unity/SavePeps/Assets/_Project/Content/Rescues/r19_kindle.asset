@@ -1,0 +1,330 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2ed5e3ba2ba4bd3866af2cedd8abaa, type: 3}
+  m_Name: r19_kindle
+  m_EditorClassIdentifier: SavePeps.Runtime::SavePeps.Rescue.RescueDefinition
+  Id: r19
+  Verb: kindle
+  Reasoning: 5
+  Goal: Light the cave.
+  Difficulty: 1
+  SceneDescription: "Black water \u2014 or a black hole in the floor, there is no
+    way to tell \u2014 lies between the Peps, with an empty lamp hook on the wall."
+  Environment: {fileID: 6494120671694698127, guid: 1feda6f2de20f49ae9a6f8154ee070aa, type: 3}
+  PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
+  PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
+  PepAAnchor: Anchor_PepA
+  PepBAnchor: Anchor_PepB
+  MeetAnchor: Anchor_Meet
+  Objects:
+  - Id: mirror
+    Prop: {fileID: 895862662544724466, guid: 91a031f2f84084c199603df39e73305b, type: 3}
+    AnchorId: Slot_1
+    Label: The hand mirror
+    Quip: No light to bounce.
+    Duration: 2.5
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: whoosh
+    - At: 0
+      Duration: 0.62
+      Kind: 1
+      Target: $self
+      Delta: {x: 0.26, y: 0.26, z: 0.84}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.38
+      Ease: 5
+      Param: 
+    - At: 0.66
+      Duration: 0.9
+      Kind: 5
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 300
+      Ease: 2
+      Param: 
+    - At: 0.7
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: drip
+    - At: 0.94
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+    - At: 1.3
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+  - Id: lantern
+    Prop: {fileID: 675644818385848151, guid: 46a6be19dd5384d9695635f91360b126, type: 3}
+    AnchorId: Slot_2
+    Label: The cage lantern
+    Quip: 
+    Duration: 3.5
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: slide
+    - At: 0
+      Duration: 0.66
+      Kind: 1
+      Target: $self
+      Delta: {x: -0.38, y: 0.32, z: 1.5}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.46
+      Ease: 5
+      Param: 
+    - At: 0.68
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: click
+    - At: 0.7
+      Duration: 0.44
+      Kind: 4
+      Target: LampHook
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 4
+      Ease: 2
+      Param: 
+    - At: 0.86
+      Duration: 0.5
+      Kind: 7
+      Target: Darkness
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.86
+      Duration: 0.5
+      Kind: 6
+      Target: LitPool
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1
+      Duration: 0.44
+      Kind: 6
+      Target: Shallows
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.04
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: crystal
+    - At: 1.06
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: light
+    - At: 1.44
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.44
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.64
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: splash
+    - At: 1.6
+      Duration: 0.92
+      Kind: 2
+      Target: $pepA
+      Delta: {x: 0.32, y: 0, z: 0.78}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.13
+      Ease: 5
+      Param: 
+    - At: 2.62
+      Duration: 0.74
+      Kind: 103
+      Target: $peps
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.68
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: reunion
+  - Id: pickaxe
+    Prop: {fileID: 4635642793399847904, guid: 002ec763b9ce544f2adcecdca1292ccd, type: 3}
+    AnchorId: Slot_3
+    Label: The miner's pick
+    Quip: Swing. Miss. Swing.
+    Duration: 2.5
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: whoosh
+    - At: 0
+      Duration: 0.6
+      Kind: 1
+      Target: $self
+      Delta: {x: -0.28, y: 0.2, z: 1.24}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.4
+      Ease: 5
+      Param: 
+    - At: 0.62
+      Duration: 0.42
+      Kind: 4
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 26
+      Ease: 2
+      Param: 
+    - At: 0.86
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: clunk
+    - At: 1.06
+      Duration: 0.42
+      Kind: 4
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 26
+      Ease: 2
+      Param: 
+    - At: 1.3
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: clunk
+    - At: 1.34
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+  CorrectIndex: 1

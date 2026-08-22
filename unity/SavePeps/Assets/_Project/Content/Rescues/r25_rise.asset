@@ -1,0 +1,300 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2ed5e3ba2ba4bd3866af2cedd8abaa, type: 3}
+  m_Name: r25_rise
+  m_EditorClassIdentifier: SavePeps.Runtime::SavePeps.Rescue.RescueDefinition
+  Id: r25
+  Verb: rise
+  Reasoning: 9
+  Goal: Rise from the floor.
+  Difficulty: 0
+  SceneDescription: One Pep stands in the silt at the bottom of the trench; the other
+    waits on a shelf far up the wall.
+  Environment: {fileID: 5508403248719459808, guid: ff3d317ac483e47118ead04f1105d4f1, type: 3}
+  PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
+  PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
+  PepAAnchor: Anchor_PepA
+  PepBAnchor: Anchor_PepB
+  MeetAnchor: Anchor_Meet
+  Objects:
+  - Id: stone
+    Prop: {fileID: 8205312133405770481, guid: dade6ecd80fa04a4db529c7b769df6bb, type: 3}
+    AnchorId: Slot_1
+    Label: The grey stone
+    Quip: Down is not the way.
+    Duration: 2.6
+    Steps:
+    - At: 0
+      Duration: 0.86
+      Kind: 1
+      Target: $self
+      Delta: {x: 0.64, y: 0.09, z: 1.48}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.26
+      Ease: 2
+      Param: 
+    - At: 0.88
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: thud
+    - At: 0.92
+      Duration: 0.8
+      Kind: 0
+      Target: $pepB
+      Delta: {x: 0, y: -0.055, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 0.92
+      Duration: 0.8
+      Kind: 0
+      Target: SiltCloud
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.45
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.04
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+    - At: 1.28
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+  - Id: bell
+    Prop: {fileID: 7881338109127064626, guid: 60ebe3d049b024b569ca49e33d584c13, type: 3}
+    AnchorId: Slot_2
+    Label: The brass bell
+    Quip: Water eats the sound.
+    Duration: 2.6
+    Steps:
+    - At: 0
+      Duration: 1.05
+      Kind: 4
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 13
+      Ease: 2
+      Param: 
+    - At: 0.3
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: clunk
+    - At: 0.36
+      Duration: 0.9
+      Kind: 4
+      Target: SiltCloud
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 1.2
+      Ease: 2
+      Param: 
+    - At: 0.52
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+    - At: 1.14
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+  - Id: bubble_shell
+    Prop: {fileID: 6924496882485120812, guid: 757f933d6a2be4a82a8d83ad4632d7a9, type: 3}
+    AnchorId: Slot_3
+    Label: The air-filled shell
+    Quip: 
+    Duration: 3.6
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: bubble
+    - At: 0
+      Duration: 0.9
+      Kind: 1
+      Target: $self
+      Delta: {x: 0.24, y: 0.09, z: 1.74}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.28
+      Ease: 2
+      Param: 
+    - At: 0.94
+      Duration: 0.42
+      Kind: 5
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 34
+      Ease: 0
+      Param: 
+    - At: 0.98
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: bubble
+    - At: 1.04
+      Duration: 0.3
+      Kind: 6
+      Target: Lift
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.06
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: light
+    - At: 1.1
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.1
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.14
+      Duration: 1.1
+      Kind: 0
+      Target: $pepB
+      Delta: {x: 0, y: 0.7, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.14
+      Duration: 1.1
+      Kind: 0
+      Target: Lift
+      Delta: {x: 0, y: 0.34, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 2.24
+      Duration: 0.42
+      Kind: 7
+      Target: Lift
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.26
+      Duration: 0.62
+      Kind: 0
+      Target: $pepB
+      Delta: {x: -0.54, y: -0.03, z: 0.22}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 2.9
+      Duration: 0.68
+      Kind: 103
+      Target: $peps
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.96
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: reunion
+  CorrectIndex: 2

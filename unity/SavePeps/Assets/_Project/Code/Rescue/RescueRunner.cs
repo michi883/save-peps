@@ -32,6 +32,7 @@ namespace SavePeps.Rescue
         [SerializeField] private RescueHud _hud;
         [SerializeField] private Feedback _feedback;
         [SerializeField] private GameFeel _gameFeel;
+        [SerializeField] private AtmosphereDirector _atmosphere;
 
         private readonly Dictionary<string, AnimTarget> _targets = new();
         private readonly Dictionary<string, ChoicePresentation> _choices = new();
@@ -42,12 +43,20 @@ namespace SavePeps.Rescue
         private RescueObject _tapped;
         private int _attempts;
         private bool _solved;
+        private bool _choiceReady;
+        private bool _inputSuspended;
 
         /// <summary>Raised when the Peps are reunited. True if solved first tap.</summary>
         public event Action<bool> OnSolved;
 
         /// <summary>The rescue currently staged, or null between rescues.</summary>
         public RescueDefinition Current => _rescue;
+
+        /// <summary>The most recently chosen object, while its outcome is running.</summary>
+        public string SelectedObjectId => _tapped?.Id;
+
+        /// <summary>Choices made since this rescue was staged or explicitly restarted.</summary>
+        public int Attempts => _attempts;
 
         /// <summary>
         /// True while a staged rescue is simply waiting for the player's tap.
@@ -59,7 +68,7 @@ namespace SavePeps.Rescue
         /// so that a global time freeze would not stop it anyway.
         /// </summary>
         public bool AwaitingChoice =>
-            _rescue != null && !_solved && _tapped == null &&
+            _rescue != null && _choiceReady && !_inputSuspended && !_solved && _tapped == null &&
             _tapRouter != null && _tapRouter.InputEnabled;
 
         /// <summary>
@@ -69,7 +78,8 @@ namespace SavePeps.Rescue
         /// </summary>
         public void SuspendInput(bool suspended)
         {
-            if (_tapRouter != null) _tapRouter.InputEnabled = !suspended;
+            _inputSuspended = suspended;
+            ApplyInputState();
         }
 
         private void Awake()
@@ -122,7 +132,8 @@ namespace SavePeps.Rescue
 
             StopAllCoroutines();
             if (_player != null) _player.Stop();
-            if (_tapRouter != null) _tapRouter.InputEnabled = false;
+            _choiceReady = false;
+            ApplyInputState();
 
             if (_diorama != null)
             {
@@ -148,7 +159,14 @@ namespace SavePeps.Rescue
         /// diorama, a bad anchor) cannot leave a previous one's Peps or
         /// targets behind to be animated by the next tap.
         /// </summary>
-        public void Teardown() => ClearStage(stopCoroutines: true);
+        public void Teardown()
+        {
+            ClearStage(stopCoroutines: true);
+            // Only here, never in the shared clear: swapping between two
+            // rescues of the same round would otherwise stop and restart the
+            // world's ambience bed, and the gap is audible.
+            _atmosphere?.Restore();
+        }
 
         private void ClearStage(bool stopCoroutines)
         {
@@ -168,8 +186,9 @@ namespace SavePeps.Rescue
             _tapped = null;
             _attempts = 0;
             _solved = false;
+            _choiceReady = false;
 
-            if (_tapRouter != null) _tapRouter.InputEnabled = false;
+            ApplyInputState();
             _gameFeel?.ResetPresentation();
         }
 
@@ -204,7 +223,11 @@ namespace SavePeps.Rescue
         {
             if (staged == null) yield break;
 
-            if (lockInput && _tapRouter != null) _tapRouter.InputEnabled = false;
+            if (lockInput)
+            {
+                _choiceReady = false;
+                ApplyInputState();
+            }
             staged.transform.localPosition = new Vector3(0.58f, 0.56f, 0f);
             staged.transform.localRotation = Quaternion.Euler(0f, 0f, -7f);
             staged.transform.localScale = Vector3.one * 0.93f;
@@ -232,9 +255,10 @@ namespace SavePeps.Rescue
             // A preview/test can choose during the entrance via SimulateTap.
             // Never let the animation's completion reopen input over an
             // outcome that has already locked it.
-            if (_tapRouter != null && _diorama == staged && _tapped == null && !_solved)
+            if (_diorama == staged && _tapped == null && !_solved)
             {
-                _tapRouter.InputEnabled = true;
+                _choiceReady = true;
+                ApplyInputState();
             }
         }
 
@@ -242,6 +266,11 @@ namespace SavePeps.Rescue
         {
             _diorama = Instantiate(_rescue.Environment, transform);
             _diorama.name = "Diorama";
+
+            // Sky, sun, haze, framing and the ambience bed travel with the
+            // environment prefab, so a world's light arrives with its geometry
+            // and no runtime code has to know which round is playing.
+            _atmosphere?.Apply(_diorama.GetComponent<DioramaAtmosphere>());
 
             var anchors = new Dictionary<string, Transform>();
             foreach (var t in _diorama.GetComponentsInChildren<Transform>(includeInactive: true))
@@ -331,7 +360,8 @@ namespace SavePeps.Rescue
 
             _tapped = obj;
             _attempts++;
-            _tapRouter.InputEnabled = false;
+            _choiceReady = false;
+            ApplyInputState();
 
             foreach (var (id, presentation) in _choices)
             {
@@ -412,6 +442,21 @@ namespace SavePeps.Rescue
             _hud?.ClearQuip();
         }
 
+        /// <summary>
+        /// Starts this rescue over as a new attempt, including restoring
+        /// first-tap eligibility. Tester Mode uses this instead of Retry,
+        /// whose job is to preserve the failed-attempt history.
+        /// </summary>
+        public void Restart()
+        {
+            if (_rescue == null) return;
+            _attempts = 0;
+            _solved = false;
+            ResetScene();
+            _hud?.ClearQuip();
+            Debug.Log($"[SavePeps] Tester restarted '{_rescue.Id}'.");
+        }
+
         private void ResetScene()
         {
             StopAllCoroutines();
@@ -429,7 +474,14 @@ namespace SavePeps.Rescue
             _gameFeel?.ResetPresentation();
 
             _tapped = null;
-            _tapRouter.InputEnabled = true;
+            _choiceReady = true;
+            ApplyInputState();
+        }
+
+        private void ApplyInputState()
+        {
+            if (_tapRouter == null) return;
+            _tapRouter.InputEnabled = _choiceReady && !_inputSuspended && !_solved && _tapped == null;
         }
 
         // -------------------------------------------------------------------

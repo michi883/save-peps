@@ -1,0 +1,300 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2ed5e3ba2ba4bd3866af2cedd8abaa, type: 3}
+  m_Name: r29_attract
+  m_EditorClassIdentifier: SavePeps.Runtime::SavePeps.Rescue.RescueDefinition
+  Id: r29
+  Verb: attract
+  Reasoning: 13
+  Goal: Pull them back.
+  Difficulty: 2
+  SceneDescription: One Pep is tumbling away above the station, wearing a steel-backed
+    pack, already too far to reach from the handrail.
+  Environment: {fileID: 6015067989867678390, guid: 20757b3125e5845b5a31b45ba362fc05, type: 3}
+  PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
+  PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
+  PepAAnchor: Anchor_PepA
+  PepBAnchor: Anchor_PepB
+  MeetAnchor: Anchor_Meet
+  Objects:
+  - Id: magnet
+    Prop: {fileID: 2044471117934772324, guid: bc411fd24a98b4b54a65457a392ed37f, type: 3}
+    AnchorId: Slot_1
+    Label: The horseshoe magnet
+    Quip: 
+    Duration: 3.5
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: servo
+    - At: 0
+      Duration: 0.88
+      Kind: 0
+      Target: $self
+      Delta: {x: 0.45, y: 0.25, z: 1.3}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 3
+      Param: 
+    - At: 0.92
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 0.96
+      Duration: 0.28
+      Kind: 6
+      Target: PullArc
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: snap_on
+    - At: 1.02
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: medium
+    - At: 1.06
+      Duration: 1.1
+      Kind: 0
+      Target: Backpack
+      Delta: {x: -0.35, y: -0.55, z: -0.85}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.06
+      Duration: 1.1
+      Kind: 0
+      Target: $pepB
+      Delta: {x: -0.35, y: -0.55, z: -0.85}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.2
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Happy
+    - At: 2.16
+      Duration: 0.5
+      Kind: 7
+      Target: PullArc
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.16
+      Duration: 0.5
+      Kind: 0
+      Target: $pepB
+      Delta: {x: -0.15, y: -0.27, z: -0.2}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.16
+      Duration: 0.5
+      Kind: 0
+      Target: Backpack
+      Delta: {x: -0.15, y: -0.27, z: -0.2}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.7
+      Duration: 0.72
+      Kind: 103
+      Target: $peps
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.76
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: reunion
+  - Id: bell
+    Prop: {fileID: 7881338109127064626, guid: 60ebe3d049b024b569ca49e33d584c13, type: 3}
+    AnchorId: Slot_2
+    Label: The brass bell
+    Quip: Space took the sound.
+    Duration: 2.6
+    Steps:
+    - At: 0
+      Duration: 0.7
+      Kind: 0
+      Target: $self
+      Delta: {x: 0.3, y: 0.3, z: 1.1}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 3
+      Param: 
+    - At: 0.72
+      Duration: 1.1
+      Kind: 4
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 22
+      Ease: 2
+      Param: 
+    - At: 0.9
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.86
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+    - At: 1.9
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: click
+  - Id: balloon
+    Prop: {fileID: 8136335957201776383, guid: b9f2d7418424c46f4a81f14ba4cfb185, type: 3}
+    AnchorId: Slot_3
+    Label: The orange balloon
+    Quip: Vacuum. Zero balloons.
+    Duration: 2.4
+    Steps:
+    - At: 0
+      Duration: 0.62
+      Kind: 0
+      Target: $self
+      Delta: {x: 0.1, y: 0.42, z: 1.3}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 3
+      Param: 
+    - At: 0.64
+      Duration: 0.26
+      Kind: 0
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.7
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.9
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: pop
+    - At: 0.9
+      Duration: 0.18
+      Kind: 7
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.96
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Panic
+    - At: 1.62
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+  CorrectIndex: 0

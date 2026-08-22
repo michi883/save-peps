@@ -8,10 +8,20 @@ using static SavePeps.EditorTools.Steps;
 namespace SavePeps.EditorTools
 {
     /// <summary>
-    /// Round one teaches the game's breadth in three beats: span a brook,
-    /// wake a mechanism, then remove a living obstruction. Each scene keeps
-    /// the one-tap grammar while changing both the physical inference and the
-    /// placement of the Peps.
+    /// **Round 1 — Garden.** *World rule: simple things do simple jobs. A flat
+    /// thing spans, a loud thing wakes, a sharp thing cuts.*
+    ///
+    /// The one round the revamp deliberately left alone. It is the tutorial,
+    /// and its three rescues already teach three different kinds of thinking —
+    /// span a gap, act on an intermediary, remove an obstruction — in three
+    /// different spatial compositions. What changed is underneath: it now has
+    /// a world of its own rather than lending its dioramas to rounds four,
+    /// five and seven.
+    ///
+    /// Only-here rescue: **r01**, the plank across the brook. Every later
+    /// world takes this away — the canyon is too wide, the sea takes it, the
+    /// city is a block across — and the joke only works because it worked here
+    /// first.
     /// </summary>
     public static class RoundOneRescues
     {
@@ -19,7 +29,7 @@ namespace SavePeps.EditorTools
         {
             var r01 = BuildBridge(overwrite, log);
             var r02 = BuildWake(overwrite, log);
-            var r03 = BuildFree(overwrite, log);
+            var r03 = BuildPrune(overwrite, log);
 
             if (ContentSeeder.Claim<RoundDefinition>(
                     $"{ContentPaths.RoundDir}/Round_01.asset", overwrite, log, out var round))
@@ -40,15 +50,15 @@ namespace SavePeps.EditorTools
                 return rescue;
             }
 
-            Stage(rescue, "r01", "bridge", "Cross the brook.", Difficulty.Easy,
-                ReasoningKind.Crossing, "Diorama_Brook",
+            Author.Stage(rescue, "r01", "bridge", "Cross the brook.", Difficulty.Easy,
+                ReasoningKind.Crossing, "Diorama_Garden_Brook",
                 "The Peps lean toward each other from opposite banks of a narrow blue brook.");
 
             rescue.Objects = new[]
             {
                 new RescueObject
                 {
-                    Id = "plank", Prop = Prop("plank"), AnchorId = "Slot_1", Label = "The wooden plank",
+                    Id = "plank", Prop = Author.Prop("plank"), AnchorId = "Slot_1", Label = "The wooden plank",
                     Duration = 2.9f,
                     Steps = new[]
                     {
@@ -66,7 +76,7 @@ namespace SavePeps.EditorTools
                 },
                 new RescueObject
                 {
-                    Id = "bell", Prop = Prop("bell"), AnchorId = "Slot_2", Label = "The brass bell",
+                    Id = "bell", Prop = Author.Prop("bell"), AnchorId = "Slot_2", Label = "The brass bell",
                     Quip = "The brook is awake.",
                     Duration = 2.3f,
                     Steps = new[]
@@ -84,7 +94,8 @@ namespace SavePeps.EditorTools
                 },
                 new RescueObject
                 {
-                    Id = "balloon", Prop = Prop("balloon"), AnchorId = "Slot_3", Label = "The orange balloon",
+                    Id = "balloon", Prop = Author.Prop("balloon"), AnchorId = "Slot_3",
+                    Label = "The orange balloon",
                     Quip = "Up is not across.",
                     Duration = 2.5f,
                     Steps = PropGags.Balloon(),
@@ -104,15 +115,15 @@ namespace SavePeps.EditorTools
                 return rescue;
             }
 
-            Stage(rescue, "r02", "wake", "Wake the helper.", Difficulty.Easy,
-                ReasoningKind.Activation, "Diorama_Wake",
-                "A sleeping toy helper slumps beside a lever while a coral gate keeps the Peps apart diagonally.");
+            Author.Stage(rescue, "r02", "wake", "Wake the helper.", Difficulty.Easy,
+                ReasoningKind.Activation, "Diorama_Garden_Gate",
+                "A sleeping toy helper slumps beside a lever while a gate keeps the Peps apart diagonally.");
 
             rescue.Objects = new[]
             {
                 new RescueObject
                 {
-                    Id = "pillow", Prop = Prop("pillow"), AnchorId = "Slot_1", Label = "The soft pillow",
+                    Id = "pillow", Prop = Author.Prop("pillow"), AnchorId = "Slot_1", Label = "The soft pillow",
                     Quip = "Still asleep.",
                     Duration = 2.4f,
                     Steps = new[]
@@ -129,7 +140,7 @@ namespace SavePeps.EditorTools
                 },
                 new RescueObject
                 {
-                    Id = "bone", Prop = Prop("bone"), AnchorId = "Slot_2", Label = "The white dog bone",
+                    Id = "bone", Prop = Author.Prop("bone"), AnchorId = "Slot_2", Label = "The white dog bone",
                     Quip = "Good bone. Wrong helper.",
                     Duration = 2.4f,
                     Steps = new[]
@@ -149,7 +160,7 @@ namespace SavePeps.EditorTools
                 },
                 new RescueObject
                 {
-                    Id = "bell", Prop = Prop("bell"), AnchorId = "Slot_3", Label = "The brass bell",
+                    Id = "bell", Prop = Author.Prop("bell"), AnchorId = "Slot_3", Label = "The brass bell",
                     Duration = 3.3f,
                     Steps = new[]
                     {
@@ -181,23 +192,23 @@ namespace SavePeps.EditorTools
             return rescue;
         }
 
-        private static RescueDefinition BuildFree(bool overwrite, ContentSeeder.SeedLog log)
+        private static RescueDefinition BuildPrune(bool overwrite, ContentSeeder.SeedLog log)
         {
             if (!ContentSeeder.Claim<RescueDefinition>(
-                    $"{ContentPaths.RescueDir}/r03_free.asset", overwrite, log, out var rescue))
+                    $"{ContentPaths.RescueDir}/r03_prune.asset", overwrite, log, out var rescue))
             {
                 return rescue;
             }
 
-            Stage(rescue, "r03", "free", "Clear the vines.", Difficulty.Medium,
-                ReasoningKind.Cutting, "Diorama_Vines",
+            Author.Stage(rescue, "r03", "prune", "Clear the vines.", Difficulty.Medium,
+                ReasoningKind.Cutting, "Diorama_Garden_Trellis",
                 "One Pep is visible behind a thick vertical trellis of crossed green vines; their partner waits in front-left.");
 
             rescue.Objects = new[]
             {
                 new RescueObject
                 {
-                    Id = "watering_can", Prop = Prop("watering_can"), AnchorId = "Slot_1",
+                    Id = "watering_can", Prop = Author.Prop("watering_can"), AnchorId = "Slot_1",
                     Label = "The blue watering can",
                     Quip = "Too much water.",
                     Duration = 2.5f,
@@ -216,7 +227,8 @@ namespace SavePeps.EditorTools
                 },
                 new RescueObject
                 {
-                    Id = "scissors", Prop = Prop("scissors"), AnchorId = "Slot_2", Label = "The red-handled scissors",
+                    Id = "scissors", Prop = Author.Prop("scissors"), AnchorId = "Slot_2",
+                    Label = "The purple-handled scissors",
                     Duration = 3.2f,
                     Steps = new[]
                     {
@@ -239,7 +251,7 @@ namespace SavePeps.EditorTools
                 },
                 new RescueObject
                 {
-                    Id = "fan", Prop = Prop("fan"), AnchorId = "Slot_3", Label = "The caged electric fan",
+                    Id = "fan", Prop = Author.Prop("fan"), AnchorId = "Slot_3", Label = "The caged electric fan",
                     Quip = "Leaves up. Roots stuck.",
                     Duration = 2.4f,
                     Steps = new[]
@@ -260,32 +272,6 @@ namespace SavePeps.EditorTools
             rescue.CorrectIndex = 1;
             EditorUtility.SetDirty(rescue);
             return rescue;
-        }
-
-        private static void Stage(RescueDefinition rescue, string id, string verb, string goal,
-            Difficulty difficulty, ReasoningKind reasoning, string environment, string description)
-        {
-            rescue.Id = id;
-            rescue.Verb = verb;
-            rescue.Goal = goal;
-            rescue.Difficulty = difficulty;
-            rescue.Reasoning = reasoning;
-            rescue.SceneDescription = description;
-            rescue.Environment = Load<GameObject>($"{ContentPaths.EnvironmentDir}/{environment}.prefab");
-            rescue.PepAPrefab = Load<GameObject>($"{ContentPaths.CharacterDir}/Pep_A.prefab");
-            rescue.PepBPrefab = Load<GameObject>($"{ContentPaths.CharacterDir}/Pep_B.prefab");
-            rescue.PepAAnchor = "Anchor_PepA";
-            rescue.PepBAnchor = "Anchor_PepB";
-            rescue.MeetAnchor = "Anchor_Meet";
-        }
-
-        private static GameObject Prop(string id) => Load<GameObject>($"{ContentPaths.PropDir}/{id}.prefab");
-
-        private static T Load<T>(string path) where T : Object
-        {
-            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
-            if (asset == null) Debug.LogError($"[SavePeps] Missing asset: {path}");
-            return asset;
         }
     }
 }

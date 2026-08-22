@@ -8,7 +8,9 @@ Operating notes for coding agents. **This is the "how", not the "what"** — [`P
 
 ### Current phase
 
-As of **20 Aug 2026**, the repository contains **12 rounds / 36 rescues**, completing the full target catalogue from PLAN.md across standard and extreme environments (deep ocean, space, factory, neon city). The complete mobile loop has passed its P2 polish pass plus the shell-and-feedback pass (pause sheet, progress shelf, inline sound/haptics settings, Android Back routing, and shared `UIPop`/`ToyButton` motion). Both are frozen in [`docs/core-ux.md`](docs/core-ux.md). The default next move is **Android APK/AAB build and Google Play closed testing track release**. Reopen the frozen UX only for a demonstrated device regression, accessibility issue, or release blocker.
+As of **21 Aug 2026**, the repository contains **12 rounds / 36 rescues** across **12 distinct worlds and 36 distinct stages**, following the content revamp that replaced the shared-diorama catalogue. Each round now owns a world rule, its own ground silhouette, camera framing, sky/light/fog, ambient motion and sound bed (`DioramaAtmosphere` + `AtmosphereDirector` + `AmbientMotion`), and three error-level validator rules make the old failure modes unrepresentable: one world per round, one stage per rescue, one *(correct prop, reasoning kind)* pair per catalogue. `design/ROUND_CATALOG.md` is the source of truth for the content itself.
+
+The complete mobile loop has passed its P2 polish pass plus the shell-and-feedback pass (pause sheet, progress shelf, inline sound/haptics settings, Android Back routing, and shared `UIPop`/`ToyButton` motion). Both are frozen in [`docs/core-ux.md`](docs/core-ux.md). **The revamp has not had its Pixel 4 pass yet (§6) — that is the default next move, followed by Android APK/AAB build and Google Play closed testing track release.** Reopen the frozen UX only for a demonstrated device regression, accessibility issue, or release blocker.
 
 Keep this snapshot current when the catalogue or phase changes. A stale status paragraph wastes every future agent's first inspection.
 
@@ -21,6 +23,7 @@ Keep this snapshot current when the catalogue or phase changes. A stale status p
 | Rescue authoring and editor tooling | [`README.md`](README.md) |
 | Play track, signing, tester clock, release procedure | [`docs/release.md`](docs/release.md) |
 | Art colours and material rules | [`design/palette.md`](design/palette.md) |
+| Round identities, world rules, the 36 rescues | [`design/ROUND_CATALOG.md`](design/ROUND_CATALOG.md) |
 | Operational traps, commands, validation | This file |
 
 Do not read the whole repository by default. Start with `git status --short`, locate the owning type or asset with `rg`, then inspect its direct callers and tests. The assembly boundaries and generated-file ownership below usually tell you the rest.
@@ -33,7 +36,8 @@ Do not read the whole repository by default. Start with `git status --short`, lo
 | Rescue/round data only | Run `ContentValidator.ValidateFromMenu`; run EditMode tests when catalogue ordering, progression, or validator behaviour is involved. Preview all three outcomes before calling visual content done. |
 | Runtime or editor C# | Compile first, then the smallest relevant test suite. Use both suites for sequencing, save, progression, scene, or shared feedback changes. |
 | `BrookScene` / HUD / navigation / shell | Rebuild `Game.unity`, run EditMode + PlayMode, then exercise the affected path on Pixel 4. Colour and tint problems are invisible in the editor — sample the screenshot's pixels rather than trusting your eye. |
-| Diorama, prop, material, choreography | Validate, preview every affected outcome, then inspect it on Pixel 4. Editor framing is not acceptance. |
+| Diorama, prop, material, choreography | Validate, preview every affected outcome, render the stage contact sheet and read it as a sheet, then inspect it on Pixel 4. Editor framing is not acceptance. |
+| World kit, atmosphere, camera framing | Regenerate art (`PrototypeArt.Generate`), re-seed only if rescue data changed, validate, render the contact sheet **without `-nographics`**, then Pixel 4. Changing a world's camera can silently reframe all three of its stages. |
 | Android, signing, monetization, release | Full compile + EditMode + PlayMode + APK/device pass; follow [`docs/release.md`](docs/release.md) for the AAB/track steps. |
 
 This table is a floor, not a reason to skip a cheap regression check. Run the expensive device/build steps once the cheaper checks are green.
@@ -245,10 +249,10 @@ Screen is 1080×2280; those coordinates are for that resolution. Object coordina
 Inspect the save directly:
 
 ```bash
-$ADB shell run-as fan.sound.savepeps cat files/save.json
+$ADB shell cat /storage/emulated/0/Android/data/fan.sound.savepeps/files/save.json
 ```
 
-`run-as` works only when the installed APK is debuggable. If Android reports that the package is not debuggable, inspect behaviour through `[SavePeps]` logs or install an actual Development Build; do not diagnose that message as an app crash.
+On the Pixel 4, Unity's `Application.persistentDataPath` resolves to that app-specific external files directory. `run-as fan.sound.savepeps cat files/save.json` checks the app's internal files directory instead and can falsely report that the save is missing. `run-as` itself works only when the installed APK is debuggable; if Android reports that the package is not debuggable, inspect behaviour through `[SavePeps]` logs or install an actual Development Build rather than diagnosing the message as an app crash.
 
 ---
 

@@ -51,6 +51,23 @@ namespace SavePeps.Core
             ResetPresentation();
         }
 
+        /// <summary>
+        /// Moves the fixed camera's rest pose, which is what lets each world
+        /// choose its own framing.
+        ///
+        /// It has to come through here rather than being written to the camera
+        /// directly: this component rewrites the transform every frame from
+        /// its cached rest pose, so an outside writer would be overwritten on
+        /// the next Update and <see cref="ResetPresentation"/> would snap the
+        /// camera back to whatever the scene shipped with.
+        /// </summary>
+        public void SetFraming(Vector3 localPosition, Quaternion localRotation, float fieldOfView)
+        {
+            _cameraRestPosition = localPosition;
+            _cameraRestRotation = localRotation;
+            _cameraRestFov = fieldOfView;
+        }
+
         public void Tap(Vector3 worldPosition)
         {
             _kick = Mathf.Max(_kick, 0.32f);

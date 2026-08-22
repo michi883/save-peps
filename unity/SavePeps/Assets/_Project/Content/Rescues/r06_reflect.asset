@@ -17,21 +17,21 @@ MonoBehaviour:
   Reasoning: 5
   Goal: Bounce the beam.
   Difficulty: 1
-  SceneDescription: A yellow lamp beam stops at an empty pedestal while a dark sensor
-    beside the background Pep keeps a coral gate closed.
-  Environment: {fileID: 4851140067624238205, guid: dd9ba4f17016443d3be40a1d1aa840eb, type: 3}
+  SceneDescription: A lamp beam ends on an empty pedestal while a dark sensor keeps
+    the iris gate shut.
+  Environment: {fileID: 5032357647254746423, guid: 6e8fbb4d0c77a49d1af5dddd7d3c2af6, type: 3}
   PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
   PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
   PepAAnchor: Anchor_PepA
   PepBAnchor: Anchor_PepB
   MeetAnchor: Anchor_Meet
   Objects:
-  - Id: stone
-    Prop: {fileID: 8205312133405770481, guid: dade6ecd80fa04a4db529c7b769df6bb, type: 3}
+  - Id: magnet
+    Prop: {fileID: 2044471117934772324, guid: bc411fd24a98b4b54a65457a392ed37f, type: 3}
     AnchorId: Slot_1
-    Label: The heavy cracked stone
-    Quip: The light is blocked.
-    Duration: 2.4
+    Label: The horseshoe magnet
+    Quip: Brass is not magnetic.
+    Duration: 2.5
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -42,18 +42,28 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: slide
+      Param: whoosh
     - At: 0
-      Duration: 0.62
+      Duration: 0.66
       Kind: 1
       Target: $self
-      Delta: {x: 0.52, y: 0.05, z: 1.25}
+      Delta: {x: 0.96, y: 0.3, z: 1.56}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.3
+      Amplitude: 0.48
       Ease: 5
       Param: 
-    - At: 0.62
+    - At: 0.68
+      Duration: 0.85
+      Kind: 4
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 11
+      Ease: 2
+      Param: 
+    - At: 0.72
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -62,28 +72,8 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: thud
-    - At: 0.62
-      Duration: 0.14
-      Kind: 7
-      Target: BeamIn
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 0.74
-      Duration: 0.65
-      Kind: 4
-      Target: LightGate
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 3
-      Ease: 2
-      Param: 
-    - At: 0.82
+      Param: clunk
+    - At: 0.92
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -93,7 +83,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Worried
-    - At: 0.82
+    - At: 1.3
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -108,9 +98,9 @@ MonoBehaviour:
     AnchorId: Slot_2
     Label: The orange umbrella
     Quip: Nice shade. No light.
-    Duration: 2.4
+    Duration: 2.5
     Steps:
-    - At: 0.03
+    - At: 0.05
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -121,27 +111,27 @@ MonoBehaviour:
       Ease: 0
       Param: pop
     - At: 0
-      Duration: 0.62
+      Duration: 0.6
       Kind: 1
       Target: $self
-      Delta: {x: -0.48, y: 0.2, z: 1.25}
+      Delta: {x: -0.42, y: 0.42, z: 1.3}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.34
+      Amplitude: 0.42
       Ease: 5
       Param: 
-    - At: 0.1
-      Duration: 0.52
-      Kind: 0
+    - At: 0.6
+      Duration: 0.34
+      Kind: 5
       Target: $self
       Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 150, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0
-      Ease: 4
+      Amplitude: 150
+      Ease: 0
       Param: 
-    - At: 0.62
-      Duration: 0.14
+    - At: 0.94
+      Duration: 0.3
       Kind: 7
       Target: BeamIn
       Delta: {x: 0, y: 0, z: 0}
@@ -150,7 +140,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 0.78
+    - At: 1.06
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -160,7 +150,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Worried
-    - At: 0.78
+    - At: 1.06
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -173,7 +163,7 @@ MonoBehaviour:
   - Id: mirror
     Prop: {fileID: 895862662544724466, guid: 91a031f2f84084c199603df39e73305b, type: 3}
     AnchorId: Slot_3
-    Label: The framed hand mirror
+    Label: The hand mirror
     Quip: 
     Duration: 3.3
     Steps:
@@ -188,24 +178,24 @@ MonoBehaviour:
       Ease: 0
       Param: slide
     - At: 0
-      Duration: 0.62
+      Duration: 0.64
       Kind: 1
       Target: $self
-      Delta: {x: 0.02, y: 0.15, z: 0.93}
+      Delta: {x: 0.02, y: 0.13, z: 0.93}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.28
+      Amplitude: 0.38
       Ease: 5
       Param: 
-    - At: 0.52
+    - At: 0.6
       Duration: 0.34
       Kind: 0
       Target: $self
       Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 42, z: 0}
+      EulerDelta: {x: 0, y: 44, z: 0}
       Scale: 1
       Amplitude: 0
-      Ease: 4
+      Ease: 2
       Param: 
     - At: 0.66
       Duration: 0.5
@@ -216,9 +206,9 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: chime
-    - At: 0.66
-      Duration: 0.12
+      Param: click
+    - At: 0.86
+      Duration: 0.2
       Kind: 6
       Target: BeamBounce
       Delta: {x: 0, y: 0, z: 0}
@@ -227,8 +217,8 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 0.72
-      Duration: 0.12
+    - At: 0.98
+      Duration: 0.22
       Kind: 6
       Target: SensorGlow
       Delta: {x: 0, y: 0, z: 0}
@@ -237,7 +227,17 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 0.75
+    - At: 1
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: chime
+    - At: 1.02
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -247,17 +247,27 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: light
-    - At: 0.84
-      Duration: 0.56
-      Kind: 0
-      Target: LightGate
-      Delta: {x: 0, y: 0.66, z: 0}
+    - At: 1.1
+      Duration: 0.6
+      Kind: 5
+      Target: IrisGate
+      Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
+      Amplitude: 92
+      Ease: 2
+      Param: 
+    - At: 1.1
+      Duration: 0.6
+      Kind: 0
+      Target: IrisGate
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 0.16
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 0.94
+    - At: 1.18
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -267,7 +277,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 0.94
+    - At: 1.18
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -277,18 +287,18 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.42
-      Duration: 0.72
+    - At: 1.52
+      Duration: 0.78
       Kind: 2
       Target: $pepB
-      Delta: {x: -0.46, y: 0, z: -0.84}
+      Delta: {x: -0.42, y: 0, z: -1}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0.14
       Ease: 5
       Param: 
-    - At: 2.26
-      Duration: 0.7
+    - At: 2.4
+      Duration: 0.72
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -297,7 +307,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.32
+    - At: 2.46
       Duration: 0.5
       Kind: 101
       Target: $self

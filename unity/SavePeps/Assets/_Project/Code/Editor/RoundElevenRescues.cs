@@ -7,13 +7,29 @@ using static SavePeps.EditorTools.Steps;
 
 namespace SavePeps.EditorTools
 {
+    /// <summary>
+    /// **Round 11 — Foundry floor.** *World rule: the machine is already
+    /// running and it will not wait for you. Feed it, cool it, or jam it.*
+    ///
+    /// The loudest and busiest world, and the only one lit from underneath —
+    /// a crucible trough runs through the deck, so the ambient ground colour
+    /// is molten gold and every silhouette has a hot rim. Conveyor slats
+    /// scroll, a piston hammers on a beat and steam vents on its own clock
+    /// before the player has touched anything, which is the round's whole
+    /// argument: the world was here first.
+    ///
+    /// Only-here rescue: **r32**, quenching a river of molten metal into a
+    /// black bridge. Water is a gardening tool in round three and a fire
+    /// hazard in round eight; here it is the only thing in the building that
+    /// can make a floor.
+    /// </summary>
     public static class RoundElevenRescues
     {
         public static RoundDefinition SeedRound(bool overwrite, ContentSeeder.SeedLog log)
         {
-            var r31 = BuildPropel(overwrite, log);
-            var r32 = BuildNurture(overwrite, log);
-            var r33 = BuildBridge(overwrite, log);
+            var r31 = BuildFeed(overwrite, log);
+            var r32 = BuildQuench(overwrite, log);
+            var r33 = BuildJam(overwrite, log);
 
             if (ContentSeeder.Claim<RoundDefinition>(
                     $"{ContentPaths.RoundDir}/Round_11.asset", overwrite, log, out var round))
@@ -26,127 +42,86 @@ namespace SavePeps.EditorTools
             return round;
         }
 
-        private static RescueDefinition BuildPropel(bool overwrite, ContentSeeder.SeedLog log)
+        private static RescueDefinition BuildFeed(bool overwrite, ContentSeeder.SeedLog log)
         {
             if (!ContentSeeder.Claim<RescueDefinition>(
-                    $"{ContentPaths.RescueDir}/r31_propel.asset", overwrite, log, out var rescue))
+                    $"{ContentPaths.RescueDir}/r31_feed.asset", overwrite, log, out var rescue))
             {
                 return rescue;
             }
 
-            Stage(rescue, "r31", "chime", "Signal conveyor.", Difficulty.Medium,
-                ReasoningKind.Activation, "Diorama_Factory",
-                "Automated foundry machinery responds to acoustic frequencies; a resonant bell triggers the conveyor.");
+            Author.Stage(rescue, "r31", "feed", "Open the gate.", Difficulty.Medium,
+                ReasoningKind.Activation, "Diorama_Forge_Conveyor",
+                "A conveyor runs empty through a scanner arch to a shuttered gate, and the shutter " +
+                "only lifts for something on the belt.");
 
             rescue.Objects = new[]
             {
                 new RescueObject
                 {
-                    Id = "scissors", Prop = Prop("scissors"), AnchorId = "Slot_1", Label = "The craft scissors",
-                    Quip = "Cannot spin gears.",
-                    Duration = 2.3f,
+                    Id = "crate", Prop = Author.Prop("crate"), AnchorId = "Slot_1", Label = "The wooden crate",
+                    Duration = 3.5f,
                     Steps = new[]
                     {
-                        Sfx(0.03f, "snip"),
-                        Move(0f, 0.55f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.42f, 0.15f, 1.25f), amplitude: 0.25f, ease: EaseKind.Hop),
-                        Face(0.65f, SceneRef.PepA, PepFace.Worried),
+                        Sfx(0.03f, "whoosh"),
+                        Move(0f, 0.58f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.48f, 0.065f, 0.60f), amplitude: 0.36f, ease: EaseKind.Hop),
+                        Sfx(0.60f, "thud"),
+                        Move(0.64f, 1.10f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(0f, 0f, 1.50f), ease: EaseKind.Linear),
+                        Move(1.16f, 0.24f, StepKind.Show, "ScanBeam", Vector3.zero),
+                        Sfx(1.20f, "chime"),
+                        Move(1.44f, 0.30f, StepKind.Hide, "ScanBeam", Vector3.zero),
+                        Sfx(1.50f, "clank"),
+                        Haptic(1.52f, "medium"),
+                        Move(1.52f, 0.66f, StepKind.Fly, "ShutterGate",
+                            new Vector3(0f, 0.66f, 0f), ease: EaseKind.InOut),
+                        Move(1.74f, 0.60f, StepKind.FlyOff, SceneRef.Self,
+                            new Vector3(0f, 0f, 0.50f), ease: EaseKind.Linear),
+                        Face(1.60f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(1.60f, SceneRef.PepB, PepFace.Hopeful),
+                        Move(1.72f, 1.00f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.38f, 0f, 2.00f), amplitude: 0.15f, ease: EaseKind.Hop),
+                        Meet(2.74f, 0.72f),
+                        Sfx(2.80f, "reunion"),
                     },
                 },
                 new RescueObject
                 {
-                    Id = "pillow", Prop = Prop("pillow"), AnchorId = "Slot_2", Label = "The soft pillow",
-                    Quip = "Pillow jams soft cog.",
-                    Duration = 2.2f,
+                    Id = "pillow", Prop = Author.Prop("pillow"), AnchorId = "Slot_2", Label = "The soft pillow",
+                    Quip = "Now it is a pancake.",
+                    Duration = 2.6f,
+                    Steps = new[]
+                    {
+                        Sfx(0.03f, "whoosh"),
+                        Move(0f, 0.58f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.48f, 0.065f, 0.60f), amplitude: 0.36f, ease: EaseKind.Hop),
+                        Sfx(0.60f, "poof"),
+                        Move(0.64f, 0.80f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(0f, 0f, 1.06f), ease: EaseKind.Linear),
+                        Sfx(1.44f, "clank"),
+                        Resize(1.46f, 0.40f, SceneRef.Self, 0.42f, EaseKind.In),
+                        Move(1.46f, 0.40f, StepKind.Fly, SceneRef.Self, new Vector3(0f, -0.03f, 0f)),
+                        Face(1.52f, SceneRef.PepA, PepFace.Worried),
+                    },
+                },
+                new RescueObject
+                {
+                    Id = "watering_can", Prop = Author.Prop("watering_can"), AnchorId = "Slot_3",
+                    Label = "The blue watering can",
+                    Quip = "Wet belt. No grip.",
+                    Duration = 2.6f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "slide"),
-                        Move(0f, 0.55f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.45f, 0.15f, 1.35f), amplitude: 0.25f, ease: EaseKind.Hop),
-                        Face(0.65f, SceneRef.PepA, PepFace.Panic),
-                    },
-                },
-                new RescueObject
-                {
-                    Id = "bell", Prop = Prop("bell"), AnchorId = "Slot_3", Label = "The golden bell",
-                    Duration = 2.9f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "ring"),
-                        Move(0f, 0.6f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.45f, 0.2f, -1.3f), amplitude: 0.3f, ease: EaseKind.Hop),
-                        Move(0.6f, 0.6f, StepKind.Shake, SceneRef.Self, Vector3.zero, amplitude: 8f, ease: EaseKind.InOut),
-                        Move(0.65f, 0.65f, StepKind.Fly, "ConveyorBelt",
-                            new Vector3(0f, 0.05f, 0f), amplitude: 0f, ease: EaseKind.Out),
-                        Face(0.75f, SceneRef.PepA, PepFace.Hopeful),
-                        Move(1.25f, 0.65f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0f, 0f, 0.85f), amplitude: 0.18f, ease: EaseKind.Hop),
-                        Meet(1.95f, 0.75f),
-                        Sfx(2.0f, "reunion"),
-                    },
-                },
-            };
-
-            rescue.CorrectIndex = 2;
-            EditorUtility.SetDirty(rescue);
-            return rescue;
-        }
-
-        private static RescueDefinition BuildNurture(bool overwrite, ContentSeeder.SeedLog log)
-        {
-            if (!ContentSeeder.Claim<RescueDefinition>(
-                    $"{ContentPaths.RescueDir}/r32_nurture.asset", overwrite, log, out var rescue))
-            {
-                return rescue;
-            }
-
-            Stage(rescue, "r32", "quench", "Cool iron gears.", Difficulty.Medium,
-                ReasoningKind.Temperature, "Diorama_Factory",
-                "Overheating foundry gears jam the main drawbridge; cold water quenches the hot mechanism.");
-
-            rescue.Objects = new[]
-            {
-                new RescueObject
-                {
-                    Id = "watering_can", Prop = Prop("watering_can"), AnchorId = "Slot_1", Label = "The blue watering can",
-                    Duration = 2.9f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "splash"),
-                        Move(0f, 0.6f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.42f, 0.15f, 1.25f), amplitude: 0.25f, ease: EaseKind.Hop),
-                        Rotate(0.6f, 0.75f, "GearAssembly", new Vector3(0f, 0f, 180f), EaseKind.Out),
-                        Face(0.75f, SceneRef.PepA, PepFace.Hopeful),
-                        Move(1.35f, 0.6f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0f, 0f, 0.85f), amplitude: 0.16f, ease: EaseKind.Hop),
-                        Meet(1.95f, 0.75f),
-                        Sfx(2.0f, "reunion"),
-                    },
-                },
-                new RescueObject
-                {
-                    Id = "mirror", Prop = Prop("mirror"), AnchorId = "Slot_2", Label = "The shiny mirror",
-                    Quip = "Dazzles the machine.",
-                    Duration = 2.3f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "slide"),
-                        Move(0f, 0.55f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.45f, 0.15f, 1.35f), amplitude: 0.25f, ease: EaseKind.Hop),
-                        Face(0.65f, SceneRef.PepA, PepFace.Panic),
-                    },
-                },
-                new RescueObject
-                {
-                    Id = "bone", Prop = Prop("bone"), AnchorId = "Slot_3", Label = "The dog bone",
-                    Quip = "Robots do not eat bones.",
-                    Duration = 2.2f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "slide"),
-                        Move(0f, 0.55f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.45f, 0.15f, -1.3f), amplitude: 0.25f, ease: EaseKind.Hop),
-                        Face(0.65f, SceneRef.PepA, PepFace.Worried),
+                        Move(0f, 0.60f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0f, 0.30f, 0.92f), amplitude: 0.40f, ease: EaseKind.Hop),
+                        Rotate(0.62f, 0.34f, SceneRef.Self, new Vector3(0f, 0f, -44f)),
+                        Sfx(0.66f, "splash"),
+                        Move(0.98f, 0.90f, StepKind.Shake, "Belt", Vector3.zero,
+                            amplitude: 2.2f, ease: EaseKind.InOut),
+                        Sfx(1.02f, "hiss"),
+                        Face(1.10f, SceneRef.PepB, PepFace.Worried),
                     },
                 },
             };
@@ -156,61 +131,81 @@ namespace SavePeps.EditorTools
             return rescue;
         }
 
-        private static RescueDefinition BuildBridge(bool overwrite, ContentSeeder.SeedLog log)
+        private static RescueDefinition BuildQuench(bool overwrite, ContentSeeder.SeedLog log)
         {
             if (!ContentSeeder.Claim<RescueDefinition>(
-                    $"{ContentPaths.RescueDir}/r33_bridge.asset", overwrite, log, out var rescue))
+                    $"{ContentPaths.RescueDir}/r32_quench.asset", overwrite, log, out var rescue))
             {
                 return rescue;
             }
 
-            Stage(rescue, "r33", "span", "Span molten vat.", Difficulty.Surprising,
-                ReasoningKind.Crossing, "Diorama_Factory",
-                "A wide gap over the molten metal furnace requires a sturdy platform to span the distance.");
+            Author.Stage(rescue, "r32", "quench", "Cool the spill.", Difficulty.Surprising,
+                ReasoningKind.Temperature, "Diorama_Forge_Spill",
+                "A tipped ladle has poured a river of glowing metal across the only walkway between " +
+                "the two decks.");
 
             rescue.Objects = new[]
             {
                 new RescueObject
                 {
-                    Id = "fan", Prop = Prop("fan"), AnchorId = "Slot_1", Label = "The electric fan",
-                    Quip = "Blown off industrial duct.",
-                    Duration = 2.4f,
-                    Steps = new[]
-                    {
-                        Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.6f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.42f, 0.15f, 1.25f), amplitude: 0.25f, ease: EaseKind.Hop),
-                        Face(0.7f, SceneRef.PepA, PepFace.Panic),
-                    },
-                },
-                new RescueObject
-                {
-                    Id = "plank", Prop = Prop("plank"), AnchorId = "Slot_2", Label = "The wooden plank",
-                    Duration = 2.9f,
+                    Id = "plank", Prop = Author.Prop("plank"), AnchorId = "Slot_1", Label = "The wooden plank",
+                    Quip = "Wood, briefly.",
+                    Duration = 2.5f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "slide"),
-                        Move(0f, 0.65f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.45f, 0.15f, 1.35f), amplitude: 0.35f, ease: EaseKind.Hop),
-                        Sfx(0.65f, "thud"),
-                        Face(0.75f, SceneRef.PepA, PepFace.Hopeful),
-                        Move(1.15f, 0.65f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0f, 0f, 0.95f), amplitude: 0.18f, ease: EaseKind.Hop),
-                        Meet(1.85f, 0.75f),
-                        Sfx(1.9f, "reunion"),
+                        Move(0f, 0.58f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.50f, 0.03f, 1.38f), amplitude: 0.40f, ease: EaseKind.Hop),
+                        Sfx(0.62f, "sizzle"),
+                        Face(0.68f, SceneRef.PepA, PepFace.Hopeful),
+                        Resize(0.86f, 0.60f, SceneRef.Self, 0.18f, EaseKind.In),
+                        Move(1.46f, 0.30f, StepKind.Hide, SceneRef.Self, Vector3.zero),
+                        Face(1.52f, SceneRef.PepA, PepFace.Panic),
                     },
                 },
                 new RescueObject
                 {
-                    Id = "umbrella", Prop = Prop("umbrella"), AnchorId = "Slot_3", Label = "The yellow umbrella",
-                    Quip = "Melts in factory steam.",
-                    Duration = 2.3f,
+                    Id = "watering_can", Prop = Author.Prop("watering_can"), AnchorId = "Slot_2",
+                    Label = "The blue watering can",
+                    Duration = 3.5f,
                     Steps = new[]
                     {
-                        Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.6f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.45f, 0.15f, -1.3f), amplitude: 0.25f, ease: EaseKind.Hop),
-                        Face(0.7f, SceneRef.PepA, PepFace.Panic),
+                        Sfx(0.03f, "slide"),
+                        Move(0f, 0.62f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.46f, 0.30f, 1.46f), amplitude: 0.44f, ease: EaseKind.Hop),
+                        Rotate(0.64f, 0.34f, SceneRef.Self, new Vector3(0f, 0f, -46f)),
+                        Sfx(0.70f, "sizzle"),
+                        Haptic(0.72f, "medium"),
+                        Move(0.76f, 0.26f, StepKind.Show, "Steam", Vector3.zero),
+                        Resize(0.78f, 0.80f, "Steam", 2.10f, EaseKind.Out),
+                        Move(0.78f, 0.80f, StepKind.Fly, "Steam", new Vector3(0f, 0.34f, 0f)),
+                        Move(1.06f, 0.24f, StepKind.Hide, "Spill", Vector3.zero),
+                        Move(1.06f, 0.26f, StepKind.Show, "Crust", Vector3.zero),
+                        Move(1.60f, 0.40f, StepKind.Hide, "Steam", Vector3.zero),
+                        Face(1.36f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(1.36f, SceneRef.PepB, PepFace.Hopeful),
+                        Move(1.62f, 1.00f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.34f, 0f, 1.88f), amplitude: 0.15f, ease: EaseKind.Hop),
+                        Meet(2.70f, 0.74f),
+                        Sfx(2.76f, "reunion"),
+                    },
+                },
+                new RescueObject
+                {
+                    Id = "fan", Prop = Author.Prop("fan"), AnchorId = "Slot_3", Label = "The caged electric fan",
+                    Quip = "Hotter. Much hotter.",
+                    Duration = 2.6f,
+                    Steps = new[]
+                    {
+                        Sfx(0.05f, "whoosh"),
+                        Move(0f, 1.10f, StepKind.Shake, SceneRef.Self, Vector3.zero,
+                            amplitude: 6f, ease: EaseKind.InOut),
+                        Resize(0.30f, 0.80f, "Spill", 1.14f, EaseKind.Out),
+                        Move(0.30f, 0.80f, StepKind.Fly, "Spill", new Vector3(0f, 0.02f, 0f)),
+                        Sfx(0.34f, "hiss"),
+                        Face(0.52f, SceneRef.PepA, PepFace.Panic),
+                        Move(0.60f, 0.70f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0f, 0f, -0.20f), amplitude: 0.10f, ease: EaseKind.Hop),
                     },
                 },
             };
@@ -220,30 +215,94 @@ namespace SavePeps.EditorTools
             return rescue;
         }
 
-        private static void Stage(RescueDefinition rescue, string id, string verb, string goal,
-            Difficulty difficulty, ReasoningKind reasoning, string environment, string description)
+        private static RescueDefinition BuildJam(bool overwrite, ContentSeeder.SeedLog log)
         {
-            rescue.Id = id;
-            rescue.Verb = verb;
-            rescue.Goal = goal;
-            rescue.Difficulty = difficulty;
-            rescue.Reasoning = reasoning;
-            rescue.SceneDescription = description;
-            rescue.Environment = Load<GameObject>($"{ContentPaths.EnvironmentDir}/{environment}.prefab");
-            rescue.PepAPrefab = Load<GameObject>($"{ContentPaths.CharacterDir}/Pep_A.prefab");
-            rescue.PepBPrefab = Load<GameObject>($"{ContentPaths.CharacterDir}/Pep_B.prefab");
-            rescue.PepAAnchor = "Anchor_PepA";
-            rescue.PepBAnchor = "Anchor_PepB";
-            rescue.MeetAnchor = "Anchor_Meet";
-        }
+            if (!ContentSeeder.Claim<RescueDefinition>(
+                    $"{ContentPaths.RescueDir}/r33_jam.asset", overwrite, log, out var rescue))
+            {
+                return rescue;
+            }
 
-        private static GameObject Prop(string id) => Load<GameObject>($"{ContentPaths.PropDir}/{id}.prefab");
+            Author.Stage(rescue, "r33", "jam", "Stop the piston.", Difficulty.Medium,
+                ReasoningKind.Momentum, "Diorama_Forge_Piston",
+                "A press hammers the walkway on a steady beat, with an open yoke on its linkage arm " +
+                "just within reach.");
 
-        private static T Load<T>(string path) where T : Object
-        {
-            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
-            if (asset == null) Debug.LogError($"[SavePeps] Missing asset: {path}");
-            return asset;
+            rescue.Objects = new[]
+            {
+                new RescueObject
+                {
+                    Id = "rope", Prop = Author.Prop("rope"), AnchorId = "Slot_1", Label = "The coil of rope",
+                    Quip = "The ram won.",
+                    Duration = 2.5f,
+                    Steps = new[]
+                    {
+                        Sfx(0.03f, "whoosh"),
+                        Move(0f, 0.64f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.50f, 0.60f, 1.32f), amplitude: 0.56f, ease: EaseKind.Hop),
+                        Sfx(0.68f, "creak"),
+                        Move(0.70f, 0.50f, StepKind.Shake, SceneRef.Self, Vector3.zero,
+                            amplitude: 16f, ease: EaseKind.InOut),
+                        Sfx(1.22f, "clank"),
+                        Move(1.24f, 0.30f, StepKind.Hide, SceneRef.Self, Vector3.zero),
+                        Face(1.30f, SceneRef.PepA, PepFace.Worried),
+                    },
+                },
+                new RescueObject
+                {
+                    Id = "magnet", Prop = Author.Prop("magnet"), AnchorId = "Slot_2",
+                    Label = "The horseshoe magnet",
+                    Quip = "Now it hammers too.",
+                    Duration = 2.6f,
+                    Steps = new[]
+                    {
+                        Sfx(0.03f, "whoosh"),
+                        Move(0f, 0.62f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.46f, 0.62f, 1.32f), amplitude: 0.55f, ease: EaseKind.Hop),
+                        Sfx(0.66f, "snap_on"),
+                        Move(0.70f, 0.44f, StepKind.Drop, SceneRef.Self, new Vector3(0f, -0.30f, 0f)),
+                        Move(1.14f, 0.44f, StepKind.Fly, SceneRef.Self, new Vector3(0f, 0.30f, 0f),
+                            ease: EaseKind.Out),
+                        Sfx(1.16f, "clank"),
+                        Move(1.58f, 0.44f, StepKind.Drop, SceneRef.Self, new Vector3(0f, -0.30f, 0f)),
+                        Face(0.94f, SceneRef.PepB, PepFace.Panic),
+                    },
+                },
+                new RescueObject
+                {
+                    Id = "wrench", Prop = Author.Prop("wrench"), AnchorId = "Slot_3", Label = "The steel spanner",
+                    Duration = 3.4f,
+                    Steps = new[]
+                    {
+                        Sfx(0.03f, "whoosh"),
+                        Move(0f, 0.66f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.36f, 0.745f, 1.12f), amplitude: 0.58f, ease: EaseKind.Hop),
+                        Sfx(0.68f, "clank"),
+                        Haptic(0.70f, "medium"),
+                        Move(0.72f, 0.36f, StepKind.Shake, "Linkage", Vector3.zero,
+                            amplitude: 9f, ease: EaseKind.InOut),
+                        Move(0.76f, 0.22f, StepKind.Show, "Sparks", Vector3.zero),
+                        Resize(0.78f, 0.44f, "Sparks", 1.80f, EaseKind.Out),
+                        Move(1.24f, 0.30f, StepKind.Hide, "Sparks", Vector3.zero),
+                        // The press stops: its beating twin is hidden and a
+                        // parked one takes its place, because an idle can be
+                        // added to but never cancelled.
+                        Move(0.94f, 0.16f, StepKind.Hide, "Piston", Vector3.zero),
+                        Move(0.94f, 0.18f, StepKind.Show, "PistonHeld", Vector3.zero),
+                        Sfx(1.30f, "hiss"),
+                        Face(1.36f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(1.36f, SceneRef.PepB, PepFace.Hopeful),
+                        Move(1.50f, 1.00f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.34f, 0f, 1.86f), amplitude: 0.15f, ease: EaseKind.Hop),
+                        Meet(2.58f, 0.74f),
+                        Sfx(2.64f, "reunion"),
+                    },
+                },
+            };
+
+            rescue.CorrectIndex = 2;
+            EditorUtility.SetDirty(rescue);
+            return rescue;
         }
     }
 }

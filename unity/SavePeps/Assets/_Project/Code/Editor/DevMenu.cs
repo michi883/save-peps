@@ -32,7 +32,7 @@ namespace SavePeps.EditorTools
             }
 
             var save = SaveStore.Load();
-            save.UnlockThrough(catalog.RoundCount);
+            TesterProfiles.UnlockAll(catalog, save);
             SaveStore.Save(save);
             Debug.Log($"[SavePeps] Unlocked through round {catalog.RoundCount}. " +
                       "Paid rounds still need the entitlement.");

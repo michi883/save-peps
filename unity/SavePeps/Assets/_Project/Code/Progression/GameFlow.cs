@@ -30,6 +30,7 @@ namespace SavePeps.Progression
         [SerializeField] private GameMenu _menu;
         [SerializeField] private PauseOverlay _pause;
         [SerializeField] private ProgressPanel _progress;
+        [SerializeField] private TesterMode _testerMode;
         [SerializeField] private Feedback _feedback;
 
         [Tooltip("Anything implementing IEntitlementService: the fake in the editor, RevenueCat on device.")]
@@ -47,6 +48,8 @@ namespace SavePeps.Progression
         private Action _pickerBack;
         private bool _pickerShowsHomeDiorama;
         private bool _progressFromPause;
+        private bool _testerPreviewActive;
+        private bool _testerPlayThrough;
 
         /// <summary>Raised with the round the player just tried to reach.</summary>
         public event Action<int> OnPaywallRequested;
@@ -56,7 +59,10 @@ namespace SavePeps.Progression
 
         public SaveData Save => _save;
         public int CurrentRound => _roundNumber;
+        public int CurrentRescueIndex => _rescueIndex;
         public Catalog Catalog => _catalog;
+        public bool Subscribed => IsSubscribed;
+        public bool TesterPreviewActive => _testerPreviewActive;
 
         // -------------------------------------------------------------------
         // Boot
@@ -146,17 +152,27 @@ namespace SavePeps.Progression
 
         public void ShowHome()
         {
+            _testerPreviewActive = false;
+            _testerPlayThrough = false;
             _hud?.SetVisible(false);
             _card?.Hide();
             _pause?.Hide();
             _progress?.Hide();
             _runner?.Teardown();
-            _menu?.ShowHome(PlayRecommendedRound, ShowRoundPickerFromHome, ShowProgressFromHome, HomeStatLine());
+            _menu?.ShowHome(PlayRecommendedRound, ShowRoundPickerFromHome, ShowProgressFromHome,
+                HomeStatLine(), _testerMode?.HomePlayLabel ?? "PLAY");
         }
 
         /// <summary>The dominant Play action: useful randomness over available rounds.</summary>
         public void PlayRecommendedRound()
         {
+            if (_testerMode != null && _testerMode.TryGetPlayTarget(out var testerRound, out var testerRescue))
+            {
+                Debug.Log($"[SavePeps] Tester Play chose round {testerRound}, rescue {testerRescue + 1}.");
+                TesterPlay(testerRound, testerRescue);
+                return;
+            }
+
             var number = RoundSelector.Choose(_catalog, _save, IsSubscribed, UnityEngine.Random.value);
             if (number <= 0)
             {
@@ -186,13 +202,16 @@ namespace SavePeps.Progression
             _pause?.Hide();
             _progress?.Hide();
             _hud?.SetVisible(false);
-            _menu?.ShowPicker(_catalog, _save, IsSubscribed, showHomeDiorama, SelectRound, back);
+            var testerBypass = _testerMode is { Active: true };
+            _menu?.ShowPicker(_catalog, _save, IsSubscribed, showHomeDiorama, testerBypass,
+                SelectRound, back);
             Debug.Log($"[SavePeps] Round picker opened with {_catalog.RoundCount} rounds.");
         }
 
         private void SelectRound(int number)
         {
             Debug.Log($"[SavePeps] Round {number} selected from picker.");
+            if (_testerMode is { Active: true }) _testerMode.SelectTarget(number, 0);
             PlayRound(number);
         }
 
@@ -206,7 +225,12 @@ namespace SavePeps.Progression
                 return;
             }
 
-            if (!CanPlay(number))
+            var isTester = _testerMode is { Active: true };
+            var allowed = isTester
+                ? (IsSubscribed || !_catalog.IsPaid(number))
+                : CanPlay(number);
+
+            if (!allowed)
             {
                 // Locked rather than unpurchased is a bug, not a sales moment:
                 // only surface the paywall when the subscription is genuinely
@@ -223,15 +247,172 @@ namespace SavePeps.Progression
                 return;
             }
 
+            if (_testerMode is { Active: true })
+            {
+                _testerMode.SelectTarget(number, 0);
+            }
+
             _pendingRound = 0;
+            _testerPreviewActive = false;
+            _testerPlayThrough = true;
             _roundNumber = number;
             _rescueIndex = 0;
             _save.LastPlayedRound = number;
             Persist();
             _menu?.Hide();
             _card?.Hide();
+            _pause?.Hide();
+            _progress?.Hide();
+            _hud?.SetVisible(true);
+            RefreshDots();
             Debug.Log($"[SavePeps] Round {number} started.");
             StartRescue();
+        }
+
+        // -------------------------------------------------------------------
+        // Development-only inspection seams
+        // -------------------------------------------------------------------
+
+        /// <summary>
+        /// Stages any authored rescue for preview without saving progress or advancing.
+        /// </summary>
+        public bool TesterJumpTo(int roundNumber, int rescueIndex)
+        {
+            if (!TesterMode.Available)
+            {
+                Debug.LogWarning("[SavePeps] Tester jump ignored outside a Development Build.");
+                return false;
+            }
+
+            var round = _catalog?.Round(roundNumber);
+            var rescue = round?.RescueAt(rescueIndex);
+            if (rescue == null)
+            {
+                Debug.LogWarning($"[SavePeps] Tester jump target {roundNumber}.{rescueIndex + 1} does not exist.");
+                return false;
+            }
+
+            StopAllCoroutines();
+            _pendingRound = 0;
+            _testerPreviewActive = true;
+            _testerPlayThrough = false;
+            _roundNumber = roundNumber;
+            _rescueIndex = rescueIndex;
+            _menu?.Hide();
+            _card?.Hide();
+            _pause?.Hide();
+            _progress?.Hide();
+            _hud?.SetVisible(true);
+            RefreshDots();
+            _runner?.Load(rescue, lockInputDuringEntrance: true);
+            Debug.Log($"[SavePeps] Tester staged preview for round {roundNumber}, rescue {rescueIndex + 1} " +
+                      $"('{rescue.Id}'). Profile unchanged.");
+            return true;
+        }
+
+        /// <summary>
+        /// The Tester Mode Play path: starts at the selected rescue, advances
+        /// through the rest of that round, and records normal progress on solve.
+        /// </summary>
+        public bool TesterPlay(int roundNumber, int rescueIndex)
+        {
+            if (_testerMode is not { Active: true })
+            {
+                Debug.LogWarning("[SavePeps] Tester Play ignored while User Mode is active.");
+                return false;
+            }
+
+            if (!TesterMode.Available)
+            {
+                Debug.LogWarning("[SavePeps] Tester play ignored outside a Development Build.");
+                return false;
+            }
+
+            var round = _catalog?.Round(roundNumber);
+            var rescue = round?.RescueAt(rescueIndex);
+            if (rescue == null)
+            {
+                Debug.LogWarning($"[SavePeps] Tester target {roundNumber}.{rescueIndex + 1} does not exist.");
+                return false;
+            }
+
+            StopAllCoroutines();
+            _pendingRound = 0;
+            _testerPreviewActive = false;
+            _testerPlayThrough = true;
+            _roundNumber = roundNumber;
+            _rescueIndex = rescueIndex;
+            _save.LastPlayedRound = roundNumber;
+            Persist();
+            _menu?.Hide();
+            _card?.Hide();
+            _pause?.Hide();
+            _progress?.Hide();
+            _hud?.SetVisible(true);
+            RefreshDots();
+            _runner?.Load(rescue, lockInputDuringEntrance: true);
+            Debug.Log($"[SavePeps] Tester playing round {roundNumber}, rescue {rescueIndex + 1} " +
+                      $"('{rescue.Id}').");
+            return true;
+        }
+
+        public void TesterRestartCurrent()
+        {
+            if (!TesterMode.Available || _runner?.Current == null) return;
+            StopAllCoroutines();
+            _testerPreviewActive = true;
+            _runner.Restart();
+        }
+
+        public void TesterApplyProfile(TesterProfilePreset preset)
+        {
+            if (!TesterMode.Available) return;
+
+            StopAllCoroutines();
+            _pendingRound = 0;
+            _roundNumber = 0;
+            _rescueIndex = 0;
+            _testerPreviewActive = false;
+            _testerPlayThrough = false;
+            SaveStore.Delete();
+            _save = TesterProfiles.Create(_catalog, preset);
+            SaveStore.Save(_save);
+            ApplySettings();
+            ShowHome();
+            Debug.Log($"[SavePeps] Tester profile applied: {preset}. Entitlement unchanged.");
+        }
+
+        public void TesterUnlockAllRounds()
+        {
+            if (!TesterMode.Available) return;
+            TesterProfiles.UnlockAll(_catalog, _save);
+            Persist();
+            Debug.Log($"[SavePeps] Tester unlocked progression through round {_catalog?.RoundCount ?? 0}. " +
+                      "Completion marks and entitlement unchanged.");
+        }
+
+        /// <summary>Returns navigation and access to the ordinary player paths.</summary>
+        public void EndTesterSession()
+        {
+            if (!TesterMode.Available) return;
+            StopAllCoroutines();
+            _testerPreviewActive = false;
+            _testerPlayThrough = false;
+            _runner?.SuspendInput(false);
+            ShowHome();
+            Debug.Log("[SavePeps] Tester inspection ended. Normal gating restored.");
+        }
+
+        /// <summary>Returns to the title while preserving Tester Mode and its selected Play target.</summary>
+        public void TesterReturnToTitle()
+        {
+            if (_testerMode is not { Active: true }) return;
+            StopAllCoroutines();
+            _testerPreviewActive = false;
+            _testerPlayThrough = false;
+            _runner?.SuspendInput(false);
+            ShowHome();
+            Debug.Log("[SavePeps] Tester returned to title. Selected Play target preserved.");
         }
 
         private void StartRescue()
@@ -251,6 +432,14 @@ namespace SavePeps.Progression
 
         private void HandleSolved(bool firstTap)
         {
+            if (_testerPreviewActive)
+            {
+                var mode = _testerPlayThrough ? "play" : "preview";
+                Debug.Log($"[SavePeps] Tester {mode} completed '{_runner?.Current?.Id}'. Profile unchanged.");
+                if (_testerPlayThrough) StartCoroutine(AdvanceAfterDwell());
+                return;
+            }
+
             var rescue = _runner.Current;
             if (rescue != null) _save.RecordSolved(rescue.Id, firstTap);
 
@@ -281,14 +470,21 @@ namespace SavePeps.Progression
 
         private void CompleteRound()
         {
-            // A subscriber may jump straight to any authored round. Finishing
-            // that round must not silently skip the free player's sequential
-            // progression if the entitlement later lapses.
-            if (_roundNumber <= _save.HighestUnlockedRound)
+            if (!_testerPreviewActive)
             {
-                _save.UnlockThrough(_roundNumber + 1);
+                // A subscriber may jump straight to any authored round.
+                // Finishing that round must not silently skip the free
+                // player's sequential progression if entitlement later lapses.
+                if (_roundNumber <= _save.HighestUnlockedRound)
+                {
+                    _save.UnlockThrough(_roundNumber + 1);
+                }
+                Persist();
             }
-            Persist();
+            else
+            {
+                Debug.Log($"[SavePeps] Tester completed round {_roundNumber}. Profile unchanged.");
+            }
 
             // The diorama deliberately stays: the card washes over the scene
             // the player just solved, and that reunion is most of the reward.
@@ -342,7 +538,8 @@ namespace SavePeps.Progression
             (_menu != null && (_menu.HomeVisible || _menu.PickerVisible)) ||
             (_card != null && _card.Visible) ||
             (_pause != null && _pause.Visible) ||
-            (_progress != null && _progress.Visible);
+            (_progress != null && _progress.Visible) ||
+            (_testerMode != null && _testerMode.Visible);
 
         private void Update()
         {
@@ -370,8 +567,13 @@ namespace SavePeps.Progression
         }
 
         private void ShowPauseSheet() =>
-            _pause?.Show(_save, ResumeFromShell, ShowProgressFromPause, ShowRoundPickerFromPause,
-                ShowHome, ApplyAndPersistSettings);
+            _pause?.Show(_save, _testerMode is { Active: true }, ResumeFromShell, ShowProgressFromPause, ShowRoundPickerFromPause,
+                ShowHome, ApplyAndPersistSettings, OpenTesterToolsFromPause);
+
+        private void OpenTesterToolsFromPause()
+        {
+            _testerMode?.Open();
+        }
 
         private void ShowRoundPickerFromPause() =>
             ShowRoundPicker(showHomeDiorama: false, back: ResumeFromShell);
@@ -410,6 +612,7 @@ namespace SavePeps.Progression
         /// </summary>
         public void HandleBack()
         {
+            if (_testerMode != null && _testerMode.Visible) { _testerMode.RequestClose(); return; }
             if (_progress != null && _progress.Visible) { _progress.RequestClose(); return; }
             if (_pause != null && _pause.Visible) { _pause.RequestClose(); return; }
             if (_menu != null && _menu.PickerVisible) { _menu.RequestBack(); return; }
@@ -476,7 +679,7 @@ namespace SavePeps.Progression
             if (_menu != null && _menu.PickerVisible)
             {
                 _menu.ShowPicker(_catalog, _save, IsSubscribed, _pickerShowsHomeDiorama,
-                    SelectRound, _pickerBack ?? ShowHome);
+                    _testerMode is { Active: true }, SelectRound, _pickerBack ?? ShowHome);
             }
         }
 

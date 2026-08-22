@@ -20,6 +20,10 @@ namespace SavePeps.Core
         }
 
         [SerializeField] private AudioSource _source;
+
+        [Tooltip("Second source, looping, for the per-world ambience bed. Separate so a cue never cuts the bed.")]
+        [SerializeField] private AudioSource _ambienceSource;
+
         [SerializeField] private Clip[] _clips;
         [SerializeField] private bool _hapticsEnabled = true;
 
@@ -29,7 +33,20 @@ namespace SavePeps.Core
         /// — a device with no vibrator switches that off permanently, and it
         /// must not look to the player as though they turned buzz off.
         /// </summary>
-        public bool SoundEnabled { get; set; } = true;
+        public bool SoundEnabled
+        {
+            get => _soundEnabled;
+            set
+            {
+                _soundEnabled = value;
+                // The bed is a looping source, so it has to be muted rather
+                // than simply not started again — turning sound off mid-round
+                // must silence the world immediately.
+                if (_ambienceSource != null) _ambienceSource.mute = !value;
+            }
+        }
+
+        private bool _soundEnabled = true;
 
         public bool HapticsAllowed { get; set; } = true;
 
@@ -42,6 +59,12 @@ namespace SavePeps.Core
             _source.playOnAwake = false;
             _source.spatialBlend = 0f;
             _source.dopplerLevel = 0f;
+
+            if (_ambienceSource == null) _ambienceSource = gameObject.AddComponent<AudioSource>();
+            _ambienceSource.playOnAwake = false;
+            _ambienceSource.loop = true;
+            _ambienceSource.spatialBlend = 0f;
+            _ambienceSource.dopplerLevel = 0f;
             foreach (var c in _clips ?? System.Array.Empty<Clip>())
             {
                 if (c != null && !string.IsNullOrEmpty(c.Id)) _byId[c.Id] = c;
@@ -92,7 +115,11 @@ namespace SavePeps.Core
                 {
                     Id = id,
                     Audio = audio,
-                    Volume = id is "whoosh" or "slide" ? 0.62f : 0.82f,
+                    // Beds sit under everything by design; the mix is the
+                    // difference between atmosphere and interference.
+                    Volume = id.StartsWith("amb_") ? 0.55f
+                        : id is "whoosh" or "slide" or "wind" or "steam" ? 0.62f
+                        : 0.82f,
                 };
             }
         }
@@ -111,6 +138,33 @@ namespace SavePeps.Core
             if (!SoundEnabled) return;
             if (string.IsNullOrEmpty(id) || !_byId.TryGetValue(id, out var clip) || clip.Audio == null) return;
             _source.PlayOneShot(clip.Audio, clip.Volume);
+        }
+
+        /// <summary>
+        /// Swaps the looping bed a world plays under everything else.
+        ///
+        /// The bed is most of what makes a trench sound different from a
+        /// rooftop when the cues themselves are the same handful of knocks and
+        /// chimes, and it is the cheapest of the identity levers: one
+        /// synthesized loop per world rather than a re-recorded sfx set.
+        /// </summary>
+        public void SetAmbience(string id, float volume)
+        {
+            if (_ambienceSource == null) return;
+
+            if (string.IsNullOrEmpty(id) || !_byId.TryGetValue(id, out var clip) || clip.Audio == null)
+            {
+                _ambienceSource.Stop();
+                _ambienceSource.clip = null;
+                return;
+            }
+
+            _ambienceSource.volume = Mathf.Clamp01(volume) * clip.Volume;
+            if (_ambienceSource.clip == clip.Audio && _ambienceSource.isPlaying) return;
+
+            _ambienceSource.clip = clip.Audio;
+            _ambienceSource.mute = !SoundEnabled;
+            _ambienceSource.Play();
         }
 
         public void Tap()

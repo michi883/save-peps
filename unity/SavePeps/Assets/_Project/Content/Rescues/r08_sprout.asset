@@ -1,0 +1,300 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2ed5e3ba2ba4bd3866af2cedd8abaa, type: 3}
+  m_Name: r08_sprout
+  m_EditorClassIdentifier: SavePeps.Runtime::SavePeps.Rescue.RescueDefinition
+  Id: r08
+  Verb: sprout
+  Reasoning: 7
+  Goal: Reach the ledge.
+  Difficulty: 1
+  SceneDescription: Full sun on the middle terrace. One Pep stands on a tiny potted
+    flower, far below the snow shelf where their partner waits.
+  Environment: {fileID: 4975662008077301685, guid: 50a8cdcd87cdf4ffb97317954b7f4cea, type: 3}
+  PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
+  PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
+  PepAAnchor: Anchor_PepA
+  PepBAnchor: Anchor_PepB
+  MeetAnchor: Anchor_Meet
+  Objects:
+  - Id: scissors
+    Prop: {fileID: 2180474253096654256, guid: 76b53ad018fe84a66b148f3d457fb6d3, type: 3}
+    AnchorId: Slot_1
+    Label: The purple-handled scissors
+    Quip: Neat trim. Too short.
+    Duration: 2.5
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: whoosh
+    - At: 0
+      Duration: 0.66
+      Kind: 1
+      Target: $self
+      Delta: {x: 0.78, y: 0.47, z: 1.74}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.55
+      Ease: 5
+      Param: 
+    - At: 0.68
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: snip
+    - At: 0.7
+      Duration: 0.5
+      Kind: 0
+      Target: Plant
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 0.55
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.7
+      Duration: 0.5
+      Kind: 0
+      Target: $pepB
+      Delta: {x: 0, y: -0.08, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.86
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Panic
+  - Id: watering_can
+    Prop: {fileID: 7965849852644653566, guid: 75d27873d3bec448cbaa5ca910b71ab2, type: 3}
+    AnchorId: Slot_2
+    Label: The blue watering can
+    Quip: 
+    Duration: 3.4
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: slide
+    - At: 0
+      Duration: 0.66
+      Kind: 1
+      Target: $self
+      Delta: {x: -0.12, y: 0.65, z: 1.74}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.55
+      Ease: 5
+      Param: 
+    - At: 0.64
+      Duration: 0.38
+      Kind: 0
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: -44}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 0.68
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: splash
+    - At: 0.8
+      Duration: 0.85
+      Kind: 0
+      Target: Plant
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 2.4
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 0.8
+      Duration: 0.85
+      Kind: 0
+      Target: $pepB
+      Delta: {x: 0, y: 0.24, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 0.9
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: light
+    - At: 1.02
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.02
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.72
+      Duration: 0.8
+      Kind: 2
+      Target: $pepB
+      Delta: {x: -0.4, y: -0.13, z: 0.42}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.16
+      Ease: 5
+      Param: 
+    - At: 2.56
+      Duration: 0.72
+      Kind: 103
+      Target: $peps
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.62
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: reunion
+  - Id: balloon
+    Prop: {fileID: 8136335957201776383, guid: b9f2d7418424c46f4a81f14ba4cfb185, type: 3}
+    AnchorId: Slot_3
+    Label: The orange balloon
+    Quip: Still out of reach.
+    Duration: 2.5
+    Steps:
+    - At: 0
+      Duration: 0.6
+      Kind: 1
+      Target: $self
+      Delta: {x: 0.45, y: 0.34, z: -0.68}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.3
+      Ease: 5
+      Param: 
+    - At: 0.35
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Panic
+    - At: 0.6
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: boing
+    - At: 0.7
+      Duration: 0.6
+      Kind: 0
+      Target: $pepB
+      Delta: {x: 0, y: 0.45, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.7
+      Duration: 0.6
+      Kind: 0
+      Target: $self
+      Delta: {x: 0, y: 0.45, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.35
+      Duration: 0.9
+      Kind: 8
+      Target: $pepB
+      Delta: {x: 0.22, y: 0.85, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.35
+      Duration: 0.9
+      Kind: 8
+      Target: $self
+      Delta: {x: 0.22, y: 0.85, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+  CorrectIndex: 1

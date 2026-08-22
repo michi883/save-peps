@@ -9,6 +9,14 @@ using UnityEngine.UI;
 
 namespace SavePeps.Progression
 {
+    /// <summary>The three title-tableau taps used by the development-only Tester Mode switch.</summary>
+    public enum HomeSecretTap
+    {
+        Heart,
+        GreenPep,
+        PinkPep,
+    }
+
     /// <summary>
     /// The navigation shell outside a rescue: one home screen and one compact
     /// picker. Gameplay still lives in the single generated Game scene, so
@@ -27,9 +35,13 @@ namespace SavePeps.Progression
         [SerializeField] private RectTransform _homeTitle;
         [SerializeField] private CanvasGroup _homeTitleGroup;
         [SerializeField] private Button _playButton;
+        [SerializeField] private Text _playLabel;
         [SerializeField] private Button _chooseButton;
         [SerializeField] private Button _statButton;
         [SerializeField] private Text _statLabel;
+        [SerializeField] private Button _secretHeartButton;
+        [SerializeField] private Button _secretGreenPepButton;
+        [SerializeField] private Button _secretPinkPepButton;
         [SerializeField] private GameObject _homeDiorama;
         [SerializeField] private Transform _homeHeart;
         [SerializeField] private Pep _homePepA;
@@ -57,6 +69,9 @@ namespace SavePeps.Progression
         private bool _restCaptured;
         private bool _transitioning;
 
+        /// <summary>Raised only from the three invisible title-tableau tap areas.</summary>
+        public event Action<HomeSecretTap> OnHomeSecretTapped;
+
         public bool HomeVisible => _homeRoot != null && _homeRoot.activeSelf;
         public bool PickerVisible => _pickerRoot != null && _pickerRoot.activeSelf;
         public IReadOnlyList<RoundPickerItem> Items => _items;
@@ -66,6 +81,12 @@ namespace SavePeps.Progression
             if (_playButton != null) _playButton.onClick.AddListener(HandlePlay);
             if (_chooseButton != null) _chooseButton.onClick.AddListener(HandleChoose);
             if (_statButton != null) _statButton.onClick.AddListener(HandleStats);
+            if (_secretHeartButton != null)
+                _secretHeartButton.onClick.AddListener(() => HandleSecretTap(HomeSecretTap.Heart));
+            if (_secretGreenPepButton != null)
+                _secretGreenPepButton.onClick.AddListener(() => HandleSecretTap(HomeSecretTap.GreenPep));
+            if (_secretPinkPepButton != null)
+                _secretPinkPepButton.onClick.AddListener(() => HandleSecretTap(HomeSecretTap.PinkPep));
             if (_backButton != null) _backButton.onClick.AddListener(HandleBack);
             CaptureRest();
             Hide();
@@ -93,11 +114,13 @@ namespace SavePeps.Progression
             _dioramaRestScale = _homeDiorama.transform.localScale;
         }
 
-        public void ShowHome(Action onPlay, Action onChoose, Action onStats, string statLine)
+        public void ShowHome(Action onPlay, Action onChoose, Action onStats, string statLine,
+            string playLabel = "PLAY")
         {
             _onPlay = onPlay;
             _onChoose = onChoose;
             _onStats = onStats;
+            if (_playLabel != null) _playLabel.text = string.IsNullOrEmpty(playLabel) ? "PLAY" : playLabel;
             if (_statLabel != null) _statLabel.text = statLine ?? string.Empty;
             if (_statButton != null) _statButton.gameObject.SetActive(!string.IsNullOrEmpty(statLine));
 
@@ -110,11 +133,11 @@ namespace SavePeps.Progression
         }
 
         public void ShowPicker(Catalog catalog, SaveData save, bool subscribed, bool showHomeDiorama,
-            Action<int> onRoundSelected, Action onBack)
+            bool bypassAccess, Action<int> onRoundSelected, Action onBack)
         {
             _onRoundSelected = onRoundSelected;
             _onBack = onBack;
-            BuildItems(catalog, save, subscribed);
+            BuildItems(catalog, save, subscribed, bypassAccess);
             SetVisible(_homeRoot, false);
             RestoreHomeDiorama();
             SetVisible(_homeDiorama, showHomeDiorama);
@@ -142,7 +165,18 @@ namespace SavePeps.Progression
             if (PickerVisible) HandleBack();
         }
 
-        private void BuildItems(Catalog catalog, SaveData save, bool subscribed)
+        /// <summary>
+        /// The secret hit areas do not exist as interactive objects in a production player.
+        /// Tester Mode enables them at boot only in the editor or a Development Build.
+        /// </summary>
+        public void SetTesterSecretInputEnabled(bool enabled)
+        {
+            SetVisible(_secretHeartButton != null ? _secretHeartButton.gameObject : null, enabled);
+            SetVisible(_secretGreenPepButton != null ? _secretGreenPepButton.gameObject : null, enabled);
+            SetVisible(_secretPinkPepButton != null ? _secretPinkPepButton.gameObject : null, enabled);
+        }
+
+        private void BuildItems(Catalog catalog, SaveData save, bool subscribed, bool bypassAccess)
         {
             foreach (var item in _items)
             {
@@ -159,7 +193,9 @@ namespace SavePeps.Progression
             {
                 var item = Instantiate(_itemTemplate, _pickerContent);
                 item.gameObject.SetActive(true);
-                var access = Access.State(catalog, number, save.HighestUnlockedRound, subscribed);
+                var access = bypassAccess
+                    ? (subscribed || !catalog.IsPaid(number) ? RoundAccess.Playable : RoundAccess.SubscriptionLocked)
+                    : Access.State(catalog, number, save.HighestUnlockedRound, subscribed);
                 item.Configure(number, catalog.Round(number), save, access, HandleRoundSelected);
                 _items.Add(item);
             }
@@ -208,6 +244,12 @@ namespace SavePeps.Progression
             Dismiss(_homeRoot, _onStats);
         }
 
+        private void HandleSecretTap(HomeSecretTap tap)
+        {
+            if (!HomeVisible || _transitioning) return;
+            OnHomeSecretTapped?.Invoke(tap);
+        }
+
         private void HandleBack()
         {
             if (_transitioning) return;
@@ -219,7 +261,7 @@ namespace SavePeps.Progression
         {
             if (_transitioning) return;
             _feedback?.Tap();
-            Dismiss(_pickerRoot, () => _onRoundSelected?.Invoke(number));
+            _onRoundSelected?.Invoke(number);
         }
 
         private void PrepareHomePeps()

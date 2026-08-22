@@ -1,0 +1,290 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2ed5e3ba2ba4bd3866af2cedd8abaa, type: 3}
+  m_Name: r28_push
+  m_EditorClassIdentifier: SavePeps.Runtime::SavePeps.Rescue.RescueDefinition
+  Id: r28
+  Verb: push
+  Reasoning: 10
+  Goal: Stop the drifting.
+  Difficulty: 1
+  SceneDescription: One Pep hangs turning slowly in the gap between two hull sections
+    with a cut tether trailing behind them and nothing within reach.
+  Environment: {fileID: 6592408181453410096, guid: 213108422b4cc4a9498acebac7c497b3, type: 3}
+  PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
+  PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
+  PepAAnchor: Anchor_PepA
+  PepBAnchor: Anchor_PepB
+  MeetAnchor: Anchor_Meet
+  Objects:
+  - Id: rope
+    Prop: {fileID: 990983975125652325, guid: e25b2013dec394766b8acc040394c44b, type: 3}
+    AnchorId: Slot_1
+    Label: The coil of rope
+    Quip: Nobody holds the end.
+    Duration: 2.6
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: servo
+    - At: 0
+      Duration: 0.86
+      Kind: 0
+      Target: $self
+      Delta: {x: 0.32, y: 0.42, z: 1.1}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 3
+      Param: 
+    - At: 0.88
+      Duration: 1.2
+      Kind: 5
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 240
+      Ease: 3
+      Param: 
+    - At: 0.88
+      Duration: 1.2
+      Kind: 0
+      Target: $self
+      Delta: {x: 0.16, y: 0.2, z: 0.36}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 3
+      Param: 
+    - At: 1.02
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+    - At: 1.4
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+  - Id: thruster
+    Prop: {fileID: 578302862006665201, guid: 5d951dca3f5ae44c1b464d6ee30ec879, type: 3}
+    AnchorId: Slot_2
+    Label: The gas thruster
+    Quip: 
+    Duration: 3.5
+    Steps:
+    - At: 0.03
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: servo
+    - At: 0
+      Duration: 0.9
+      Kind: 0
+      Target: $self
+      Delta: {x: -0.38, y: 0.61, z: 1.38}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 3
+      Param: 
+    - At: 0.94
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.06
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: thrust
+    - At: 1.08
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: medium
+    - At: 1.1
+      Duration: 1.3
+      Kind: 0
+      Target: $pepA
+      Delta: {x: -0.02, y: -0.5, z: 0.78}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 3
+      Param: 
+    - At: 1.1
+      Duration: 1.3
+      Kind: 0
+      Target: $self
+      Delta: {x: -0.02, y: -0.5, z: 0.78}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 3
+      Param: 
+    - At: 1.14
+      Duration: 0.34
+      Kind: 7
+      Target: Adrift
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.2
+      Duration: 0.44
+      Kind: 7
+      Target: Tether
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.3
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Happy
+    - At: 2.62
+      Duration: 0.74
+      Kind: 103
+      Target: $peps
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.68
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: reunion
+  - Id: umbrella
+    Prop: {fileID: 3406375913897992646, guid: 9a680c9f59e96425393f84857b1c7b56, type: 3}
+    AnchorId: Slot_3
+    Label: The orange umbrella
+    Quip: No air to catch.
+    Duration: 2.6
+    Steps:
+    - At: 0
+      Duration: 0.8
+      Kind: 0
+      Target: $self
+      Delta: {x: 0.02, y: 0.53, z: 1.74}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 3
+      Param: 
+    - At: 0.84
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: pop
+    - At: 0.84
+      Duration: 0.36
+      Kind: 5
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 170
+      Ease: 0
+      Param: 
+    - At: 0.84
+      Duration: 0.36
+      Kind: 0
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.2
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.24
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 2.1
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Worried
+  CorrectIndex: 1

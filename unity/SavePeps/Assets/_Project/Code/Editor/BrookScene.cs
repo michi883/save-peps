@@ -122,10 +122,19 @@ namespace SavePeps.EditorTools
             var router = game.AddComponent<TapRouter>();
             var feedback = game.AddComponent<Feedback>();
             var gameFeel = game.AddComponent<GameFeel>();
+            // Added before the runner so its Awake captures the scene's own
+            // lighting as the resting mood the shell returns to.
+            var atmosphere = game.AddComponent<AtmosphereDirector>();
             var runner = game.AddComponent<RescueRunner>();
 
             Wire(router, "_camera", cam);
             Wire(gameFeel, "_camera", cam);
+            Wire(atmosphere, "_camera", cam);
+            Wire(atmosphere, "_sun", light);
+            Wire(atmosphere, "_fill", fill);
+            Wire(atmosphere, "_gameFeel", gameFeel);
+            Wire(atmosphere, "_feedback", feedback);
+            Wire(runner, "_atmosphere", atmosphere);
             Wire(runner, "_tapRouter", router);
             Wire(runner, "_player", player);
             Wire(runner, "_hud", hudComponent);
@@ -155,6 +164,14 @@ namespace SavePeps.EditorTools
             Wire(flow, "_progress", progressComponent);
             Wire(flow, "_feedback", feedback);
             Wire(flow, "_entitlementSource", entitlements);
+
+            // Last sibling wins draw order. Tester Mode is intentionally the
+            // outermost development-only surface so it can be reached from
+            // home, gameplay, or any shell state without hand-editing scene
+            // state between catalogue checks.
+            BuildTesterMode(hud.transform, flow, menuComponent, runner, router, entitlements,
+                out var testerMode);
+            Wire(flow, "_testerMode", testerMode);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
@@ -460,6 +477,7 @@ namespace SavePeps.EditorTools
 
             var play = ShellButton(home.transform, "Play", font, "PLAY",
                 new Vector2(620f, 148f), new Vector2(0f, -590f), Hex("FFB53E"), 54, ink, breathe: 0.016f);
+            var playLabel = play.GetComponentInChildren<Text>();
             var choose = ShellButton(home.transform, "ChooseRound", font, "Choose round",
                 new Vector2(520f, 110f), new Vector2(0f, -748f),
                 new Color(0.97f, 0.95f, 0.91f, 0.92f), 40, ink);
@@ -472,6 +490,17 @@ namespace SavePeps.EditorTools
                 new Color(1f, 1f, 1f, 0.30f), 28, new Color(ink.r, ink.g, ink.b, 0.74f),
                 shadow: false);
             var statLabel = stat.GetComponentInChildren<Text>();
+
+            // These transparent hit areas sit over the three title-tableau
+            // characters. TesterMode activates them only in the editor or a
+            // Development Build, so release players do not even have an
+            // interactive secret surface under their fingers.
+            var secretHeart = SecretTapArea(home.transform, "TesterSecretHeart",
+                new Vector2(290f, 250f), new Vector2(0f, 550f));
+            var secretGreen = SecretTapArea(home.transform, "TesterSecretGreenPep",
+                new Vector2(330f, 390f), new Vector2(250f, 150f));
+            var secretPink = SecretTapArea(home.transform, "TesterSecretPinkPep",
+                new Vector2(330f, 390f), new Vector2(-250f, 150f));
 
             var picker = new GameObject("RoundPicker", typeof(Image), typeof(CanvasGroup));
             picker.transform.SetParent(holder.transform, false);
@@ -534,9 +563,13 @@ namespace SavePeps.EditorTools
             Wire(menu, "_homeTitle", titleRt);
             Wire(menu, "_homeTitleGroup", titleGroup.GetComponent<CanvasGroup>());
             Wire(menu, "_playButton", play);
+            Wire(menu, "_playLabel", playLabel);
             Wire(menu, "_chooseButton", choose);
             Wire(menu, "_statButton", stat);
             Wire(menu, "_statLabel", statLabel);
+            Wire(menu, "_secretHeartButton", secretHeart);
+            Wire(menu, "_secretGreenPepButton", secretGreen);
+            Wire(menu, "_secretPinkPepButton", secretPink);
             Wire(menu, "_homeDiorama", homeDiorama);
             Wire(menu, "_homeHeart", homeHeart);
             Wire(menu, "_homePepA", homePepA);
@@ -548,6 +581,25 @@ namespace SavePeps.EditorTools
 
             home.SetActive(false);
             picker.SetActive(false);
+        }
+
+        private static Button SecretTapArea(Transform parent, string name, Vector2 size, Vector2 position)
+        {
+            var go = new GameObject(name, typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            var rect = go.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = size;
+            rect.anchoredPosition = position;
+
+            var image = go.GetComponent<Image>();
+            image.color = Color.clear;
+            image.raycastTarget = true;
+
+            var button = go.GetComponent<Button>();
+            button.transition = Selectable.Transition.None;
+            button.navigation = new Navigation { mode = Navigation.Mode.None };
+            return button;
         }
 
         private static RoundPickerItem BuildRoundPickerItem(Transform parent, Font font)
@@ -651,18 +703,20 @@ namespace SavePeps.EditorTools
             // shade deeper than the sheet or they dissolve into it.
             var quiet = Hex("F0E3C8");
             var resume = ShellButton(sheet, "Resume", font, "Resume",
-                new Vector2(800f, 144f), new Vector2(0f, 258f), Hex("FFB53E"), 50, ink);
+                new Vector2(800f, 136f), new Vector2(0f, 290f), Hex("FFB53E"), 48, ink);
             var progress = ShellButton(sheet, "Progress", font, "Progress",
-                new Vector2(800f, 118f), new Vector2(0f, 104f), quiet, 40, ink);
+                new Vector2(800f, 110f), new Vector2(0f, 150f), quiet, 38, ink);
             var choose = ShellButton(sheet, "ChooseRound", font, "Choose round",
-                new Vector2(800f, 118f), new Vector2(0f, -28f), quiet, 40, ink);
+                new Vector2(800f, 110f), new Vector2(0f, 25f), quiet, 38, ink);
             var home = ShellButton(sheet, "Home", font, "Home",
-                new Vector2(800f, 118f), new Vector2(0f, -160f), quiet, 40, ink);
+                new Vector2(800f, 110f), new Vector2(0f, -100f), quiet, 38, ink);
+            var testerTools = ShellButton(sheet, "PauseTesterTools", font, "TESTER TOOLS",
+                new Vector2(800f, 96f), new Vector2(0f, -215f), new Color(ink.r, ink.g, ink.b, 0.86f), 28, Color.white, shadow: false);
 
             var sound = ShellButton(sheet, "Sound", font, "SOUND ON",
-                new Vector2(388f, 112f), new Vector2(-206f, -300f), Hex("5CCCAE"), 30, ink);
+                new Vector2(388f, 106f), new Vector2(-206f, -330f), Hex("5CCCAE"), 28, ink);
             var haptics = ShellButton(sheet, "Haptics", font, "BUZZ ON",
-                new Vector2(388f, 112f), new Vector2(206f, -300f), Hex("5CCCAE"), 30, ink);
+                new Vector2(388f, 106f), new Vector2(206f, -330f), Hex("5CCCAE"), 28, ink);
 
             pause = holder.AddComponent<PauseOverlay>();
             Wire(pause, "_root", root);
@@ -673,6 +727,7 @@ namespace SavePeps.EditorTools
             Wire(pause, "_progressButton", progress);
             Wire(pause, "_chooseButton", choose);
             Wire(pause, "_homeButton", home);
+            Wire(pause, "_testerToolsButton", testerTools);
             Wire(pause, "_soundToggle", sound);
             Wire(pause, "_soundPanel", sound.GetComponent<Image>());
             Wire(pause, "_soundLabel", sound.GetComponentInChildren<Text>());
@@ -680,6 +735,7 @@ namespace SavePeps.EditorTools
             Wire(pause, "_hapticsPanel", haptics.GetComponent<Image>());
             Wire(pause, "_hapticsLabel", haptics.GetComponentInChildren<Text>());
 
+            testerTools.gameObject.SetActive(false);
             root.SetActive(false);
         }
 
@@ -852,6 +908,159 @@ namespace SavePeps.EditorTools
 
             rowGo.SetActive(false);
             return row;
+        }
+
+        /// <summary>
+        /// Development-build-only mode switch, catalogue target, and explicit
+        /// profile tools. User Mode has no visible entry point; the title
+        /// tableau's secret sequence activates the small indicator and sheet.
+        /// </summary>
+        private static void BuildTesterMode(Transform canvas, GameFlow flow, GameMenu menu,
+            RescueRunner runner, TapRouter router, FakeEntitlementService entitlements,
+            out TesterMode tester)
+        {
+            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            var ink = Hex("3D3354");
+            var cream = Hex("FFFBEE");
+            var gold = Hex("FFB53E");
+
+            var holder = new GameObject("TesterMode", typeof(RectTransform));
+            holder.transform.SetParent(canvas, false);
+            Stretch(holder.GetComponent<RectTransform>());
+
+            var indicator = ShellButton(holder.transform, "TesterIndicator", font, "TESTER",
+                new Vector2(210f, 64f), Vector2.zero, new Color(ink.r, ink.g, ink.b, 0.86f),
+                24, Color.white, shadow: false);
+            var indicatorRt = indicator.GetComponent<RectTransform>();
+            indicatorRt.anchorMin = indicatorRt.anchorMax = new Vector2(0f, 1f);
+            indicatorRt.anchoredPosition = new Vector2(125f, -44f);
+            indicator.GetComponentInChildren<Text>().alignment = TextAnchor.MiddleCenter;
+
+            var root = new GameObject("TesterOverlay", typeof(Image), typeof(CanvasGroup));
+            root.transform.SetParent(holder.transform, false);
+            Stretch(root.GetComponent<RectTransform>());
+            root.GetComponent<Image>().color = new Color(ink.r, ink.g, ink.b, 0.72f);
+
+            var cardGo = new GameObject("TesterCard", typeof(Image));
+            cardGo.transform.SetParent(root.transform, false);
+            var card = cardGo.GetComponent<RectTransform>();
+            card.anchorMin = card.anchorMax = new Vector2(0.5f, 0.5f);
+            card.sizeDelta = new Vector2(1010f, 1320f);
+            card.anchoredPosition = Vector2.zero;
+            StylePanel(cardGo.GetComponent<Image>(), new Color(1f, 0.97f, 0.88f, 0.99f));
+
+            var title = Text(card, "Title", font, 44, ink, new Vector2(0.5f, 0.5f),
+                new Vector2(-100f, 570f), new Vector2(650f, 65f));
+            title.text = "TESTER TOOLS";
+            title.fontStyle = FontStyle.Bold;
+
+            var close = ShellButton(card, "TesterClose", font, "CLOSE",
+                new Vector2(170f, 66f), new Vector2(370f, 570f), new Color(ink.r, ink.g, ink.b, 0.86f),
+                26, Color.white, shadow: false);
+
+            // 1. GO TO
+            SectionLabel(card, font, ink, "GO TO", 495f);
+            var goToSummary = Text(card, "TesterGoToSummary", font, 28, ink, new Vector2(0.5f, 0.5f),
+                new Vector2(0f, 455f), new Vector2(900f, 40f));
+            goToSummary.text = "ROUND 1 · RESCUE 1";
+            goToSummary.fontStyle = FontStyle.Bold;
+            goToSummary.alignment = TextAnchor.MiddleCenter;
+            goToSummary.color = ink;
+
+            var roundButtons = new Button[12];
+            for (var i = 0; i < roundButtons.Length; i++)
+            {
+                var column = i % 6;
+                var row = i / 6;
+                var x = -365f + column * 146f;
+                var y = 375f - row * 80f;
+                roundButtons[i] = ShellButton(card, $"TesterRound_{i + 1}", font, (i + 1).ToString(),
+                    new Vector2(138f, 70f), new Vector2(x, y), cream, 32, ink, shadow: false);
+            }
+
+            var rescueButtons = new Button[RoundDefinition.RescuesPerRound];
+            for (var i = 0; i < rescueButtons.Length; i++)
+            {
+                rescueButtons[i] = ShellButton(card, $"TesterRescue_{i + 1}", font, $"RESCUE {i + 1}",
+                    new Vector2(278f, 76f), new Vector2((i - 1) * 295f, 205f), cream, 28, ink,
+                    shadow: false);
+            }
+
+            var playRescue = ShellButton(card, "TesterPlayRescue", font,
+                "PLAY RESCUE", new Vector2(870f, 96f),
+                new Vector2(0f, 100f), gold, 34, ink, shadow: false);
+
+            // 2. ACCESS
+            SectionLabel(card, font, ink, "ACCESS", 10f);
+            var accessSub = Text(card, "AccessSubtext", font, 26, ink, new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -30f), new Vector2(900f, 38f));
+            accessSub.text = "Simulate player entitlement";
+            accessSub.alignment = TextAnchor.MiddleCenter;
+            accessSub.color = new Color(ink.r, ink.g, ink.b, 0.90f);
+
+            var free = ShellButton(card, "TesterFree", font, "FREE", new Vector2(425f, 88f),
+                new Vector2(-225f, -105f), cream, 30, ink, shadow: false);
+            var unlimited = ShellButton(card, "TesterUnlimited", font, "PEPS UNLIMITED",
+                new Vector2(425f, 88f), new Vector2(225f, -105f), cream, 30, ink, shadow: false);
+
+            // 3. PROFILE
+            SectionLabel(card, font, ink, "PROFILE", -195f);
+            var profileSub = Text(card, "ProfileSubtext", font, 25, ink, new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -235f), new Vector2(900f, 44f));
+            profileSub.text = "Erases all marks, completed rounds, and history back to a fresh install.";
+            profileSub.alignment = TextAnchor.MiddleCenter;
+            profileSub.color = new Color(ink.r, ink.g, ink.b, 0.90f);
+
+            var clearProgress = ShellButton(card, "TesterClearProgress", font, "CLEAR ALL PROGRESS",
+                new Vector2(870f, 90f), new Vector2(0f, -315f), new Color(0.96f, 0.91f, 0.91f, 1f),
+                28, new Color(0.60f, 0.15f, 0.15f, 1f), shadow: false);
+
+            var cancelClear = ShellButton(card, "TesterCancelClear", font, "CANCEL",
+                new Vector2(320f, 62f), new Vector2(0f, -395f), cream, 24, ink, shadow: false);
+            cancelClear.gameObject.SetActive(false);
+
+            var note = Text(card, "SafetyNote", font, 25, ink, new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -485f), new Vector2(900f, 90f));
+            note.text = "• Same game, but you can go anywhere.\n• Playing in Tester Mode records progress and unlocks.";
+            note.lineSpacing = 1.2f;
+            note.alignment = TextAnchor.MiddleCenter;
+            note.color = new Color(ink.r, ink.g, ink.b, 0.85f);
+
+            tester = holder.AddComponent<TesterMode>();
+            Wire(tester, "_indicatorRoot", indicator.gameObject);
+            Wire(tester, "_indicatorButton", indicator);
+            Wire(tester, "_indicatorLabel", indicator.GetComponentInChildren<Text>());
+            Wire(tester, "_root", root);
+            Wire(tester, "_group", root.GetComponent<CanvasGroup>());
+            Wire(tester, "_closeButton", close);
+            WireArray(tester, "_roundButtons", roundButtons);
+            WireArray(tester, "_rescueButtons", rescueButtons);
+            Wire(tester, "_playRescueButton", playRescue);
+            Wire(tester, "_goToSelectionSummary", goToSummary);
+            Wire(tester, "_freeButton", free);
+            Wire(tester, "_unlimitedButton", unlimited);
+            Wire(tester, "_freeLabel", free.GetComponentInChildren<Text>());
+            Wire(tester, "_unlimitedLabel", unlimited.GetComponentInChildren<Text>());
+            Wire(tester, "_clearProgressButton", clearProgress);
+            Wire(tester, "_clearProgressLabel", clearProgress.GetComponentInChildren<Text>());
+            Wire(tester, "_cancelClearButton", cancelClear);
+            Wire(tester, "_flow", flow);
+            Wire(tester, "_menu", menu);
+            Wire(tester, "_runner", runner);
+            Wire(tester, "_fakeEntitlements", entitlements);
+
+            root.SetActive(false);
+            indicator.gameObject.SetActive(false);
+        }
+
+        private static void SectionLabel(Transform parent, Font font, Color ink, string value, float y)
+        {
+            var label = Text(parent, value.Replace(' ', '_'), font, 26, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, y), new Vector2(900f, 44f));
+            label.text = value;
+            label.fontStyle = FontStyle.Bold;
+            label.alignment = TextAnchor.MiddleLeft;
+            label.color = new Color(ink.r, ink.g, ink.b, 0.85f);
         }
 
         /// <summary>

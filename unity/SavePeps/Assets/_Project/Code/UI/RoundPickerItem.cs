@@ -51,10 +51,7 @@ namespace SavePeps.Progression
 
             if (_button != null)
             {
-                // A premium entry remains tappable so the existing paywall
-                // event can own that path. Sequentially locked free content
-                // is informational and cannot be skipped.
-                _button.interactable = access is RoundAccess.Playable or RoundAccess.SubscriptionLocked;
+                _button.interactable = access == RoundAccess.Playable;
             }
 
             if (_panel != null)
