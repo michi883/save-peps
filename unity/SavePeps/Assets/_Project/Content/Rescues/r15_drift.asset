@@ -165,7 +165,7 @@ MonoBehaviour:
     AnchorId: Slot_3
     Label: The mooring buoy
     Quip: 
-    Duration: 3.5
+    Duration: 3.6
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -178,7 +178,7 @@ MonoBehaviour:
       Ease: 0
       Param: whoosh
     - At: 0
-      Duration: 0.62
+      Duration: 0.58
       Kind: 1
       Target: $self
       Delta: {x: -0.84, y: 0.045, z: 1.16}
@@ -187,7 +187,7 @@ MonoBehaviour:
       Amplitude: 0.48
       Ease: 5
       Param: 
-    - At: 0.64
+    - At: 0.6
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -197,8 +197,8 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: splash
-    - At: 0.78
-      Duration: 0.22
+    - At: 0.72
+      Duration: 0.18
       Kind: 6
       Target: Swing
       Delta: {x: 0, y: 0, z: 0}
@@ -207,7 +207,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 0.8
+    - At: 0.74
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -217,7 +217,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: creak
-    - At: 0.86
+    - At: 0.8
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -227,8 +227,8 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 0.92
-      Duration: 0.52
+    - At: 0.85
+      Duration: 0.5
       Kind: 2
       Target: $pepA
       Delta: {x: 0.28, y: -0.09, z: -0.3}
@@ -237,34 +237,54 @@ MonoBehaviour:
       Amplitude: 0.14
       Ease: 5
       Param: 
-    - At: 1.48
-      Duration: 1
-      Kind: 1
-      Target: $pepA
-      Delta: {x: 0.8, y: 0, z: 0.5}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0.26
-      Ease: 2
-      Param: 
-    - At: 1.48
-      Duration: 1
-      Kind: 1
+    - At: 1.35
+      Duration: 0.5
+      Kind: 101
       Target: $self
-      Delta: {x: 0.8, y: 0.06, z: 0.5}
+      Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.26
-      Ease: 2
-      Param: 
-    - At: 1.5
-      Duration: 0.98
+      Amplitude: 0
+      Ease: 0
+      Param: splash
+    - At: 1.35
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: medium
+    - At: 1.35
+      Duration: 1.1
       Kind: 4
       Target: Current
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 2
+      Amplitude: 4
+      Ease: 2
+      Param: 
+    - At: 1.35
+      Duration: 1.1
+      Kind: 1
+      Target: $pepA
+      Delta: {x: 0.8, y: 0, z: 0.5}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.32
+      Ease: 2
+      Param: 
+    - At: 1.35
+      Duration: 1.1
+      Kind: 1
+      Target: $self
+      Delta: {x: 0.8, y: 0.06, z: 0.5}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.32
       Ease: 2
       Param: 
     - At: 2.5
@@ -277,16 +297,6 @@ MonoBehaviour:
       Amplitude: 0.12
       Ease: 5
       Param: 
-    - At: 2.52
-      Duration: 0.5
-      Kind: 102
-      Target: $self
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: light
     - At: 2.72
       Duration: 0.72
       Kind: 103

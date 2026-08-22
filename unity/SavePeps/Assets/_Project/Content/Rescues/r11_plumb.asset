@@ -178,7 +178,7 @@ MonoBehaviour:
       Ease: 0
       Param: slide
     - At: 0
-      Duration: 0.62
+      Duration: 0.58
       Kind: 1
       Target: $self
       Delta: {x: 0, y: 0.24, z: 1.09}
@@ -187,7 +187,7 @@ MonoBehaviour:
       Amplitude: 0.44
       Ease: 5
       Param: 
-    - At: 0.62
+    - At: 0.58
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -196,8 +196,8 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: creak
-    - At: 0.64
+      Param: clank
+    - At: 0.6
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -207,8 +207,18 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: medium
-    - At: 0.86
-      Duration: 0.14
+    - At: 0.6
+      Duration: 0.25
+      Kind: 4
+      Target: Basket
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 8
+      Ease: 2
+      Param: 
+    - At: 0.85
+      Duration: 0.12
       Kind: 7
       Target: Basket
       Delta: {x: 0, y: 0, z: 0}
@@ -217,8 +227,8 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 0.86
-      Duration: 0.14
+    - At: 0.85
+      Duration: 0.12
       Kind: 6
       Target: SteadyCar
       Delta: {x: 0, y: 0, z: 0}
@@ -227,7 +237,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 1.02
+    - At: 0.95
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -237,17 +247,17 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.06
-      Duration: 0.6
+    - At: 1
+      Duration: 0.52
       Kind: 2
       Target: $pepA
       Delta: {x: -0.02, y: 0.39, z: 0.75}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.24
+      Amplitude: 0.22
       Ease: 5
       Param: 
-    - At: 1.7
+    - At: 1.55
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -257,8 +267,18 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: ratchet
-    - At: 1.7
-      Duration: 0.8
+    - At: 1.85
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: slide
+    - At: 1.55
+      Duration: 0.9
       Kind: 0
       Target: SteadyCar
       Delta: {x: 0, y: 0.14, z: 0.62}
@@ -267,8 +287,8 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 1.7
-      Duration: 0.8
+    - At: 1.55
+      Duration: 0.9
       Kind: 0
       Target: $pepA
       Delta: {x: 0, y: 0.14, z: 0.62}
@@ -277,8 +297,8 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 1.7
-      Duration: 0.8
+    - At: 1.55
+      Duration: 0.9
       Kind: 0
       Target: $self
       Delta: {x: 0, y: 0.14, z: 0.62}
@@ -287,8 +307,8 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 2.52
-      Duration: 0.48
+    - At: 2.48
+      Duration: 0.45
       Kind: 2
       Target: $pepA
       Delta: {x: -0.02, y: -0.29, z: 0.13}
@@ -297,7 +317,7 @@ MonoBehaviour:
       Amplitude: 0.12
       Ease: 5
       Param: 
-    - At: 2.72
+    - At: 2.7
       Duration: 0.72
       Kind: 103
       Target: $peps
@@ -307,7 +327,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.78
+    - At: 2.76
       Duration: 0.5
       Kind: 101
       Target: $self

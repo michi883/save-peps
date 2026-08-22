@@ -158,6 +158,7 @@ namespace SavePeps.Progression
             _card?.Hide();
             _pause?.Hide();
             _progress?.Hide();
+            _runner?.SuspendInput(false);
             _runner?.Teardown();
             _menu?.ShowHome(PlayRecommendedRound, ShowRoundPickerFromHome, ShowProgressFromHome,
                 HomeStatLine(), _testerMode?.HomePlayLabel ?? "PLAY");
@@ -263,6 +264,7 @@ namespace SavePeps.Progression
             _card?.Hide();
             _pause?.Hide();
             _progress?.Hide();
+            _runner?.SuspendInput(false);
             _hud?.SetVisible(true);
             RefreshDots();
             Debug.Log($"[SavePeps] Round {number} started.");
@@ -427,6 +429,7 @@ namespace SavePeps.Progression
 
             _hud?.SetVisible(true);
             RefreshDots();
+            _runner?.SuspendInput(false);
             _runner.Load(rescue, lockInputDuringEntrance: true);
         }
 

@@ -165,7 +165,7 @@ MonoBehaviour:
     AnchorId: Slot_3
     Label: The hand mirror
     Quip: 
-    Duration: 3.3
+    Duration: 3.6
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -188,7 +188,7 @@ MonoBehaviour:
       Ease: 5
       Param: 
     - At: 0.6
-      Duration: 0.34
+      Duration: 0.3
       Kind: 0
       Target: $self
       Delta: {x: 0, y: 0, z: 0}
@@ -197,7 +197,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 0.66
+    - At: 0.64
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -207,37 +207,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: click
-    - At: 0.86
-      Duration: 0.2
-      Kind: 6
-      Target: BeamBounce
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 0.98
-      Duration: 0.22
-      Kind: 6
-      Target: SensorGlow
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 1
-      Duration: 0.5
-      Kind: 101
-      Target: $self
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: chime
-    - At: 1.02
+    - At: 0.64
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -247,27 +217,157 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: light
+    - At: 0.8
+      Duration: 0.2
+      Kind: 6
+      Target: BeamBounce
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.84
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: chime
+    - At: 0.84
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: light
+    - At: 0.88
+      Duration: 0.22
+      Kind: 6
+      Target: SensorGlow
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.96
+      Duration: 0.35
+      Kind: 6
+      Target: CourtyardLights
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.98
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: bell
+    - At: 1.02
+      Duration: 1.25
+      Kind: 5
+      Target: GreatClockGears
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 260
+      Ease: 2
+      Param: 
+    - At: 1.05
+      Duration: 1.15
+      Kind: 0
+      Target: OverheadPistons
+      Delta: {x: 0, y: 0.06, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.08
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: ratchet
     - At: 1.1
-      Duration: 0.6
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: medium
+    - At: 1.15
+      Duration: 0.7
       Kind: 5
       Target: IrisGate
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 92
+      Amplitude: 110
       Ease: 2
       Param: 
-    - At: 1.1
-      Duration: 0.6
+    - At: 1.15
+      Duration: 0.7
       Kind: 0
       Target: IrisGate
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 0.16
+      Scale: 0.14
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 1.18
+    - At: 1.22
+      Duration: 0.85
+      Kind: 0
+      Target: ClockBridge
+      Delta: {x: 0, y: 0.13, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.95
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: clank
+    - At: 1.98
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: medium
+    - At: 1.25
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -277,7 +377,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.18
+    - At: 1.25
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -287,18 +387,38 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.52
-      Duration: 0.78
+    - At: 2.05
+      Duration: 0.4
       Kind: 2
       Target: $pepB
-      Delta: {x: -0.42, y: 0, z: -1}
+      Delta: {x: -0.2, y: 0, z: -0.45}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.15
+      Ease: 5
+      Param: 
+    - At: 2.45
+      Duration: 0.4
+      Kind: 2
+      Target: $pepB
+      Delta: {x: -0.18, y: 0, z: -0.4}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.15
+      Ease: 5
+      Param: 
+    - At: 2.2
+      Duration: 0.5
+      Kind: 2
+      Target: $pepA
+      Delta: {x: 0.12, y: 0, z: 0.2}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0.14
       Ease: 5
       Param: 
-    - At: 2.4
-      Duration: 0.72
+    - At: 2.85
+      Duration: 0.7
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -307,7 +427,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.46
+    - At: 2.9
       Duration: 0.5
       Kind: 101
       Target: $self

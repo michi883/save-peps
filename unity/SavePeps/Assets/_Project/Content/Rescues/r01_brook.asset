@@ -31,7 +31,7 @@ MonoBehaviour:
     AnchorId: Slot_1
     Label: The wooden plank
     Quip: 
-    Duration: 2.9
+    Duration: 2.7
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -44,16 +44,16 @@ MonoBehaviour:
       Ease: 0
       Param: slide
     - At: 0
-      Duration: 0.7
+      Duration: 0.65
       Kind: 1
       Target: $self
       Delta: {x: 0.42, y: 0.02, z: 1.25}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.35
+      Amplitude: 0.32
       Ease: 5
       Param: 
-    - At: 0.68
+    - At: 0.65
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -63,27 +63,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: thud
-    - At: 0.75
-      Duration: 0.5
-      Kind: 100
-      Target: $pepA
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: Hopeful
-    - At: 0.9
-      Duration: 0.95
-      Kind: 2
-      Target: $pepA
-      Delta: {x: 0, y: 0, z: 1.12}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0.16
-      Ease: 5
-      Param: 
-    - At: 0.95
+    - At: 0.65
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -93,8 +73,28 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: light
-    - At: 1.9
-      Duration: 0.75
+    - At: 0.72
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 0.85
+      Duration: 0.85
+      Kind: 2
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 1.12}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.15
+      Ease: 5
+      Param: 
+    - At: 1.75
+      Duration: 0.7
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -103,7 +103,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 1.95
+    - At: 1.8
       Duration: 0.5
       Kind: 101
       Target: $self

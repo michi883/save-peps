@@ -45,6 +45,9 @@ namespace SavePeps.Rescue
         private bool _solved;
         private bool _choiceReady;
         private bool _inputSuspended;
+        private Coroutine _finishCoroutine;
+        private Coroutine _retryCoroutine;
+        private Coroutine _transitionCoroutine;
 
         /// <summary>Raised when the Peps are reunited. True if solved first tap.</summary>
         public event Action<bool> OnSolved;
@@ -130,9 +133,10 @@ namespace SavePeps.Rescue
                 return;
             }
 
-            StopAllCoroutines();
+            CancelActiveCoroutines();
             if (_player != null) _player.Stop();
             _choiceReady = false;
+            _inputSuspended = false;
             ApplyInputState();
 
             if (_diorama != null)
@@ -140,7 +144,7 @@ namespace SavePeps.Rescue
                 // Current changes immediately for progression/tests, while
                 // the visual stage gets a short toy-box swap of its own.
                 _rescue = rescue;
-                StartCoroutine(SwapDiorama(rescue));
+                _transitionCoroutine = StartCoroutine(SwapDiorama(rescue));
                 return;
             }
 
@@ -150,7 +154,7 @@ namespace SavePeps.Rescue
             // On the very first scene, keeping input live also keeps editor
             // Preview Outcome immediate. A human cannot beat this 0.42s drop
             // with a deliberate tap; automated authoring tools can.
-            StartCoroutine(EnterDiorama(_diorama, lockInput: lockInputDuringEntrance));
+            _transitionCoroutine = StartCoroutine(EnterDiorama(_diorama, lockInput: lockInputDuringEntrance));
         }
 
         /// <summary>
@@ -168,9 +172,39 @@ namespace SavePeps.Rescue
             _atmosphere?.Restore();
         }
 
+        private void CancelActiveCoroutines()
+        {
+            if (_finishCoroutine != null)
+            {
+                StopCoroutine(_finishCoroutine);
+                _finishCoroutine = null;
+            }
+            if (_retryCoroutine != null)
+            {
+                StopCoroutine(_retryCoroutine);
+                _retryCoroutine = null;
+            }
+            if (_transitionCoroutine != null)
+            {
+                StopCoroutine(_transitionCoroutine);
+                _transitionCoroutine = null;
+            }
+        }
+
         private void ClearStage(bool stopCoroutines)
         {
-            if (stopCoroutines) StopAllCoroutines();
+            if (stopCoroutines)
+            {
+                StopAllCoroutines();
+                _finishCoroutine = null;
+                _retryCoroutine = null;
+                _transitionCoroutine = null;
+            }
+            else
+            {
+                CancelActiveCoroutines();
+            }
+
             if (_player != null) _player.Stop();
 
             if (_diorama != null) Destroy(_diorama);
@@ -187,6 +221,7 @@ namespace SavePeps.Rescue
             _attempts = 0;
             _solved = false;
             _choiceReady = false;
+            _inputSuspended = false;
 
             ApplyInputState();
             _gameFeel?.ResetPresentation();
@@ -217,6 +252,7 @@ namespace SavePeps.Rescue
             _rescue = next;
             Build();
             yield return EnterDiorama(_diorama, lockInput: true);
+            _transitionCoroutine = null;
         }
 
         private IEnumerator EnterDiorama(GameObject staged, bool lockInput)
@@ -381,12 +417,13 @@ namespace SavePeps.Rescue
             _hud?.ClearQuip();
 
             _player.Play(obj.Steps, Resolve);
-            StartCoroutine(FinishAfter(obj));
+            _finishCoroutine = StartCoroutine(FinishAfter(obj));
         }
 
         private IEnumerator FinishAfter(RescueObject obj)
         {
             yield return new WaitForSeconds(obj.Duration);
+            _finishCoroutine = null;
 
             if (_rescue.IsCorrect(obj)) Win();
             else Fail(obj);
@@ -417,7 +454,7 @@ namespace SavePeps.Rescue
             }
             _hud?.ShowQuip(obj.Quip, actionTarget);
             Debug.Log($"[SavePeps] Wrong '{obj.Id}'. Quip shown; retry will reset automatically.");
-            StartCoroutine(RetryAfterFailureBeat());
+            _retryCoroutine = StartCoroutine(RetryAfterFailureBeat());
         }
 
         private IEnumerator RetryAfterFailureBeat()
@@ -428,6 +465,7 @@ namespace SavePeps.Rescue
             _hud?.HideQuip();
             yield return new WaitForSecondsRealtime(0.16f);
             Debug.Log("[SavePeps] Retry ready.");
+            _retryCoroutine = null;
             ResetScene();
         }
 
@@ -459,8 +497,17 @@ namespace SavePeps.Rescue
 
         private void ResetScene()
         {
-            StopAllCoroutines();
-            _player.Stop();
+            if (_finishCoroutine != null)
+            {
+                StopCoroutine(_finishCoroutine);
+                _finishCoroutine = null;
+            }
+            if (_retryCoroutine != null)
+            {
+                StopCoroutine(_retryCoroutine);
+                _retryCoroutine = null;
+            }
+            if (_player != null) _player.Stop();
 
             foreach (var target in _targets.Values)
             {

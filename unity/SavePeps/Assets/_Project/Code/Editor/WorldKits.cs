@@ -209,31 +209,34 @@ namespace SavePeps.EditorTools
         /// </summary>
         private static void WeatherBase(Transform root)
         {
-            Box(root, "Platform", Mat("Earth"), new Vector3(0f, -0.11f, 0f), new Vector3(1.52f, 0.22f, 3.40f));
-            Box(root, "BaseFoot", Mat("Ink"), new Vector3(0f, -0.245f, 0.03f), new Vector3(1.38f, 0.055f, 3.10f));
+            Box(root, "Platform", Mat("Earth"), new Vector3(0f, -0.13f, 0f), new Vector3(1.48f, 0.24f, 3.36f));
+            Box(root, "BaseFoot", Mat("Ink"), new Vector3(0f, -0.275f, 0.03f), new Vector3(1.38f, 0.045f, 3.10f));
 
-            // Three shelves whose tops sit at exactly 0.15, 0.42 and 0.70, so
-            // a stage can place a Pep on one by naming the number rather than
-            // by re-deriving a centre and a half-height.
+            // Three shelves whose tops sit at exactly 0.15, 0.42 and 0.70.
+            // Boundaries are partitioned cleanly in Z with 0.03m step-out risers
+            // to completely eliminate coplanar surface z-fighting on mobile.
             var tops = new[] { 0.15f, 0.42f, 0.70f };
-            var lanes = new[] { (-1.15f, 1.05f), (0f, 1.24f), (1.15f, 1.08f) };
             var skins = new[] { Mat("FoliageLight"), Mat("Foliage"), Mat("Snow") };
+            var zCenters = new[] { -1.125f, -0.010f, 1.115f };
+            var depths = new[] { 1.05f, 1.18f, 1.07f };
+            var heights = new[] { 0.16f, 0.43f, 0.71f };
+            var yCenters = new[] { 0.075f, 0.210f, 0.350f };
+            var riserZ = new[] { -1.665f, -0.615f, 0.565f };
 
             for (var i = 0; i < 3; i++)
             {
-                var (z, depth) = lanes[i];
-                Box(root, $"Terrace_{i}", skins[i], new Vector3(0f, tops[i] * 0.5f, z),
-                    new Vector3(1.36f, tops[i], depth));
+                Box(root, $"Terrace_{i}", skins[i], new Vector3(0f, yCenters[i], zCenters[i]),
+                    new Vector3(1.36f, heights[i], depths[i]));
                 Box(root, $"Riser_{i}", Mat("EarthLight"),
-                    new Vector3(0f, tops[i] * 0.5f, z - depth * 0.5f + 0.025f),
-                    new Vector3(1.38f, tops[i] - 0.02f, 0.05f));
+                    new Vector3(0f, yCenters[i], riserZ[i]),
+                    new Vector3(1.40f, heights[i], 0.03f));
             }
 
             foreach (var x in new[] { -0.70f, 0.70f })
             foreach (var z in new[] { -1.56f, 1.56f })
             {
-                Rod(root, "CornerPeg", Mat("AccentLight"), new Vector3(x, -0.003f, z),
-                    new Vector3(0.032f, 0.018f, 0.032f));
+                Rod(root, "CornerPeg", Mat("AccentLight"), new Vector3(x, 0.02f, z),
+                    new Vector3(0.032f, 0.035f, 0.032f));
             }
         }
 

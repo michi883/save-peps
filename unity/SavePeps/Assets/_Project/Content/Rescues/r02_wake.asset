@@ -195,19 +195,19 @@ MonoBehaviour:
     AnchorId: Slot_3
     Label: The brass bell
     Quip: 
-    Duration: 3.3
+    Duration: 3.4
     Steps:
     - At: 0
-      Duration: 0.55
+      Duration: 0.52
       Kind: 1
       Target: $self
       Delta: {x: 0.47, y: 0.26, z: 1.22}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.34
+      Amplitude: 0.32
       Ease: 5
       Param: 
-    - At: 0.53
+    - At: 0.5
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -217,7 +217,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: bell
-    - At: 0.55
+    - At: 0.52
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -227,8 +227,8 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: light
-    - At: 0.52
-      Duration: 0.55
+    - At: 0.5
+      Duration: 0.5
       Kind: 4
       Target: $self
       Delta: {x: 0, y: 0, z: 0}
@@ -237,8 +237,8 @@ MonoBehaviour:
       Amplitude: 18
       Ease: 2
       Param: 
-    - At: 0.64
-      Duration: 0.12
+    - At: 0.6
+      Duration: 0.1
       Kind: 7
       Target: SleepMask
       Delta: {x: 0, y: 0, z: 0}
@@ -247,8 +247,8 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 0.64
-      Duration: 0.12
+    - At: 0.6
+      Duration: 0.1
       Kind: 7
       Target: Zzz
       Delta: {x: 0, y: 0, z: 0}
@@ -257,17 +257,57 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 0.74
-      Duration: 0.48
+    - At: 0.6
+      Duration: 0.35
       Kind: 2
       Target: Helper
-      Delta: {x: 0.12, y: 0, z: -0.03}
+      Delta: {x: 0, y: 0.08, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.12
+      Ease: 5
+      Param: 
+    - At: 0.6
+      Duration: 0.35
+      Kind: 0
+      Target: Helper
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: -25, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 0.95
+      Duration: 0.38
+      Kind: 2
+      Target: Helper
+      Delta: {x: 0.15, y: 0, z: -0.08}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0.1
       Ease: 5
       Param: 
     - At: 0.95
+      Duration: 0.38
+      Kind: 0
+      Target: Helper
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 55, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.35
+      Duration: 0.28
+      Kind: 0
+      Target: Lever
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: -48}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.38
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -277,17 +317,57 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: click
-    - At: 0.95
-      Duration: 0.55
+    - At: 1.48
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: ratchet
+    - At: 1.48
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: medium
+    - At: 1.58
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: slide
+    - At: 1.58
+      Duration: 0.6
       Kind: 0
       Target: Gate
-      Delta: {x: 0, y: 0.64, z: 0}
+      Delta: {x: 0, y: 0.72, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 1.02
+    - At: 1.68
+      Duration: 0.35
+      Kind: 2
+      Target: Helper
+      Delta: {x: 0, y: 0.04, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.08
+      Ease: 5
+      Param: 
+    - At: 1.65
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -297,7 +377,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.02
+    - At: 1.65
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -307,7 +387,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.42
+    - At: 1.95
       Duration: 0.75
       Kind: 2
       Target: $pepB
@@ -317,8 +397,8 @@ MonoBehaviour:
       Amplitude: 0.14
       Ease: 5
       Param: 
-    - At: 2.3
-      Duration: 0.7
+    - At: 2.7
+      Duration: 0.68
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -327,7 +407,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.35
+    - At: 2.75
       Duration: 0.5
       Kind: 101
       Target: $self

@@ -74,26 +74,36 @@ MonoBehaviour:
       Ease: 0
       Param: medium
     - At: 0.72
-      Duration: 0.9
+      Duration: 0.95
       Kind: 5
       Target: $self
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: -260
+      Amplitude: -320
       Ease: 0
       Param: 
     - At: 0.72
-      Duration: 0.9
+      Duration: 0.95
       Kind: 5
       Target: GearTrain
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 240
+      Amplitude: 260
       Ease: 0
       Param: 
-    - At: 0.78
+    - At: 0.72
+      Duration: 0.95
+      Kind: 5
+      Target: UpperGears
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: -360
+      Ease: 0
+      Param: 
+    - At: 0.76
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -104,36 +114,66 @@ MonoBehaviour:
       Ease: 0
       Param: ratchet
     - At: 0.74
-      Duration: 0.86
+      Duration: 0.9
       Kind: 5
       Target: Governor
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 620
+      Amplitude: 720
       Ease: 0
       Param: 
     - At: 0.74
-      Duration: 0.86
+      Duration: 0.9
       Kind: 0
       Target: Governor
-      Delta: {x: 0, y: 0.05, z: 0}
+      Delta: {x: 0, y: 0.06, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
+    - At: 0.78
+      Duration: 0.6
+      Kind: 0
+      Target: LinkageArm
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 32}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
     - At: 1.1
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: clank
+    - At: 1.12
       Duration: 0.72
       Kind: 0
       Target: Portcullis
-      Delta: {x: 0, y: 0.62, z: 0}
+      Delta: {x: 0, y: 0.64, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 1.16
+    - At: 1.45
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: click
+    - At: 1.2
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -143,7 +183,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.16
+    - At: 1.2
       Duration: 0.5
       Kind: 100
       Target: $pepB

@@ -95,10 +95,13 @@ namespace SavePeps.Rescue
 
             foreach (var candidate in FindObjectsByType<Tappable>(FindObjectsSortMode.None))
             {
-                var collider = candidate.GetComponent<Collider>();
-                if (collider == null) continue;
+                if (!candidate.gameObject.activeInHierarchy || string.IsNullOrEmpty(candidate.ObjectId))
+                    continue;
 
-                var centre = collider.bounds.center;
+                var centre = candidate.transform.position;
+                var collider = candidate.GetComponent<Collider>();
+                if (collider != null) centre = collider.bounds.center;
+
                 var renderers = candidate.GetComponentsInChildren<Renderer>();
                 if (renderers.Length > 0)
                 {
@@ -110,10 +113,12 @@ namespace SavePeps.Rescue
                 var point = _camera.WorldToScreenPoint(centre);
                 if (point.z <= 0f) continue;
 
-                var distance = Vector2.Distance(screenPos, point);
-                if (distance >= bestDistance) continue;
-                bestDistance = distance;
-                best = candidate;
+                var distance = Vector2.Distance(screenPos, (Vector2)point);
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    best = candidate;
+                }
             }
 
             return best;
@@ -122,26 +127,29 @@ namespace SavePeps.Rescue
         /// <summary>
         /// Fires on release rather than press, so a player can slide off an
         /// object they did not mean to choose. Touch is authoritative on
-        /// device; the mouse path exists only so the scene is playable in the
-        /// editor.
+        /// device; the mouse path exists for editor play and emulated pointer.
         /// </summary>
         private bool TryReadTapUp(out Vector2 screenPos)
         {
             screenPos = default;
 
-            if (Input.touchCount > 0)
+            for (var i = 0; i < Input.touchCount; i++)
             {
-                var touch = Input.GetTouch(0);
-                if (touch.phase != TouchPhase.Ended || touch.tapCount < 1) return false;
-                screenPos = touch.position;
+                var touch = Input.GetTouch(i);
+                if (touch.phase == TouchPhase.Ended)
+                {
+                    screenPos = touch.position;
+                    return true;
+                }
+            }
+
+            if (Input.GetMouseButtonUp(0))
+            {
+                screenPos = Input.mousePosition;
                 return true;
             }
 
-            if (Input.GetMouseButtonDown(0)) _pressed = true;
-            if (!_pressed || !Input.GetMouseButtonUp(0)) return false;
-            _pressed = false;
-            screenPos = Input.mousePosition;
-            return true;
+            return false;
         }
     }
 }
