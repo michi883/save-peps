@@ -97,11 +97,11 @@ namespace SavePeps.EditorTools
         /// composes rather than fights.
         /// </summary>
         internal static Transform Idle(Transform choreo, AmbientMode mode, float amplitude, float speed,
-            Vector3 axis, float phase = 0f)
+            Vector3 axis, float phase = 0f, string controlId = null)
         {
             var idle = Child(choreo, "Idle");
             idle.gameObject.AddComponent<AmbientMotion>()
-                .Configure(mode, amplitude, speed, axis, staggerChildren: false, phase);
+                .Configure(mode, amplitude, speed, axis, staggerChildren: false, phase, controlId);
             return idle;
         }
 
@@ -112,11 +112,11 @@ namespace SavePeps.EditorTools
         /// phase, so twelve conveyor slats cost one component.
         /// </summary>
         internal static Transform Living(Transform parent, string name, AmbientMode mode, float amplitude,
-            float speed, Vector3 axis, bool stagger = false, float phase = 0f)
+            float speed, Vector3 axis, bool stagger = false, float phase = 0f, string controlId = null)
         {
             var holder = Child(parent, name);
             holder.gameObject.AddComponent<AmbientMotion>()
-                .Configure(mode, amplitude, speed, axis, stagger, phase);
+                .Configure(mode, amplitude, speed, axis, stagger, phase, controlId);
             return holder;
         }
 
@@ -140,6 +140,25 @@ namespace SavePeps.EditorTools
             go.transform.localPosition = pos;
             go.transform.localScale = scale;
             if (euler != Vector3.zero) go.transform.localRotation = Quaternion.Euler(euler);
+            return go;
+        }
+
+        /// <summary>
+        /// A box whose long axis joins two authored points. Cables, fallen
+        /// trees and diagonal routes otherwise require hand-tuned Euler
+        /// angles that stop lining up as soon as either endpoint moves.
+        /// </summary>
+        internal static GameObject Beam(Transform parent, string name, Material mat, Vector3 from, Vector3 to,
+            float thickness)
+        {
+            var delta = to - from;
+            var go = Primitive(PrimitiveType.Cube, name, parent, mat);
+            go.transform.localPosition = (from + to) * 0.5f;
+            go.transform.localScale = new Vector3(thickness, delta.magnitude, thickness);
+            if (delta.sqrMagnitude > 0.000001f)
+            {
+                go.transform.localRotation = Quaternion.FromToRotation(Vector3.up, delta.normalized);
+            }
             return go;
         }
 

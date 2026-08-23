@@ -137,8 +137,8 @@ namespace SavePeps.EditorTools
 
             Author.Stage(rescue, "r29", "attract", "Pull them back.", Difficulty.Surprising,
                 ReasoningKind.Magnetism, "Diorama_Orbit_Tumble",
-                "One Pep is tumbling away above the station, wearing a steel-backed pack, already too " +
-                "far to reach from the handrail.");
+                "One Pep is tumbling away in open space above the station, wearing a steel-backed pack, " +
+                "already drifting beyond reach of the station handrail.");
 
             rescue.Objects = new[]
             {
@@ -150,24 +150,38 @@ namespace SavePeps.EditorTools
                     Steps = new[]
                     {
                         Sfx(0.03f, "servo"),
-                        Move(0f, 0.88f, StepKind.Fly, SceneRef.Self,
-                            new Vector3(0.45f, 0.25f, 1.30f), ease: EaseKind.Linear),
+                        // Magnet flies to the crane gantry electromagnet coil
+                        Move(0f, 0.86f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(0.36f, 0.57f, 1.69f), ease: EaseKind.Linear),
+                        Sfx(0.88f, "snap_on"),
+                        Haptic(0.90f, "heavy"),
+                        Impact(0.90f, 0.85f),
                         Face(0.92f, SceneRef.PepA, PepFace.Hopeful),
-                        Move(0.96f, 0.28f, StepKind.Show, "PullArc", Vector3.zero),
-                        Sfx(1.00f, "snap_on"),
-                        Haptic(1.02f, "medium"),
-                        Move(1.06f, 1.10f, StepKind.Fly, "Backpack",
-                            new Vector3(-0.35f, -0.55f, -0.85f), ease: EaseKind.InOut),
-                        Move(1.06f, 1.10f, StepKind.Fly, SceneRef.PepB,
-                            new Vector3(-0.35f, -0.55f, -0.85f), ease: EaseKind.InOut),
+
+                        // Crane gantry engages and pivots toward tumbling Pep
+                        Move(0.92f, 0.38f, StepKind.Spin, "Gantry", Vector3.zero, amplitude: 18f, ease: EaseKind.Out),
+
+                        // Intense magnetic flux field illuminates across the orbital gap
+                        Move(0.95f, 0.25f, StepKind.Show, "MagneticFlux", Vector3.zero),
+                        Sfx(0.96f, "zap"),
+
+                        // Orbital debris field polarizes and deflects
+                        Move(1.00f, 0.90f, StepKind.Fly, "DebrisField",
+                            new Vector3(0.20f, 0.10f, -0.22f), ease: EaseKind.Out),
+
+                        // Tumbling Pep B and pack are captured by the flux field and reeled in
+                        Move(1.02f, 1.18f, StepKind.Fly, "Backpack",
+                            new Vector3(-1.00f, -0.97f, -1.29f), ease: EaseKind.InOut),
+                        Move(1.02f, 1.18f, StepKind.Fly, SceneRef.PepB,
+                            new Vector3(-1.00f, -0.97f, -1.29f), ease: EaseKind.InOut),
                         Face(1.20f, SceneRef.PepB, PepFace.Happy),
-                        Move(2.16f, 0.50f, StepKind.Hide, "PullArc", Vector3.zero),
-                        Move(2.16f, 0.50f, StepKind.Fly, SceneRef.PepB,
-                            new Vector3(-0.15f, -0.27f, -0.20f), ease: EaseKind.Out),
-                        Move(2.16f, 0.50f, StepKind.Fly, "Backpack",
-                            new Vector3(-0.15f, -0.27f, -0.20f), ease: EaseKind.Out),
-                        Meet(2.70f, 0.72f),
-                        Sfx(2.76f, "reunion"),
+
+                        // Flux field disengages as Pep B reaches the station deck
+                        Move(2.20f, 0.28f, StepKind.Hide, "MagneticFlux", Vector3.zero),
+
+                        Meet(2.65f, 0.74f),
+                        Sfx(2.70f, "reunion"),
+                        Haptic(2.70f, "success"),
                     },
                 },
                 new RescueObject
@@ -179,8 +193,6 @@ namespace SavePeps.EditorTools
                     {
                         Move(0f, 0.70f, StepKind.Fly, SceneRef.Self,
                             new Vector3(0.30f, 0.30f, 1.10f), ease: EaseKind.Linear),
-                        // Deliberately no Sfx: the bell is shaken hard and
-                        // makes nothing, and only the world can explain why.
                         Move(0.72f, 1.10f, StepKind.Shake, SceneRef.Self, Vector3.zero,
                             amplitude: 22f, ease: EaseKind.InOut),
                         Face(0.90f, SceneRef.PepA, PepFace.Hopeful),
@@ -222,8 +234,8 @@ namespace SavePeps.EditorTools
 
             Author.Stage(rescue, "r30", "seal", "Shut the airlock.", Difficulty.Medium,
                 ReasoningKind.Airflow, "Diorama_Orbit_Airlock",
-                "Air is streaming out of a vent beside the airlock and walking the near Pep backwards " +
-                "down the corridor every time they advance.");
+                "A catastrophic airlock breach is expelling atmosphere into the vacuum, tearing loose " +
+                "station panels and preventing any crossing between the disaligned modules.");
 
             rescue.Objects = new[]
             {
@@ -235,7 +247,7 @@ namespace SavePeps.EditorTools
                     Steps = new[]
                     {
                         Move(0f, 0.76f, StepKind.Fly, SceneRef.Self,
-                            new Vector3(0.24f, 0.15f, 1.86f), ease: EaseKind.Linear),
+                            new Vector3(0.22f, 0.21f, 1.61f), ease: EaseKind.Linear),
                         Sfx(0.78f, "hiss"),
                         Move(0.80f, 0.40f, StepKind.Shake, SceneRef.Self, Vector3.zero,
                             amplitude: 20f, ease: EaseKind.InOut),
@@ -252,11 +264,11 @@ namespace SavePeps.EditorTools
                     Steps = new[]
                     {
                         Move(0f, 0.80f, StepKind.Fly, SceneRef.Self,
-                            new Vector3(-0.16f, 0.15f, 1.86f), ease: EaseKind.Linear),
+                            new Vector3(-0.58f, 0.21f, 1.61f), ease: EaseKind.Linear),
                         Sfx(0.84f, "clank"),
                         Move(0.84f, 0.80f, StepKind.FlyOff, SceneRef.Self,
                             new Vector3(0f, 0f, 0.60f), ease: EaseKind.In),
-                        Move(0.86f, 0.70f, StepKind.Shake, "Vent", Vector3.zero,
+                        Move(0.86f, 0.70f, StepKind.Shake, "BreachCollar", Vector3.zero,
                             amplitude: 7f, ease: EaseKind.InOut),
                         Face(0.98f, SceneRef.PepA, PepFace.Panic),
                     },
@@ -268,22 +280,45 @@ namespace SavePeps.EditorTools
                     Steps = new[]
                     {
                         Sfx(0.03f, "servo"),
-                        Move(0f, 0.86f, StepKind.Fly, SceneRef.Self,
-                            new Vector3(0.24f, 0.15f, 2.20f), ease: EaseKind.Linear),
-                        Sfx(0.88f, "poof"),
-                        Resize(0.90f, 0.40f, SceneRef.Self, 0.68f, EaseKind.Out),
-                        Move(0.96f, 0.42f, StepKind.Hide, "Blast", Vector3.zero),
-                        Sfx(1.00f, "hiss"),
-                        Haptic(1.02f, "light"),
-                        Sfx(1.36f, "servo"),
-                        Move(1.38f, 0.62f, StepKind.Fly, "Hatch",
-                            new Vector3(-0.32f, 0f, 0f), ease: EaseKind.InOut),
-                        Face(1.46f, SceneRef.PepA, PepFace.Hopeful),
-                        Face(1.46f, SceneRef.PepB, PepFace.Hopeful),
-                        Move(1.62f, 1.02f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0f, 0f, 2.10f), amplitude: 0.13f, ease: EaseKind.Hop),
-                        Meet(2.70f, 0.74f),
-                        Sfx(2.76f, "reunion"),
+                        // Phase 1: Pillow flies toward the high-velocity decompression maw
+                        Move(0f, 0.78f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(-0.18f, 0.21f, 1.95f), ease: EaseKind.Linear),
+
+                        // Phase 2: Suction pulls pillow into breach collar and seals it tight
+                        Sfx(0.80f, "poof"),
+                        Resize(0.80f, 0.22f, SceneRef.Self, 0.65f, EaseKind.Out),
+                        Sfx(0.82f, "thud"),
+                        Sfx(0.84f, "hiss"),
+                        Impact(0.84f, 1.50f),
+                        Haptic(0.84f, "heavy"),
+                        Move(0.82f, 0.25f, StepKind.Shake, "BreachCollar", Vector3.zero, amplitude: 14f),
+                        Move(0.84f, 0.18f, StepKind.Hide, "DecompressionVortex", Vector3.zero),
+
+                        // Phase 3: WORLD EVENT TRANSFORMATION
+                        // Breached station transforms: modules dock, pressurized concourse links the modules
+                        VisibilitySwap(0.96f, "BreachedStationWorld", "DockedStationWorld"),
+                        Atmosphere(0.96f, 0.75f, "orbit_docked"),
+                        Sfx(0.96f, "clank"),
+                        Sfx(1.00f, "servo"),
+                        Sfx(1.06f, "snap_on"),
+                        Impact(0.96f, 1.40f),
+                        Haptic(0.96f, "heavy"),
+                        Move(0.96f, 0.40f, StepKind.Fly, "DockedStationWorld",
+                            new Vector3(0f, 0.02f, 0f), ease: EaseKind.Out),
+
+                        // Phase 4: Longest zero-g orbital traversal across the illuminated concourse
+                        Face(1.38f, SceneRef.PepA, PepFace.Happy),
+                        Face(1.38f, SceneRef.PepB, PepFace.Happy),
+                        Move(1.45f, 1.10f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(0.42f, 0f, 0.55f), ease: EaseKind.InOut),
+                        Move(1.45f, 1.10f, StepKind.Fly, SceneRef.PepB,
+                            new Vector3(-0.55f, -0.14f, -0.53f), ease: EaseKind.InOut),
+
+                        // Phase 5: Climax Reunion inside the central concourse
+                        Meet(2.65f, 0.80f),
+                        Sfx(2.70f, "reunion"),
+                        Haptic(2.70f, "success"),
+                        Impact(2.70f, 0.60f),
                     },
                 },
             };

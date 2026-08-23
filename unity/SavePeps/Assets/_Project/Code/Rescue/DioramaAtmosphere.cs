@@ -3,6 +3,29 @@ using UnityEngine;
 namespace SavePeps.Rescue
 {
     /// <summary>
+    /// A named scene-wide state an outcome may blend to. Framing stays owned
+    /// by the stage; a weather beat changes the air, not the composition.
+    /// </summary>
+    [System.Serializable]
+    public sealed class OutcomeAtmosphere
+    {
+        public string Id;
+        public Color Sky = new(0.722f, 0.902f, 0.961f);
+        public Color AmbientSky = new(0.722f, 0.902f, 0.961f);
+        public Color AmbientEquator = new(0.969f, 0.953f, 0.910f);
+        public Color AmbientGround = new(0.910f, 0.863f, 0.784f);
+        public bool UseFog;
+        public Color Fog = new(0.722f, 0.902f, 0.961f);
+        [Range(0f, 0.4f)] public float FogDensity = 0.06f;
+        public Color SunColor = new(1f, 0.953f, 0.808f);
+        [Range(0f, 3f)] public float SunIntensity = 1.15f;
+        public Vector3 SunAngles = new(50f, -35f, 0f);
+        public Color FillColor = new(0.737f, 0.918f, 0.961f);
+        [Range(0f, 2f)] public float FillIntensity = 0.26f;
+        public Vector3 FillAngles = new(35f, 145f, 0f);
+    }
+
+    /// <summary>
     /// A world's light, air, framing and sound bed, authored onto the diorama
     /// prefab itself.
     ///
@@ -76,6 +99,26 @@ namespace SavePeps.Rescue
         [Tooltip("Reverb-ish tail applied to this world's cues by choosing longer sfx variants. " +
                  "Purely informational for now; the bed carries the character.")]
         [Range(0f, 1f)] public float AmbienceVolume = 0.35f;
+
+        [Header("Outcome moods")]
+        [Tooltip("Named scene-wide states this stage can reach during an outcome.")]
+        public OutcomeAtmosphere[] Outcomes = System.Array.Empty<OutcomeAtmosphere>();
+
+        public bool TryGetOutcome(string id, out OutcomeAtmosphere outcome)
+        {
+            foreach (var candidate in Outcomes ?? System.Array.Empty<OutcomeAtmosphere>())
+            {
+                if (candidate != null && string.Equals(candidate.Id, id,
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    outcome = candidate;
+                    return true;
+                }
+            }
+
+            outcome = null;
+            return false;
+        }
 
         /// <summary>
         /// The framing the fixed camera should hold for this world, in the

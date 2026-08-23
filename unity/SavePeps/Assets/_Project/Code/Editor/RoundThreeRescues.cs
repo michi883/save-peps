@@ -12,15 +12,17 @@ namespace SavePeps.EditorTools
     /// obstacle. You change the state of the air over them, and the world
     /// changes back.*
     ///
-    /// One hillside, three terraces, three skies. This is the only round whose
-    /// three stages deliberately carry different atmospheres — frost pale and
-    /// blue on the top shelf, full sun and gold on the middle, a grey
-    /// downpour on the terrace below — because "the weather changed" is
-    /// exactly what the round is teaching. Every answer is a *field* applied
-    /// to a place: heat, water, cover.
+    /// Three spatial scales, three terraces, three skies. This is the only
+    /// round whose stages deliberately carry different atmospheres — frost
+    /// pale and blue around one local shell, full sun and gold over a diagonal
+    /// living causeway, then a frame-filling downpour whose drainage changes
+    /// every terrace — because "the weather changed the world" is exactly
+    /// what the round is teaching. Every answer is a *field* applied to a
+    /// place: heat, water, cover.
     ///
-    /// Only-here rescue: **r09**, the rain. The cloud is a character with a
-    /// position, and both wrong answers move the weather rather than the Peps.
+    /// Only-here rescue: **r09**, the rain. Wind visibly drives a wheel and
+    /// sluice before the banks, torrent, route and atmosphere change state;
+    /// both wrong answers still move the weather rather than the obstacle.
     /// </summary>
     public static class RoundThreeRescues
     {
@@ -133,11 +135,12 @@ namespace SavePeps.EditorTools
                 return rescue;
             }
 
-            // R3.2 EXPAND: Reach Ledge — multi-step plant growth elevating Pep B to upper terrace
+            // R3.2 LANDSCAPE: watering one root builds a traversable living
+            // stair diagonally across all three terrace elevations.
             Author.Stage(rescue, "r08", "sprout", "Reach the ledge.", Difficulty.Medium,
                 ReasoningKind.Growth, "Diorama_Weather_Bloom",
-                "Full sun on the middle terrace. One Pep stands on a tiny potted flower, far below the " +
-                "snow shelf where their partner waits.");
+                "A dry basin lies at the near foot of the hill. One Pep stands on its tiny potted " +
+                "flower while their partner waits on the opposite high ledge.");
 
             rescue.Objects = new[]
             {
@@ -151,7 +154,7 @@ namespace SavePeps.EditorTools
                     {
                         Sfx(0.03f, "whoosh"),
                         Move(0f, 0.66f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.78f, 0.47f, 1.74f), amplitude: 0.55f, ease: EaseKind.Hop),
+                            new Vector3(0.82f, 0.38f, 1.08f), amplitude: 0.55f, ease: EaseKind.Hop),
                         Sfx(0.68f, "snip"),
                         Resize(0.70f, 0.50f, "Plant", 0.55f, EaseKind.Out),
                         Move(0.70f, 0.50f, StepKind.Fly, SceneRef.PepB, new Vector3(0f, -0.08f, 0f)),
@@ -162,32 +165,66 @@ namespace SavePeps.EditorTools
                 {
                     Id = "watering_can", Prop = Author.Prop("watering_can"), AnchorId = "Slot_2",
                     Label = "The blue watering can",
-                    Duration = 3.0f,
+                    Duration = 3.45f,
                     Steps = new[]
                     {
-                        // 1. Watering can arcs from Slot 2 over to the flower pot
                         Sfx(0.03f, "slide"),
-                        Move(0f, 0.58f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.12f, 0.65f, 1.74f), amplitude: 0.55f, ease: EaseKind.Hop),
-                        // 2. Can tilts & pours water
-                        Rotate(0.55f, 0.35f, SceneRef.Self, new Vector3(0f, 0f, -44f)),
-                        Sfx(0.60f, "splash"),
-                        // 3. Flower pot shakes & responds
-                        Move(0.75f, 0.30f, StepKind.Shake, "Plant", Vector3.zero, amplitude: 5f),
-                        // 4. Plant shoots up & expands into flower platform elevator
-                        Resize(0.88f, 0.82f, "Plant", 2.35f, EaseKind.Back),
-                        Move(0.88f, 0.82f, StepKind.Fly, "Plant", new Vector3(0f, 0.16f, 0f), ease: EaseKind.Back),
-                        // 5. Pep B rises on the blossom elevator
-                        Move(0.88f, 0.82f, StepKind.Fly, SceneRef.PepB,
-                            new Vector3(0f, 0.24f, 0f), ease: EaseKind.Back),
-                        Haptic(1.10f, "medium"),
-                        Face(1.15f, SceneRef.PepB, PepFace.Hopeful),
-                        Face(1.15f, SceneRef.PepA, PepFace.Hopeful),
-                        // 6. Pep B hops onto upper terrace shelf to reunite
-                        Move(1.78f, 0.56f, StepKind.Hop, SceneRef.PepB,
-                            new Vector3(-0.40f, -0.12f, 0.44f), amplitude: 0.16f, ease: EaseKind.Hop),
-                        Meet(2.35f, 0.65f),
-                        Sfx(2.40f, "reunion"),
+                        Move(0f, 0.52f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.08f, 0.55f, 1.08f), amplitude: 0.52f, ease: EaseKind.Hop),
+                        Rotate(0.50f, 0.32f, SceneRef.Self, new Vector3(0f, 0f, -44f)),
+                        Sfx(0.56f, "splash"),
+                        Move(0.66f, 0.30f, StepKind.Shake, "RootHeave", Vector3.zero,
+                            amplitude: 5.5f, ease: EaseKind.InOut),
+                        Move(0.70f, 0.34f, StepKind.Shake, "Plant", Vector3.zero,
+                            amplitude: 6f, ease: EaseKind.InOut),
+
+                        // The local seedling rises first. Then the ground
+                        // heaves and a full route grows away from it.
+                        Resize(0.84f, 0.36f, "Plant", 1.55f, EaseKind.Back),
+                        Move(0.84f, 0.36f, StepKind.Fly, "Plant",
+                            new Vector3(0f, 0.06f, 0f), ease: EaseKind.Back),
+                        Move(0.84f, 0.36f, StepKind.Fly, SceneRef.PepB,
+                            new Vector3(0f, 0.09f, 0f), ease: EaseKind.Back),
+                        // The tool has done its job; clear the foreground so
+                        // the stage-sized causeway owns the rest of the beat.
+                        Move(0.92f, 0.44f, StepKind.FlyOff, SceneRef.Self,
+                            new Vector3(1.18f, 0.28f, -0.34f), ease: EaseKind.In),
+                        Resize(0.92f, 0.44f, "RootHeave", 1.24f, EaseKind.Back),
+                        Move(0.92f, 0.44f, StepKind.Fly, "RootHeave",
+                            new Vector3(0f, 0.055f, 0f), ease: EaseKind.Back),
+                        Sfx(1.02f, "crunch"),
+                        Impact(1.04f, 0.68f),
+                        Haptic(1.06f, "medium"),
+
+                        Move(1.00f, 0.46f, StepKind.Show, "VineSpine",
+                            new Vector3(0f, 0.14f, 0f), ease: EaseKind.Back),
+                        Move(1.14f, 0.34f, StepKind.Show, "VineStep1",
+                            new Vector3(0f, 0.14f, 0f), ease: EaseKind.Back),
+                        Sfx(1.20f, "boing"),
+                        Move(1.28f, 0.34f, StepKind.Show, "VineStep2",
+                            new Vector3(0f, 0.14f, 0f), ease: EaseKind.Back),
+                        Move(1.42f, 0.34f, StepKind.Show, "VineStep3",
+                            new Vector3(0f, 0.14f, 0f), ease: EaseKind.Back),
+                        Move(1.56f, 0.40f, StepKind.Show, "VineCrown",
+                            new Vector3(0f, 0.14f, 0f), ease: EaseKind.Back),
+                        Resize(1.56f, 0.40f, "VineCrown", 1.15f, EaseKind.Back),
+                        Haptic(1.72f, "medium"),
+                        Face(1.72f, SceneRef.PepB, PepFace.Hopeful),
+                        Face(1.72f, SceneRef.PepA, PepFace.Hopeful),
+
+                        // Pep B uses the new landscape as four distinct steps,
+                        // climbing the full diagonal rather than riding one
+                        // uniformly scaled platform.
+                        Move(1.82f, 0.27f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.10f, 0f, 0.33f), amplitude: 0.13f, ease: EaseKind.Hop),
+                        Move(2.07f, 0.29f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.21f, 0.13f, 0.38f), amplitude: 0.14f, ease: EaseKind.Hop),
+                        Move(2.34f, 0.29f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.23f, 0.14f, 0.37f), amplitude: 0.15f, ease: EaseKind.Hop),
+                        Move(2.61f, 0.31f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.18f, 0.03f, 0.30f), amplitude: 0.15f, ease: EaseKind.Hop),
+                        Meet(2.96f, 0.40f),
+                        Sfx(3.02f, "reunion"),
                     },
                 },
                 new RescueObject
@@ -213,10 +250,12 @@ namespace SavePeps.EditorTools
                 return rescue;
             }
 
-            // R3.3 CLIMAX: Tempest to Rainbow — World transformed from raging storm to sunny rainbow
+            // R3.3 WORLD EVENT: the umbrella catches the gale, drives the
+            // drainage works, reshapes every terrace and reveals a new route.
             Author.Stage(rescue, "r09", "shelter", "Stay out of rain.", Difficulty.Medium,
                 ReasoningKind.Shelter, "Diorama_Weather_Downpour",
-                "A dark tempest lashes the hillside while one Pep is stranded across the swollen stream.");
+                "A dark tempest has mud-choked all three terraces. The Peps occupy opposite corners " +
+                "of a swollen torrent with no route between them.");
 
             rescue.Objects = new[]
             {
@@ -224,36 +263,111 @@ namespace SavePeps.EditorTools
                 {
                     Id = "umbrella", Prop = Author.Prop("umbrella"), AnchorId = "Slot_1",
                     Label = "The orange umbrella",
-                    Duration = 3.5f,
+                    Duration = 3.6f,
                     Steps = new[]
                     {
-                        // 1. Umbrella arcs from Slot 1 high across to stranded Pep B
                         Sfx(0.03f, "slide"),
-                        Move(0f, 0.65f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.78f, 0.63f, 1.74f), amplitude: 0.58f, ease: EaseKind.Hop),
-                        // 2. Umbrella snaps open & spins in the updraft
-                        Sfx(0.65f, "pop"),
-                        Move(0.65f, 0.35f, StepKind.Spin, SceneRef.Self, Vector3.zero, amplitude: 180f),
-                        Resize(0.65f, 0.35f, SceneRef.Self, 1.22f, EaseKind.Back),
-                        // 3. Updraft carries Umbrella & Pep B across the flooded torrent
-                        Move(0.92f, 0.88f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.45f, 0.18f, -0.46f), amplitude: 0.32f, ease: EaseKind.InOut),
-                        Move(0.92f, 0.88f, StepKind.Arc, SceneRef.PepB,
-                            new Vector3(-0.45f, 0.00f, -0.46f), amplitude: 0.32f, ease: EaseKind.InOut),
-                        Face(1.15f, SceneRef.PepB, PepFace.Hopeful),
-                        Face(1.15f, SceneRef.PepA, PepFace.Hopeful),
-                        // 4. WORLD CLIMAX TRANSFORMATION: Storm breaks into sunshine and rainbow!
-                        Move(1.38f, 0.22f, StepKind.Hide, "Rain", Vector3.zero),
-                        Move(1.40f, 0.95f, StepKind.FlyOff, "Cloud",
-                            new Vector3(1.15f, 0.60f, 0.40f), ease: EaseKind.In),
-                        Resize(1.50f, 0.60f, "FloodStream", 0.04f, EaseKind.In),
-                        Move(1.60f, 0.35f, StepKind.Show, "SunGlow", Vector3.zero),
-                        Move(1.65f, 0.70f, StepKind.Show, "Rainbow", Vector3.zero),
-                        Resize(1.65f, 0.70f, "Rainbow", 1.00f, EaseKind.Back),
-                        Haptic(1.70f, "success"),
-                        // 5. Climactic Reunion under the Rainbow
-                        Meet(2.78f, 0.72f),
-                        Sfx(2.84f, "reunion"),
+                        Move(0f, 0.58f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.92f, 0.78f, 2.62f), amplitude: 0.82f, ease: EaseKind.Hop),
+                        Sfx(0.58f, "pop"),
+                        Move(0.58f, 0.28f, StepKind.Spin, SceneRef.Self, Vector3.zero, amplitude: 210f),
+                        Resize(0.58f, 0.28f, SceneRef.Self, 1.28f, EaseKind.Back),
+                        Face(0.66f, SceneRef.PepB, PepFace.Hopeful),
+                        Face(0.66f, SceneRef.PepA, PepFace.Hopeful),
+
+                        // The opened canopy catches the crosswind beside the
+                        // wheel. One visible mechanism initiates the whole
+                        // environmental chain: wheel -> gate -> drainage.
+                        Sfx(0.76f, "wind"),
+                        Move(0.74f, 0.46f, StepKind.Shake, SceneRef.Self, Vector3.zero,
+                            amplitude: 5f, ease: EaseKind.InOut),
+                        Move(0.78f, 0.62f, StepKind.Spin, "DrainWheel", Vector3.zero,
+                            amplitude: 540f, ease: EaseKind.InOut),
+                        Sfx(0.86f, "ratchet"),
+                        Move(0.86f, 0.54f, StepKind.Fly, "SluiceGate",
+                            new Vector3(0f, 0.34f, 0f), ease: EaseKind.Back),
+                        Impact(0.92f, 0.58f),
+                        Haptic(0.94f, "medium"),
+
+                        Move(1.04f, 0.30f, StepKind.Shake, "StormBankLeft", Vector3.zero,
+                            amplitude: 4f, ease: EaseKind.InOut),
+                        Move(1.08f, 0.30f, StepKind.Shake, "StormBankRight", Vector3.zero,
+                            amplitude: 4f, ease: EaseKind.InOut),
+                        Sfx(1.10f, "rumble"),
+                        Ambient(1.08f, 0.30f, "FloodCurrent", 0f),
+                        Move(1.14f, 0.68f, StepKind.FlyOff, "StormDebris",
+                            new Vector3(-0.20f, -0.22f, -1.30f), ease: EaseKind.In),
+                        Move(1.18f, 0.72f, StepKind.FlyOff, "Awning",
+                            new Vector3(-1.25f, 0.44f, -0.24f), ease: EaseKind.In),
+
+                        // Every large system now changes state across the
+                        // frame: air, cloud, light, terrain and water.
+                        Ambient(1.16f, 0.48f, "Rainfall", 0f),
+                        Ambient(1.16f, 0.50f, "StormGusts", 0f),
+                        Ambient(1.16f, 0.48f, "StormCloud", 0f),
+                        Ambient(1.16f, 0.62f, "StormTrees", 0f),
+                        Ambient(1.16f, 0.54f, "StormVane", 0.05f),
+                        Atmosphere(1.18f, 0.98f, "sunbreak"),
+                        Move(1.22f, 0.88f, StepKind.FlyOff, "Cloud",
+                            new Vector3(1.65f, 0.72f, 0.30f), ease: EaseKind.In),
+
+                        VisibilitySwap(1.38f, "StormBankLeft", "ClearBankLeft"),
+                        Move(1.38f, 0.50f, StepKind.Fly, "ClearBankLeft",
+                            new Vector3(0.10f, 0.12f, 0f), ease: EaseKind.Back),
+                        VisibilitySwap(1.46f, "StormBankRight", "ClearBankRight"),
+                        Move(1.46f, 0.50f, StepKind.Fly, "ClearBankRight",
+                            new Vector3(-0.10f, 0.12f, 0f), ease: EaseKind.Back),
+                        Sfx(1.46f, "crunch"),
+                        Impact(1.46f, 1.30f),
+                        Haptic(1.48f, "heavy"),
+                        VisibilitySwap(1.56f, "Rain", "Sunbeams"),
+                        Resize(1.56f, 0.46f, "Sunbeams", 1.15f, EaseKind.Back),
+                        VisibilitySwap(1.64f, "FloodStream", "RiverThread"),
+                        Sfx(1.66f, "splash"),
+
+                        // The route rises out of the drained torrent from far
+                        // shelf to near shelf, then the cleared world blooms.
+                        Move(1.58f, 0.34f, StepKind.Show, "CausewayStep1",
+                            new Vector3(0f, 0.16f, 0f), ease: EaseKind.Back),
+                        Move(1.68f, 0.34f, StepKind.Show, "CausewayStep2",
+                            new Vector3(0f, 0.16f, 0f), ease: EaseKind.Back),
+                        Move(1.78f, 0.34f, StepKind.Show, "CausewayStep3",
+                            new Vector3(0f, 0.16f, 0f), ease: EaseKind.Back),
+                        Move(1.88f, 0.34f, StepKind.Show, "CausewayStep4",
+                            new Vector3(0f, 0.16f, 0f), ease: EaseKind.Back),
+                        Move(1.72f, 0.38f, StepKind.Show, "SunGlow", new Vector3(0f, 0.06f, 0f),
+                            ease: EaseKind.Back),
+                        Resize(1.72f, 0.38f, "SunGlow", 1.28f, EaseKind.Back),
+                        Move(1.90f, 0.38f, StepKind.Show, "MeadowBurst",
+                            new Vector3(0f, 0.12f, 0f), ease: EaseKind.Back),
+                        Resize(1.90f, 0.38f, "MeadowBurst", 1.12f, EaseKind.Back),
+                        Move(2.04f, 0.42f, StepKind.Show, "Rainbow",
+                            new Vector3(0f, 0.08f, 0f), ease: EaseKind.Back),
+                        Resize(2.04f, 0.42f, "Rainbow", 1.12f, EaseKind.Back),
+                        Sfx(2.08f, "chime"),
+                        Impact(2.10f, 0.42f),
+                        Haptic(2.10f, "success"),
+
+                        // Pep B and the shelter now traverse the newly made
+                        // route from the far high corner to Pep A below.
+                        Move(2.12f, 0.27f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.10f, 0.02f, -0.40f), amplitude: 0.14f, ease: EaseKind.Hop),
+                        Move(2.12f, 0.27f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(-0.10f, 0.02f, -0.40f), ease: EaseKind.InOut),
+                        Move(2.37f, 0.27f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.20f, -0.27f, -0.42f), amplitude: 0.14f, ease: EaseKind.Hop),
+                        Move(2.37f, 0.27f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(-0.20f, -0.27f, -0.42f), ease: EaseKind.InOut),
+                        Move(2.62f, 0.27f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.22f, 0f, -0.42f), amplitude: 0.14f, ease: EaseKind.Hop),
+                        Move(2.62f, 0.27f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(-0.22f, 0f, -0.42f), ease: EaseKind.InOut),
+                        Move(2.87f, 0.29f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.24f, -0.26f, -0.44f), amplitude: 0.15f, ease: EaseKind.Hop),
+                        Move(2.87f, 0.29f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(-0.24f, -0.26f, -0.44f), ease: EaseKind.InOut),
+                        Meet(3.18f, 0.35f),
+                        Sfx(3.22f, "reunion"),
                     },
                 },
                 new RescueObject
@@ -283,7 +397,7 @@ namespace SavePeps.EditorTools
                     {
                         Sfx(0.03f, "whoosh"),
                         Move(0f, 0.68f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.34f, 0.55f, 1.36f), amplitude: 0.48f, ease: EaseKind.Hop),
+                            new Vector3(0.48f, 0.62f, 2.24f), amplitude: 0.68f, ease: EaseKind.Hop),
                         Face(0.74f, SceneRef.PepB, PepFace.Hopeful),
                         Move(0.90f, 0.50f, StepKind.Shake, SceneRef.Self, Vector3.zero,
                             amplitude: 9f, ease: EaseKind.InOut),

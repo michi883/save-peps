@@ -31,7 +31,8 @@ namespace SavePeps.EditorTools
             var result = new OutcomeStep[steps.Length];
             for (var i = 0; i < steps.Length; i++)
             {
-                var s = steps[i];
+                var s = Clone(steps[i]);
+                if (s == null) continue;
                 s.At += timeOffset;
                 result[i] = s;
             }
@@ -48,7 +49,11 @@ namespace SavePeps.EditorTools
             foreach (var group in stepGroups)
             {
                 if (group == null) continue;
-                list.AddRange(group);
+                foreach (var step in group)
+                {
+                    var copy = Clone(step);
+                    if (copy != null) list.Add(copy);
+                }
             }
             list.Sort((a, b) => a.At.CompareTo(b.At));
             return list.ToArray();
@@ -112,5 +117,19 @@ namespace SavePeps.EditorTools
         /// </summary>
         public static OutcomeStep Shudder(float at, float dur, string target, float amplitude = 3.5f) =>
             Steps.Move(at, dur, StepKind.Shake, target, Vector3.zero, amplitude: amplitude, ease: EaseKind.InOut);
+
+        private static OutcomeStep Clone(OutcomeStep source) => source == null ? null : new OutcomeStep
+        {
+            At = source.At,
+            Duration = source.Duration,
+            Kind = source.Kind,
+            Target = source.Target,
+            Delta = source.Delta,
+            EulerDelta = source.EulerDelta,
+            Scale = source.Scale,
+            Amplitude = source.Amplitude,
+            Ease = source.Ease,
+            Param = source.Param,
+        };
     }
 }

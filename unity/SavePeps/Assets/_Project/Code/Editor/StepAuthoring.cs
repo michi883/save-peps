@@ -52,6 +52,28 @@ namespace SavePeps.EditorTools
             At = at, Kind = StepKind.Haptic, Target = SceneRef.Self, Param = strength, Scale = 1f,
         };
 
+        public static OutcomeStep VisibilitySwap(float at, string hideTarget, string showTarget) => new()
+        {
+            At = at, Kind = StepKind.VisibilitySwap, Target = hideTarget, Param = showTarget, Scale = 1f,
+        };
+
+        public static OutcomeStep Impact(float at, float strength = 1f) => new()
+        {
+            At = at, Kind = StepKind.Impact, Target = SceneRef.Camera, Amplitude = strength, Scale = 1f,
+        };
+
+        public static OutcomeStep Atmosphere(float at, float dur, string cueId) => new()
+        {
+            At = at, Duration = dur, Kind = StepKind.Atmosphere, Target = SceneRef.Self,
+            Param = cueId, Scale = 1f,
+        };
+
+        public static OutcomeStep Ambient(float at, float dur, string controlId, float activity) => new()
+        {
+            At = at, Duration = dur, Kind = StepKind.Ambient, Target = controlId,
+            Scale = Mathf.Clamp01(activity),
+        };
+
         public static OutcomeStep Meet(float at, float dur) => new()
         {
             At = at, Duration = dur, Kind = StepKind.Meet, Target = SceneRef.Peps, Scale = 1f,

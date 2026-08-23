@@ -111,16 +111,16 @@ MonoBehaviour:
       Ease: 0
       Param: whoosh
     - At: 0
-      Duration: 0.62
+      Duration: 0.56
       Kind: 1
       Target: $self
-      Delta: {x: -0.14, y: 0.905, z: 1.74}
+      Delta: {x: -0.14, y: 0.86, z: 1.74}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.72
+      Amplitude: 0.7
       Ease: 5
       Param: 
-    - At: 0.66
+    - At: 0.58
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -130,7 +130,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: boing
-    - At: 0.72
+    - At: 0.6
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -140,7 +140,27 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Happy
-    - At: 0.76
+    - At: 0.62
+      Duration: 0.3
+      Kind: 6
+      Target: VentGlow
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.64
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: wind
+    - At: 0.66
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -150,37 +170,67 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: light
-    - At: 0.8
-      Duration: 1.4
-      Kind: 1
-      Target: $pepA
-      Delta: {x: -0.62, y: 0.655, z: 0.96}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0.95
-      Ease: 2
-      Param: 
-    - At: 0.8
-      Duration: 1.4
-      Kind: 1
-      Target: $self
-      Delta: {x: -0.62, y: 0.655, z: 0.96}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0.95
-      Ease: 2
-      Param: 
-    - At: 1.2
+    - At: 0.68
       Duration: 0.3
       Kind: 6
-      Target: Fireworks
+      Target: Searchlight_L
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 1.24
+    - At: 0.68
+      Duration: 0.3
+      Kind: 6
+      Target: Searchlight_R
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.7
+      Duration: 1.55
+      Kind: 1
+      Target: $pepA
+      Delta: {x: -0.64, y: 0.675, z: 1.06}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 1.1
+      Ease: 2
+      Param: 
+    - At: 0.7
+      Duration: 1.55
+      Kind: 1
+      Target: $self
+      Delta: {x: -0.64, y: 0.675, z: 1.06}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 1.1
+      Ease: 2
+      Param: 
+    - At: 1.08
+      Duration: 0.2
+      Kind: 6
+      Target: FireworksPrimary
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.08
+      Duration: 1.1
+      Kind: 0
+      Target: FireworksPrimary
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 2.8
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.1
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -190,27 +240,67 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: chime
-    - At: 1.24
-      Duration: 1
-      Kind: 0
-      Target: Fireworks
+    - At: 1.12
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 2.2
-      Amplitude: 0
+      Scale: 1
+      Amplitude: 1.85
       Ease: 0
       Param: 
-    - At: 2.26
-      Duration: 0.44
-      Kind: 7
-      Target: Fireworks
+    - At: 1.12
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: heavy
+    - At: 1.38
+      Duration: 0.2
+      Kind: 6
+      Target: FireworksSecondary
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.2
+    - At: 1.38
+      Duration: 0.85
+      Kind: 0
+      Target: FireworksSecondary
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 2.2
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.4
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: crystal
+    - At: 1.65
+      Duration: 0.2
+      Kind: 6
+      Target: CelebrationSparks
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.15
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -220,8 +310,38 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Love
-    - At: 2.84
-      Duration: 0.72
+    - At: 2.25
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: thud
+    - At: 2.28
+      Duration: 0.2
+      Kind: 6
+      Target: HelipadBeacon
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.32
+      Duration: 0.8
+      Kind: 8
+      Target: $self
+      Delta: {x: 0, y: 1.6, z: 0.8}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 2.75
+      Duration: 0.8
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -230,7 +350,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.9
+    - At: 2.82
       Duration: 0.5
       Kind: 101
       Target: $self

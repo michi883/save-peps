@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using SavePeps.Monetization;
@@ -6,6 +7,7 @@ using SavePeps.Progression;
 using SavePeps.Rescue;
 using SavePeps.UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
@@ -48,17 +50,22 @@ namespace SavePeps.Tests
 
             SubmitSecretSequence();
             Assert.IsTrue(tester.Active);
-            Assert.IsNotNull(GameObject.Find("TesterIndicator"));
+            Assert.IsTrue(tester.Visible, "Activating Tester Mode opens Tester Tools immediately.");
             Assert.AreEqual(0, flow.Save.TotalRescuesSolved);
+
+            Click("TesterClose");
+            yield return null;
+            Assert.IsFalse(tester.Visible, "Tapping CLOSE hides Tester Tools.");
+            Assert.IsNotNull(GameObject.Find("TesterIndicator"));
             Assert.IsTrue(menu.HomeVisible, "Home screen should remain visible and accessible in Tester Mode.");
 
             Click("TesterIndicator");
             yield return null;
             Assert.IsTrue(tester.Visible, "Tapping the TESTER indicator opens Tester Tools.");
 
-            Click("TesterClose");
-            yield return null;
-            Assert.IsFalse(tester.Visible, "Tapping CLOSE hides Tester Tools.");
+            // The sheet covers home, so the tap areas are only under a finger
+            // again once it is closed.
+            yield return CloseTesterTools(tester);
 
             SubmitSecretSequence();
             yield return null;
@@ -66,6 +73,40 @@ namespace SavePeps.Tests
             Assert.IsNull(GameObject.Find("TesterIndicator"));
             Assert.AreEqual("PLAY", ButtonNamed("Play").GetComponentInChildren<UnityEngine.UI.Text>().text);
             Assert.AreEqual(RoundAccess.SubscriptionLocked, flow.AccessFor(12));
+        }
+
+        [UnityTest]
+        public IEnumerator TappingHeartSevenTimesTogglesTesterModeAndExitButtonDeactivatesIt()
+        {
+            yield return LoadGameScene();
+
+            var tester = Object.FindFirstObjectByType<TesterMode>();
+            Assert.IsFalse(tester.Active);
+
+            // Seven taps on the heart, and Tester Tools is open.
+            TapHeartSevenTimes();
+            Assert.IsTrue(tester.Active, "7 taps on the secret heart should activate Tester Mode.");
+            Assert.IsTrue(tester.Visible, "Tester Tools should be visible upon activation.");
+
+            // Seven more, from home, and the game is back in Normal Mode.
+            yield return CloseTesterTools(tester);
+            TapHeartSevenTimes();
+            Assert.IsFalse(tester.Active, "7 taps on the secret heart should deactivate Tester Mode.");
+            Assert.IsFalse(tester.Visible);
+
+            // The switch keeps working, so this is a toggle rather than a
+            // one-shot door. Leaving Tester Mode rebuilds home, which fades in
+            // before it takes taps again.
+            yield return WaitUntil(() => TapReaches("TesterSecretHeart"), 2f);
+            TapHeartSevenTimes();
+            Assert.IsTrue(tester.Active);
+            Assert.IsTrue(tester.Visible);
+
+            // Click NORMAL MODE button to deactivate
+            Click("TesterExitMode");
+            yield return null;
+            Assert.IsFalse(tester.Active, "Clicking NORMAL MODE button should switch back to Normal Mode.");
+            Assert.IsFalse(tester.Visible);
         }
 
         [UnityTest]
@@ -291,9 +332,6 @@ namespace SavePeps.Tests
 
             SubmitSecretSequence();
             Assert.IsTrue(tester.Active);
-
-            Click("TesterIndicator");
-            yield return null;
             Assert.IsTrue(tester.Visible);
 
             Click("TesterRound_12");
@@ -318,9 +356,7 @@ namespace SavePeps.Tests
 
             SubmitSecretSequence();
             Assert.IsTrue(tester.Active);
-
-            Click("TesterIndicator");
-            yield return null;
+            Assert.IsTrue(tester.Visible);
 
             Click("TesterUnlimited");
             Assert.IsTrue(fake.IsSubscribed);
@@ -347,9 +383,7 @@ namespace SavePeps.Tests
 
             SubmitSecretSequence();
             Assert.IsTrue(tester.Active);
-
-            Click("TesterIndicator");
-            yield return null;
+            Assert.IsTrue(tester.Visible);
 
             // First click enters confirmation state without clearing yet
             Click("TesterClearProgress");
@@ -434,18 +468,91 @@ namespace SavePeps.Tests
             yield return SceneManager.LoadSceneAsync(SceneName, LoadSceneMode.Single);
             yield return null;
             yield return null;
+            // Home fades in, and its CanvasGroup only starts blocking raycasts
+            // once that finishes, so a tap sent any earlier lands on nothing.
+            yield return WaitUntil(() => TapReaches("TesterSecretHeart"), 3f);
+        }
+
+        private static void TapHeartSevenTimes()
+        {
+            for (var i = 0; i < 7; i++) Tap("TesterSecretHeart");
+        }
+
+        /// <summary>
+        /// Closes the sheet and waits for the home tap areas to be reachable
+        /// again. CLOSE runs a coroutine that holds the panel busy for a frame,
+        /// and a tap taken during it is dropped on purpose.
+        /// </summary>
+        private static IEnumerator CloseTesterTools(TesterMode tester)
+        {
+            Click("TesterClose");
+            yield return null;
+            yield return null;
+            Assert.IsFalse(tester.Visible, "CLOSE should hide Tester Tools.");
+            yield return WaitUntil(() => TapReaches("TesterSecretHeart"), 2f);
         }
 
         private static void SubmitSecretSequence()
         {
-            Click("TesterSecretHeart");
-            Click("TesterSecretGreenPep");
-            Click("TesterSecretPinkPep");
-            Click("TesterSecretHeart");
-            Click("TesterSecretGreenPep");
-            Click("TesterSecretPinkPep");
-            Click("TesterSecretHeart");
+            Tap("TesterSecretHeart");
+            Tap("TesterSecretGreenPep");
+            Tap("TesterSecretPinkPep");
+            Tap("TesterSecretHeart");
+            Tap("TesterSecretGreenPep");
+            Tap("TesterSecretPinkPep");
+            Tap("TesterSecretHeart");
         }
+
+        /// <summary>
+        /// A tap the way a finger makes one: an EventSystem raycast at that
+        /// point on screen, then the click delivered to whatever the raycast
+        /// actually found.
+        ///
+        /// Invoking <c>onClick</c> directly passes even when nothing on screen
+        /// can reach the button, which is how the three secret tap areas came
+        /// to be untappable — transparent mesh culling dropped their meshes and
+        /// GraphicRaycaster skips culled graphics — while this suite stayed
+        /// green. Anything a player is expected to touch is tapped, not invoked.
+        /// </summary>
+        private static void Tap(string objectName)
+        {
+            var target = ButtonNamed(objectName);
+            var reached = TopGraphicAt(target);
+            Assert.IsNotNull(reached, $"A tap at the centre of '{objectName}' reaches nothing at all.");
+
+            var handler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(reached);
+            Assert.AreSame(target.gameObject, handler,
+                $"A tap at the centre of '{objectName}' is answered by " +
+                $"'{(handler == null ? "nothing" : handler.name)}' instead.");
+
+            var pointer = new PointerEventData(EventSystem.current) { position = ScreenPointOf(target) };
+            ExecuteEvents.Execute(handler, pointer, ExecuteEvents.pointerClickHandler);
+        }
+
+        /// <summary>True when a tap at the centre of the named button reaches it.</summary>
+        private static bool TapReaches(string objectName)
+        {
+            var target = Object.FindObjectsByType<UnityEngine.UI.Button>(FindObjectsSortMode.None)
+                .FirstOrDefault(candidate => candidate.name == objectName);
+            if (target == null) return false;
+            var reached = TopGraphicAt(target);
+            return reached != null &&
+                   ExecuteEvents.GetEventHandler<IPointerClickHandler>(reached) == target.gameObject;
+        }
+
+        private static GameObject TopGraphicAt(Component target)
+        {
+            if (EventSystem.current == null) return null;
+            var pointer = new PointerEventData(EventSystem.current) { position = ScreenPointOf(target) };
+            var hits = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointer, hits);
+            return hits.Count == 0 ? null : hits[0].gameObject;
+        }
+
+        // The shell canvas is Screen Space - Overlay, so its world space and
+        // screen space are the same space and no camera is involved.
+        private static Vector2 ScreenPointOf(Component target) =>
+            RectTransformUtility.WorldToScreenPoint(null, target.transform.position);
 
         private static void Click(string objectName) => ButtonNamed(objectName).onClick.Invoke();
 

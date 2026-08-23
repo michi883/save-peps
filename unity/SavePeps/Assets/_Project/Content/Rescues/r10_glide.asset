@@ -98,7 +98,7 @@ MonoBehaviour:
     AnchorId: Slot_2
     Label: The orange umbrella
     Quip: 
-    Duration: 3.2
+    Duration: 2.5
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -111,16 +111,16 @@ MonoBehaviour:
       Ease: 0
       Param: slide
     - At: 0
-      Duration: 0.52
+      Duration: 0.42
       Kind: 1
       Target: $self
-      Delta: {x: -0.46, y: 0.37, z: 0.78}
+      Delta: {x: -0.56, y: 0.35, z: 0.78}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.32
+      Amplitude: 0.3
       Ease: 5
       Param: 
-    - At: 0.52
+    - At: 0.42
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -130,27 +130,47 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: pop
-    - At: 0.52
-      Duration: 0.3
+    - At: 0.42
+      Duration: 0.24
       Kind: 5
       Target: $self
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 180
+      Amplitude: 160
       Ease: 0
       Param: 
-    - At: 0.52
-      Duration: 0.3
+    - At: 0.42
+      Duration: 0.24
       Kind: 0
       Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.12
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 0.58
+      Duration: 0.34
+      Kind: 0
+      Target: Thermal
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1.22
       Amplitude: 0
       Ease: 4
       Param: 
-    - At: 0.85
+    - At: 0.58
+      Duration: 0.34
+      Kind: 4
+      Target: Thermal
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 2.5
+      Ease: 2
+      Param: 
+    - At: 0.66
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -160,37 +180,27 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: wind
-    - At: 0.85
-      Duration: 1.15
+    - At: 0.66
+      Duration: 0.78
       Kind: 1
       Target: $pepA
-      Delta: {x: 0, y: 0.24, z: 1.28}
+      Delta: {x: 0.2, y: 0.24, z: 1.4}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.5
+      Amplitude: 0.46
       Ease: 2
       Param: 
-    - At: 0.85
-      Duration: 1.15
+    - At: 0.66
+      Duration: 0.78
       Kind: 1
       Target: $self
-      Delta: {x: 0, y: 0.24, z: 1.28}
+      Delta: {x: 0.2, y: 0.24, z: 1.4}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.5
+      Amplitude: 0.46
       Ease: 2
       Param: 
-    - At: 0.85
-      Duration: 1
-      Kind: 0
-      Target: Thermal
-      Delta: {x: 0, y: 0.1, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 0.9
+    - At: 0.82
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -200,7 +210,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Happy
-    - At: 0.9
+    - At: 0.82
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -210,7 +220,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.95
+    - At: 1.42
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -220,8 +230,8 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: light
-    - At: 2.2
-      Duration: 0.75
+    - At: 1.66
+      Duration: 0.68
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -230,7 +240,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.26
+    - At: 1.72
       Duration: 0.5
       Kind: 101
       Target: $self

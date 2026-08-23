@@ -17,8 +17,8 @@ MonoBehaviour:
   Reasoning: 12
   Goal: Firm up the snow.
   Difficulty: 2
-  SceneDescription: Loose powder lies in soft mounds across the slope, with a Pep-shaped
-    hole where someone has already tried to walk on it.
+  SceneDescription: One compact pocket of loose powder lies between two nearby Peps,
+    with a small sinkhole where someone has already tried to cross it.
   Environment: {fileID: 6970638412852527405, guid: 18b3c6b958a244eb991e0743f9cd3e68, type: 3}
   PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
   PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
@@ -205,7 +205,7 @@ MonoBehaviour:
     AnchorId: Slot_3
     Label: The caged electric fan
     Quip: 
-    Duration: 3.4
+    Duration: 2.8
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -218,16 +218,16 @@ MonoBehaviour:
       Ease: 0
       Param: slide
     - At: 0
-      Duration: 0.56
+      Duration: 0.48
       Kind: 1
       Target: $self
-      Delta: {x: 0, y: 0.165, z: 0.66}
+      Delta: {x: 0.02, y: 0.42, z: 1.08}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.3
+      Amplitude: 0.28
       Ease: 5
       Param: 
-    - At: 0.58
+    - At: 0.5
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -237,48 +237,38 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: wind
-    - At: 0.58
-      Duration: 1.1
+    - At: 0.5
+      Duration: 0.72
       Kind: 4
       Target: $self
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 6
+      Amplitude: 5
       Ease: 2
       Param: 
-    - At: 0.66
-      Duration: 0.8
+    - At: 0.58
+      Duration: 0.52
       Kind: 0
       Target: Powder
-      Delta: {x: -0.34, y: -0.04, z: 0}
+      Delta: {x: -0.28, y: 0.02, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 1.46
-      Duration: 0.24
-      Kind: 7
+    - At: 1.08
+      Duration: 0.5
+      Kind: 104
       Target: Powder
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: 
-    - At: 1.46
-      Duration: 0.26
-      Kind: 6
-      Target: Crust
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 1.46
-      Duration: 0.26
+      Param: Crust
+    - At: 1.08
+      Duration: 0.01
       Kind: 7
       Target: Sinkhole
       Delta: {x: 0, y: 0, z: 0}
@@ -287,7 +277,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 1.5
+    - At: 1.1
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -297,7 +287,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: crunch
-    - At: 1.52
+    - At: 1.12
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -307,7 +297,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: light
-    - At: 1.56
+    - At: 1.18
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -317,7 +307,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.56
+    - At: 1.18
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -327,18 +317,18 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.66
-      Duration: 0.9
+    - At: 1.26
+      Duration: 0.7
       Kind: 2
       Target: $pepA
-      Delta: {x: 0.36, y: 0.31, z: 0.96}
+      Delta: {x: 0.36, y: 0.25, z: 0.72}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.19
+      Amplitude: 0.15
       Ease: 5
       Param: 
-    - At: 2.62
-      Duration: 0.74
+    - At: 2.04
+      Duration: 0.56
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -347,7 +337,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.68
+    - At: 2.1
       Duration: 0.5
       Kind: 101
       Target: $self

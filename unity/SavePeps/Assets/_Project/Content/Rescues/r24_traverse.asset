@@ -17,8 +17,8 @@ MonoBehaviour:
   Reasoning: 0
   Goal: Follow the rope.
   Difficulty: 1
-  SceneDescription: A band of bare ice cuts across the slope between the Peps, with
-    a rock bollard standing at each end of it.
+  SceneDescription: A slack safety line spans two isolated summit shelves above a
+    fractured cornice. Tensioning it can release the whole loaded mountainside.
   Environment: {fileID: 7821131509730723898, guid: 1c16a5e61e95e46bc8462b1f8a86f566, type: 3}
   PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
   PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
@@ -118,7 +118,7 @@ MonoBehaviour:
     AnchorId: Slot_2
     Label: The coil of rope
     Quip: 
-    Duration: 3.3
+    Duration: 3.6
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -131,16 +131,16 @@ MonoBehaviour:
       Ease: 0
       Param: slide
     - At: 0
-      Duration: 0.64
+      Duration: 0.48
       Kind: 1
       Target: $self
-      Delta: {x: -0.46, y: 0.62, z: 1.42}
+      Delta: {x: -1.08, y: 0.94, z: 2.08}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.56
+      Amplitude: 0.72
       Ease: 5
       Param: 
-    - At: 0.68
+    - At: 0.5
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -150,37 +150,27 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: creak
-    - At: 0.82
-      Duration: 0.16
-      Kind: 7
+    - At: 0.6
+      Duration: 0.5
+      Kind: 104
       Target: RopeLine
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: 
-    - At: 0.82
-      Duration: 0.18
-      Kind: 6
-      Target: TautLine
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 0.84
-      Duration: 0.4
+      Param: TautLine
+    - At: 0.6
+      Duration: 0.34
       Kind: 4
       Target: Bollard
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 2.5
+      Amplitude: 3.8
       Ease: 2
       Param: 
-    - At: 0.86
+    - At: 0.62
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -189,8 +179,8 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: light
-    - At: 0.96
+      Param: medium
+    - At: 0.68
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -200,7 +190,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 0.96
+    - At: 0.68
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -210,17 +200,267 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.1
-      Duration: 1
-      Kind: 2
-      Target: $pepA
-      Delta: {x: 0.54, y: 0, z: -0.02}
+    - At: 0.72
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.1
-      Ease: 5
+      Amplitude: 0
+      Ease: 0
+      Param: glide_hiss
+    - At: 0.7
+      Duration: 0.46
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 1.06, y: 0.14, z: 0.4}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
       Param: 
-    - At: 1.2
+    - At: 0.98
+      Duration: 0.3
+      Kind: 0
+      Target: TensionArm
+      Delta: {x: -0.18, y: -0.2, z: -0.04}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.02
+      Duration: 0.01
+      Kind: 6
+      Target: FaultCracks
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.04
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: crack
+    - At: 1.04
+      Duration: 0.36
+      Kind: 4
+      Target: CorniceSlab
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 5.5
+      Ease: 2
+      Param: 
+    - At: 1.22
+      Duration: 0.58
+      Kind: 0
+      Target: CorniceSlab
+      Delta: {x: -0.12, y: -0.68, z: -1.2}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.22
+      Duration: 0.58
+      Kind: 0
+      Target: CorniceSlab
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 18}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.24
+      Duration: 0.01
+      Kind: 6
+      Target: AvalancheFront
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.24
+      Duration: 0.58
+      Kind: 0
+      Target: AvalancheFront
+      Delta: {x: 0, y: -0.72, z: -1.78}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.28
+      Duration: 0.54
+      Kind: 0
+      Target: MountainDebris
+      Delta: {x: 0.08, y: -0.42, z: -1.14}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.3
+      Duration: 0.42
+      Kind: 5
+      Target: MountainDebris
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 280
+      Ease: 1
+      Param: 
+    - At: 1.26
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: rumble
+    - At: 1.28
+      Duration: 0.5
+      Kind: 107
+      Target: PeakSpindrift
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 0.18
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.28
+      Duration: 0.5
+      Kind: 107
+      Target: PeakFlag
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.8
+      Duration: 0.5
+      Kind: 104
+      Target: LockedPeakWorld
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: AvalancheWorld
+    - At: 1.8
+      Duration: 0.01
+      Kind: 7
+      Target: CorniceSlab
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.8
+      Duration: 0.01
+      Kind: 7
+      Target: AvalancheFront
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.8
+      Duration: 0.01
+      Kind: 7
+      Target: IceBand
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.8
+      Duration: 0.01
+      Kind: 7
+      Target: TensionArm
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.8
+      Duration: 0.01
+      Kind: 7
+      Target: FaultCracks
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.8
+      Duration: 0.01
+      Kind: 7
+      Target: MountainDebris
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.8
+      Duration: 0.01
+      Kind: 6
+      Target: SummitBeacons
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.8
+      Duration: 0.72
+      Kind: 106
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: avalanche
+    - At: 1.8
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 1.48
+      Ease: 0
+      Param: 
+    - At: 1.82
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: heavy
+    - At: 1.84
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -230,8 +470,108 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: crunch
-    - At: 2.3
-      Duration: 0.72
+    - At: 1.88
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Happy
+    - At: 1.88
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Happy
+    - At: 1.96
+      Duration: 0.42
+      Kind: 0
+      Target: $pepA
+      Delta: {x: -0.42, y: -0.35, z: -0.82}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.96
+      Duration: 0.42
+      Kind: 0
+      Target: $pepB
+      Delta: {x: -0.42, y: -0.35, z: -0.82}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 2.34
+      Duration: 0.42
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0.1, y: -0.33, z: -0.68}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 2.34
+      Duration: 0.42
+      Kind: 0
+      Target: $pepB
+      Delta: {x: 0.1, y: -0.33, z: -0.68}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 2.54
+      Duration: 0.1
+      Kind: 6
+      Target: RunoutSpray
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.56
+      Duration: 0.34
+      Kind: 0
+      Target: RunoutSpray
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.42
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.58
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: poof
+    - At: 2.92
+      Duration: 0.14
+      Kind: 7
+      Target: RunoutSpray
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.9
+      Duration: 0.58
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -240,7 +580,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.36
+    - At: 2.96
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -250,6 +590,26 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: reunion
+    - At: 2.94
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.56
+      Ease: 0
+      Param: 
+    - At: 2.96
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: success
   - Id: pillow
     Prop: {fileID: 902861018288436469, guid: 99b5dfd33e5ad41ad81c75f25b871a2e, type: 3}
     AnchorId: Slot_3

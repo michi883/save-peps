@@ -191,31 +191,42 @@ namespace SavePeps.EditorTools
                 {
                     Id = "zip_grip", Prop = Author.Prop("zip_grip"), AnchorId = "Slot_3",
                     Label = "The trolley grip",
-                    Duration = 3.4f,
+                    Duration = 3.5f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "slide"),
                         Move(0f, 0.50f, StepKind.Arc, SceneRef.Self,
                             new Vector3(-0.28f, 0.255f, 0.14f), amplitude: 0.30f, ease: EaseKind.Hop),
-                        Face(0.56f, SceneRef.PepA, PepFace.Hopeful),
-                        Move(0.62f, 0.62f, StepKind.Arc, SceneRef.PepA,
-                            new Vector3(0.10f, 0.66f, 1.10f), amplitude: 0.34f, ease: EaseKind.Hop),
-                        Move(0.62f, 0.62f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.10f, 0.66f, 1.10f), amplitude: 0.34f, ease: EaseKind.Hop),
-                        Sfx(1.24f, "transit"),
-                        Haptic(1.26f, "medium"),
-                        Move(1.26f, 0.20f, StepKind.Show, "RailSpark", Vector3.zero),
-                        Move(1.48f, 0.30f, StepKind.Hide, "RailSpark", Vector3.zero),
-                        // Fast and eased in: the whole point is that the city
-                        // is doing the work and it is not slowing down for you.
-                        Move(1.28f, 0.56f, StepKind.Fly, SceneRef.PepA,
-                            new Vector3(0.40f, -0.04f, 0.20f), ease: EaseKind.In),
-                        Move(1.28f, 0.56f, StepKind.Fly, SceneRef.Self,
-                            new Vector3(0.40f, -0.04f, 0.20f), ease: EaseKind.In),
-                        Face(1.32f, SceneRef.PepA, PepFace.Happy),
-                        Move(1.88f, 0.26f, StepKind.Hide, SceneRef.Self, Vector3.zero),
-                        Meet(2.60f, 0.72f),
-                        Sfx(2.66f, "reunion"),
+                        Face(0.54f, SceneRef.PepA, PepFace.Hopeful),
+                        // Signal switches to green and Sky-Tram approaches
+                        Move(0.56f, 0.20f, StepKind.Show, "SignalLight", Vector3.zero),
+                        Sfx(0.58f, "click"),
+                        Move(0.60f, 0.48f, StepKind.Fly, "TramCar", new Vector3(0.57f, 0f, 0f), ease: EaseKind.Out),
+                        // Pep A leaps up to grab the high-speed carriage
+                        Move(0.62f, 0.46f, StepKind.Arc, SceneRef.PepA,
+                            new Vector3(0f, 0.62f, 0.98f), amplitude: 0.32f, ease: EaseKind.Hop),
+                        Move(0.62f, 0.46f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0f, 0.62f, 0.98f), amplitude: 0.32f, ease: EaseKind.Hop),
+                        // Latch and high-speed rocket transit across the city chasm
+                        Sfx(1.10f, "click"),
+                        Haptic(1.12f, "medium"),
+                        Move(1.14f, 0.68f, StepKind.Fly, "TramCar", new Vector3(0.68f, 0f, 0f), ease: EaseKind.InOut),
+                        Move(1.14f, 0.68f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(0.62f, 0f, 0.36f), ease: EaseKind.InOut),
+                        Move(1.14f, 0.68f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(0.62f, 0f, 0.36f), ease: EaseKind.InOut),
+                        Move(1.16f, 0.55f, StepKind.Show, "RailSpark", Vector3.zero),
+                        Sfx(1.18f, "transit"),
+                        Impact(1.22f, 0.75f),
+                        Face(1.24f, SceneRef.PepA, PepFace.Happy),
+                        Move(1.72f, 0.20f, StepKind.Hide, "RailSpark", Vector3.zero),
+                        // Drop onto the destination rooftop
+                        Move(1.82f, 0.40f, StepKind.Arc, SceneRef.PepA,
+                            new Vector3(0f, -0.62f, 0f), amplitude: 0.15f, ease: EaseKind.Hop),
+                        Move(1.82f, 0.20f, StepKind.Hide, SceneRef.Self, Vector3.zero),
+                        Sfx(2.22f, "thud"),
+                        Meet(2.55f, 0.76f),
+                        Sfx(2.62f, "reunion"),
                     },
                 },
             };
@@ -265,26 +276,43 @@ namespace SavePeps.EditorTools
                     Steps = new[]
                     {
                         Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.62f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.14f, 0.905f, 1.74f), amplitude: 0.72f, ease: EaseKind.Hop),
-                        Sfx(0.66f, "boing"),
-                        Face(0.72f, SceneRef.PepA, PepFace.Happy),
-                        Haptic(0.76f, "light"),
-                        // The whole game's longest single movement, and the
-                        // answer to round one's "Up is not across". Here it is
-                        // both, which is the only reason the city is the last
-                        // world.
-                        Move(0.80f, 1.40f, StepKind.Arc, SceneRef.PepA,
-                            new Vector3(-0.62f, 0.655f, 0.96f), amplitude: 0.95f, ease: EaseKind.InOut),
-                        Move(0.80f, 1.40f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.62f, 0.655f, 0.96f), amplitude: 0.95f, ease: EaseKind.InOut),
-                        Move(1.20f, 0.30f, StepKind.Show, "Fireworks", Vector3.zero),
-                        Sfx(1.24f, "chime"),
-                        Resize(1.24f, 1.00f, "Fireworks", 2.20f, EaseKind.Out),
-                        Move(2.26f, 0.44f, StepKind.Hide, "Fireworks", Vector3.zero),
-                        Face(2.20f, SceneRef.PepB, PepFace.Love),
-                        Meet(2.84f, 0.72f),
-                        Sfx(2.90f, "reunion"),
+                        Move(0f, 0.56f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.14f, 0.86f, 1.74f), amplitude: 0.70f, ease: EaseKind.Hop),
+                        Sfx(0.58f, "boing"),
+                        Face(0.60f, SceneRef.PepA, PepFace.Happy),
+                        // Rooftop thermal updraft vent powers up
+                        Move(0.62f, 0.30f, StepKind.Show, "VentGlow", Vector3.zero),
+                        Sfx(0.64f, "wind"),
+                        Haptic(0.66f, "light"),
+                        // Searchlights ignite and sweep across the midnight sky
+                        Move(0.68f, 0.30f, StepKind.Show, "Searchlight_L", Vector3.zero),
+                        Move(0.68f, 0.30f, StepKind.Show, "Searchlight_R", Vector3.zero),
+                        // The whole game's grand triumphant flight: soaring across the metropolis skyline
+                        Move(0.70f, 1.55f, StepKind.Arc, SceneRef.PepA,
+                            new Vector3(-0.64f, 0.675f, 1.06f), amplitude: 1.10f, ease: EaseKind.InOut),
+                        Move(0.70f, 1.55f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.64f, 0.675f, 1.06f), amplitude: 1.10f, ease: EaseKind.InOut),
+                        // Apex celebration: central mega-fireworks burst detonates
+                        Move(1.08f, 0.20f, StepKind.Show, "FireworksPrimary", Vector3.zero),
+                        Resize(1.08f, 1.10f, "FireworksPrimary", 2.80f, EaseKind.Out),
+                        Sfx(1.10f, "chime"),
+                        Impact(1.12f, 1.85f),
+                        Haptic(1.12f, "heavy"),
+                        // Flanking secondary fireworks cascades
+                        Move(1.38f, 0.20f, StepKind.Show, "FireworksSecondary", Vector3.zero),
+                        Resize(1.38f, 0.85f, "FireworksSecondary", 2.20f, EaseKind.Out),
+                        Sfx(1.40f, "crystal"),
+                        // Celebration sparks rain across the skyline
+                        Move(1.65f, 0.20f, StepKind.Show, "CelebrationSparks", Vector3.zero),
+                        Face(2.15f, SceneRef.PepB, PepFace.Love),
+                        // Touchdown on the summit helipad and arrival beacon flare
+                        Sfx(2.25f, "thud"),
+                        Move(2.28f, 0.20f, StepKind.Show, "HelipadBeacon", Vector3.zero),
+                        // Balloon gently releases and floats into the infinite sky
+                        Move(2.32f, 0.80f, StepKind.FlyOff, SceneRef.Self,
+                            new Vector3(0f, 1.60f, 0.80f), ease: EaseKind.In),
+                        Meet(2.75f, 0.80f),
+                        Sfx(2.82f, "reunion"),
                     },
                 },
                 new RescueObject

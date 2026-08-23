@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using SavePeps.Core;
 using SavePeps.Progression;
 using SavePeps.Rescue;
 using UnityEditor;
@@ -387,6 +388,7 @@ namespace SavePeps.EditorTools
             // Names the choreography is allowed to aim at.
             var names = CollectNames(rescue);
             var animatedNames = CollectAnimatedNames(rescue);
+            var ambientNames = CollectAmbientNames(rescue);
 
             var ids = new HashSet<string>();
             foreach (var obj in objects)
@@ -433,12 +435,12 @@ namespace SavePeps.EditorTools
                     report.Warnings.Add($"{id}/{obj.Id}: {obj.Duration:0.##}s is outside the {MinDuration}-{MaxDuration}s band.");
                 }
 
-                ValidateSteps(rescue, obj, correct, animatedNames, report);
+                ValidateSteps(rescue, obj, correct, animatedNames, ambientNames, report);
             }
         }
 
         private static void ValidateSteps(RescueDefinition rescue, RescueObject obj, bool correct,
-            HashSet<string> animatedNames, Report report)
+            HashSet<string> animatedNames, HashSet<string> ambientNames, Report report)
         {
             var id = rescue.Id;
             var steps = obj.Steps ?? System.Array.Empty<OutcomeStep>();
@@ -470,10 +472,39 @@ namespace SavePeps.EditorTools
                         $"{obj.Duration:0.##}s outcome.");
                 }
 
-                if (!SceneRef.IsReserved(step.Target) && !animatedNames.Contains(step.Target))
+                if (step.Kind == StepKind.Ambient)
+                {
+                    if (!ambientNames.Contains(step.Target))
+                    {
+                        report.Errors.Add(
+                            $"{id}/{obj.Id}: ambient control '{step.Target}' is not in the environment.");
+                    }
+
+                    if (step.Scale is < 0f or > 1f)
+                    {
+                        report.Errors.Add(
+                            $"{id}/{obj.Id}: ambient activity {step.Scale:0.##} must be between 0 and 1.");
+                    }
+                }
+                else if (!SceneRef.IsReserved(step.Target) && !animatedNames.Contains(step.Target))
                 {
                     report.Errors.Add(
                         $"{id}/{obj.Id}: step target '{step.Target}' has no AnimTarget — it will silently do nothing.");
+                }
+
+                if (step.Kind == StepKind.VisibilitySwap && !animatedNames.Contains(step.Param))
+                {
+                    report.Errors.Add(
+                        $"{id}/{obj.Id}: visibility reveal target '{step.Param}' has no AnimTarget.");
+                }
+
+                if (step.Kind == StepKind.Atmosphere &&
+                    (rescue.Environment == null ||
+                     rescue.Environment.GetComponent<DioramaAtmosphere>() is not { } atmosphere ||
+                     !atmosphere.TryGetOutcome(step.Param, out _)))
+                {
+                    report.Errors.Add(
+                        $"{id}/{obj.Id}: atmosphere cue '{step.Param}' is not in the environment.");
                 }
 
                 if (step.Kind == StepKind.Meet) meets++;
@@ -481,6 +512,11 @@ namespace SavePeps.EditorTools
                 if (step.Kind == StepKind.Face && !System.Enum.TryParse<PepFace>(step.Param, true, out _))
                 {
                     report.Errors.Add($"{id}/{obj.Id}: '{step.Param}' is not a face.");
+                }
+
+                if (step.Kind == StepKind.Haptic && !Feedback.SupportsHaptic(step.Param))
+                {
+                    report.Errors.Add($"{id}/{obj.Id}: '{step.Param}' is not a supported haptic strength.");
                 }
             }
 
@@ -600,6 +636,22 @@ namespace SavePeps.EditorTools
             foreach (var obj in rescue.Objects ?? System.Array.Empty<RescueObject>())
             {
                 if (obj != null && !string.IsNullOrEmpty(obj.Id)) names.Add(obj.Id);
+            }
+
+            return names;
+        }
+
+        private static HashSet<string> CollectAmbientNames(RescueDefinition rescue)
+        {
+            var names = new HashSet<string>();
+            if (rescue.Environment == null) return names;
+
+            foreach (var motion in rescue.Environment.GetComponentsInChildren<AmbientMotion>(true))
+            {
+                if (motion != null && !string.IsNullOrWhiteSpace(motion.ControlId))
+                {
+                    names.Add(motion.ControlId);
+                }
             }
 
             return names;

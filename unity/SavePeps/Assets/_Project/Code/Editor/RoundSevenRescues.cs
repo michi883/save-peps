@@ -53,8 +53,8 @@ namespace SavePeps.EditorTools
 
             Author.Stage(rescue, "r19", "kindle", "Light the cave.", Difficulty.Medium,
                 ReasoningKind.Reflection, "Diorama_Cave_Dark",
-                "Black water — or a black hole in the floor, there is no way to tell — lies between the " +
-                "Peps, with an empty lamp hook on the wall.");
+                "One small black pocket in the floor lies between two nearby Peps, with an empty lamp " +
+                "hook beside it.");
 
             rescue.Objects = new[]
             {
@@ -78,29 +78,26 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "lantern", Prop = Author.Prop("lantern"), AnchorId = "Slot_2", Label = "The cage lantern",
-                    Duration = 3.5f,
+                    Duration = 2.8f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "slide"),
-                        Move(0f, 0.66f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.38f, 0.32f, 1.50f), amplitude: 0.46f, ease: EaseKind.Hop),
-                        Sfx(0.68f, "click"),
-                        Move(0.70f, 0.44f, StepKind.Shake, "LampHook", Vector3.zero,
-                            amplitude: 4f, ease: EaseKind.InOut),
-                        // The single biggest state change in the game: the
-                        // whole stage stops being a void and becomes a room.
-                        Move(0.86f, 0.50f, StepKind.Hide, "Darkness", Vector3.zero),
-                        Move(0.86f, 0.50f, StepKind.Show, "LitPool", Vector3.zero),
-                        Move(1.00f, 0.44f, StepKind.Show, "Shallows", Vector3.zero),
-                        Sfx(1.04f, "crystal"),
-                        Haptic(1.06f, "light"),
-                        Face(1.44f, SceneRef.PepA, PepFace.Hopeful),
-                        Face(1.44f, SceneRef.PepB, PepFace.Hopeful),
-                        Sfx(1.64f, "splash"),
-                        Move(1.60f, 0.92f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0.32f, 0f, 0.78f), amplitude: 0.13f, ease: EaseKind.Hop),
-                        Meet(2.62f, 0.74f),
-                        Sfx(2.68f, "reunion"),
+                        Move(0f, 0.54f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.34f, 0.27f, 1.36f), amplitude: 0.38f, ease: EaseKind.Hop),
+                        Sfx(0.56f, "click"),
+                        Move(0.56f, 0.30f, StepKind.Shake, "LampHook", Vector3.zero,
+                            amplitude: 3f, ease: EaseKind.InOut),
+                        // LOCAL EVENT: one compact patch changes atomically.
+                        VisibilitySwap(0.72f, "Darkness", "LitPool"),
+                        Sfx(0.76f, "crystal"),
+                        Haptic(0.78f, "light"),
+                        Face(0.88f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(0.88f, SceneRef.PepB, PepFace.Hopeful),
+                        Sfx(1.02f, "splash"),
+                        Move(1.00f, 0.66f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.30f, 0f, 0.58f), amplitude: 0.12f, ease: EaseKind.Hop),
+                        Meet(1.82f, 0.58f),
+                        Sfx(1.88f, "reunion"),
                     },
                 },
                 new RescueObject
@@ -139,8 +136,8 @@ namespace SavePeps.EditorTools
 
             Author.Stage(rescue, "r20", "ring", "Ring the crystal.", Difficulty.Surprising,
                 ReasoningKind.Resonance, "Diorama_Cave_Vein",
-                "A seam of crystal runs the length of the cave roof, and a curtain of loose rock seals " +
-                "the tunnel where the other Pep waits.");
+                "A three-part crystal seam runs the length of the cave roof, above a broad rock shutter " +
+                "that has folded the only route shut.");
 
             rescue.Objects = new[]
             {
@@ -184,36 +181,57 @@ namespace SavePeps.EditorTools
                 {
                     Id = "chime_crystal", Prop = Author.Prop("chime_crystal"), AnchorId = "Slot_3",
                     Label = "The tuned crystal",
-                    Duration = 3.5f,
+                    Duration = 3.6f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "slide"),
-                        Move(0f, 0.66f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0f, 0.66f, 1.54f), amplitude: 0.58f, ease: EaseKind.Hop),
-                        Sfx(0.70f, "crystal"),
-                        Haptic(0.72f, "light"),
-                        Move(0.72f, 0.90f, StepKind.Shake, "CrystalVein", Vector3.zero,
-                            amplitude: 3f, ease: EaseKind.InOut),
-                        // The ring travels: the ripple is shown at the near end
-                        // and flown along the seam, so the cave visibly answers
-                        // rather than merely lighting up.
-                        Move(0.86f, 0.16f, StepKind.Show, "VeinRing", Vector3.zero),
-                        Move(0.88f, 0.86f, StepKind.Fly, "VeinRing", new Vector3(0f, 0f, 0.90f),
-                            ease: EaseKind.Out),
-                        Resize(0.88f, 0.86f, "VeinRing", 1.45f, EaseKind.Out),
-                        Move(1.76f, 0.30f, StepKind.Hide, "VeinRing", Vector3.zero),
-                        Sfx(1.74f, "rumble"),
-                        Move(1.72f, 0.36f, StepKind.Shake, "RockCurtain", Vector3.zero,
+                        Move(0f, 0.56f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0f, 0.78f, 1.48f), amplitude: 0.58f, ease: EaseKind.Hop),
+                        Sfx(0.58f, "crystal"),
+                        Haptic(0.60f, "medium"),
+                        Move(0.60f, 0.78f, StepKind.Shake, "CrystalVein", Vector3.zero,
+                            amplitude: 3.4f, ease: EaseKind.InOut),
+
+                        // SYSTEM EVENT: the note travels through three roof
+                        // sections before the landscape can unfold.
+                        Move(0.66f, 0.10f, StepKind.Show, "VeinPulseNear", Vector3.zero),
+                        Resize(0.66f, 0.30f, "VeinPulseNear", 1.16f, EaseKind.Out),
+                        Sfx(0.68f, "chime"),
+                        Move(0.86f, 0.10f, StepKind.Show, "VeinPulseMid", Vector3.zero),
+                        Resize(0.86f, 0.30f, "VeinPulseMid", 1.18f, EaseKind.Out),
+                        Sfx(0.88f, "chime"),
+                        Move(1.06f, 0.10f, StepKind.Show, "VeinPulseFar", Vector3.zero),
+                        Resize(1.06f, 0.30f, "VeinPulseFar", 1.20f, EaseKind.Out),
+                        Sfx(1.08f, "crystal"),
+                        Ambient(0.82f, 0.60f, "CaveDrips", 0.34f),
+                        Atmosphere(0.92f, 0.70f, "resonant"),
+                        Move(1.14f, 0.38f, StepKind.Shake, "SealedPassage", Vector3.zero,
                             amplitude: 7f, ease: EaseKind.InOut),
-                        Move(2.06f, 0.26f, StepKind.Show, "Dust", Vector3.zero),
-                        Resize(2.08f, 0.60f, "Dust", 1.80f, EaseKind.Out),
-                        Move(2.08f, 0.24f, StepKind.Hide, "RockCurtain", Vector3.zero),
-                        Move(2.72f, 0.34f, StepKind.Hide, "Dust", Vector3.zero),
-                        Face(2.14f, SceneRef.PepA, PepFace.Hopeful),
-                        Face(2.14f, SceneRef.PepB, PepFace.Hopeful),
-                        Move(2.24f, 0.74f, StepKind.Hop, SceneRef.PepB,
-                            new Vector3(-0.31f, -0.26f, -1.08f), amplitude: 0.14f, ease: EaseKind.Hop),
-                        Meet(2.98f, 0.50f),
+                        Move(1.24f, 0.12f, StepKind.Show, "Dust", Vector3.zero),
+                        Move(1.24f, 0.46f, StepKind.FlyOff, "Dust",
+                            new Vector3(0f, 0.34f, -0.12f), ease: EaseKind.In),
+                        Sfx(1.26f, "rumble"),
+                        VisibilitySwap(1.50f, "SealedPassage", "OpenPassage"),
+                        Move(1.52f, 0.12f, StepKind.Show, "RouteLights", Vector3.zero),
+                        Resize(1.52f, 0.30f, "RouteLights", 1.18f, EaseKind.Back),
+                        Impact(1.52f, 0.68f),
+                        Haptic(1.54f, "medium"),
+                        Move(1.58f, 0.12f, StepKind.Hide, "VeinPulseNear", Vector3.zero),
+                        Move(1.62f, 0.12f, StepKind.Hide, "VeinPulseMid", Vector3.zero),
+                        Move(1.66f, 0.12f, StepKind.Hide, "VeinPulseFar", Vector3.zero),
+                        Face(1.58f, SceneRef.PepA, PepFace.Happy),
+                        Face(1.58f, SceneRef.PepB, PepFace.Hopeful),
+
+                        // Four clear steps climb the newly created route.
+                        Move(1.68f, 0.32f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.28f, 0.04f, 0.44f), amplitude: 0.15f, ease: EaseKind.Hop),
+                        Move(1.98f, 0.32f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.24f, 0.07f, 0.44f), amplitude: 0.16f, ease: EaseKind.Hop),
+                        Move(2.28f, 0.32f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.20f, 0.10f, 0.42f), amplitude: 0.17f, ease: EaseKind.Hop),
+                        Move(2.58f, 0.30f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(-0.02f, 0.11f, 0.38f), amplitude: 0.16f, ease: EaseKind.Hop),
+                        Meet(2.96f, 0.54f),
                         Sfx(3.02f, "reunion"),
                     },
                 },
@@ -234,40 +252,97 @@ namespace SavePeps.EditorTools
 
             Author.Stage(rescue, "r21", "hew", "Free the mine cart.", Difficulty.Medium,
                 ReasoningKind.Momentum, "Diorama_Cave_Cart",
-                "A loaded ore cart sits on the rail across the tunnel, held by one wooden wedge under " +
-                "its front wheel.");
+                "A loaded ore cart points at a resonant gate in a cavern sealed by two enormous rock " +
+                "masses. One wooden wedge holds the whole chain still.");
 
             rescue.Objects = new[]
             {
                 new RescueObject
                 {
                     Id = "pickaxe", Prop = Author.Prop("pickaxe"), AnchorId = "Slot_1", Label = "The miner's pick",
-                    Duration = 3.4f,
+                    Duration = 3.6f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.60f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.36f, 0.18f, 1.06f), amplitude: 0.40f, ease: EaseKind.Hop),
-                        Move(0.62f, 0.36f, StepKind.Shake, SceneRef.Self, Vector3.zero,
+                        Move(0f, 0.42f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.35f, 0.12f, 0.54f), amplitude: 0.34f, ease: EaseKind.Hop),
+                        Move(0.42f, 0.22f, StepKind.Shake, SceneRef.Self, Vector3.zero,
                             amplitude: 24f, ease: EaseKind.InOut),
-                        Sfx(0.82f, "chip"),
-                        Move(0.98f, 0.36f, StepKind.Shake, SceneRef.Self, Vector3.zero,
-                            amplitude: 24f, ease: EaseKind.InOut),
-                        Sfx(1.18f, "chip"),
-                        Haptic(1.20f, "medium"),
-                        Move(1.22f, 0.60f, StepKind.FlyOff, "Chock",
-                            new Vector3(-0.36f, 0.06f, -0.28f), ease: EaseKind.In),
-                        Sfx(1.30f, "rumble"),
-                        Move(1.34f, 0.96f, StepKind.Fly, "MineCart",
-                            new Vector3(0f, 0f, 1.42f), ease: EaseKind.In),
-                        Move(1.34f, 0.70f, StepKind.Shake, "Rail", Vector3.zero,
-                            amplitude: 1.2f, ease: EaseKind.InOut),
-                        Face(1.42f, SceneRef.PepA, PepFace.Hopeful),
-                        Face(1.42f, SceneRef.PepB, PepFace.Hopeful),
-                        Move(1.66f, 0.82f, StepKind.Hop, SceneRef.PepB,
-                            new Vector3(-0.34f, 0f, -0.90f), amplitude: 0.14f, ease: EaseKind.Hop),
-                        Meet(2.56f, 0.74f),
-                        Sfx(2.62f, "reunion"),
+                        Sfx(0.48f, "chip"),
+                        Haptic(0.50f, "medium"),
+                        Move(0.50f, 0.34f, StepKind.FlyOff, "Chock",
+                            new Vector3(-0.42f, 0.18f, -0.26f), ease: EaseKind.In),
+                        Sfx(0.58f, "rumble"),
+                        Move(0.52f, 0.30f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.48f, 0.18f, 0.42f), amplitude: 0.24f, ease: EaseKind.Hop),
+
+                        // The Pep rides the released cart through three rail
+                        // legs. The cart, not the pickaxe, strikes the cave's
+                        // resonator and causes the world change.
+                        Move(0.80f, 0.28f, StepKind.Fly, "MineCart",
+                            new Vector3(0.12f, 0f, 0.42f), ease: EaseKind.In),
+                        Move(0.80f, 0.28f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(0.12f, 0f, 0.42f), ease: EaseKind.In),
+                        Move(0.80f, 0.72f, StepKind.Shake, "Rail", Vector3.zero,
+                            amplitude: 1.6f, ease: EaseKind.InOut),
+                        Move(1.06f, 0.28f, StepKind.Fly, "MineCart",
+                            new Vector3(-0.20f, 0f, 0.40f), ease: EaseKind.InOut),
+                        Move(1.06f, 0.28f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(-0.20f, 0f, 0.40f), ease: EaseKind.InOut),
+                        Move(1.32f, 0.26f, StepKind.Fly, "MineCart",
+                            new Vector3(0.12f, 0f, 0.34f), ease: EaseKind.In),
+                        Move(1.32f, 0.26f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(0.12f, 0f, 0.34f), ease: EaseKind.In),
+                        Sfx(1.46f, "clank"),
+                        Move(1.46f, 0.42f, StepKind.Spin, "TuningGate", Vector3.zero,
+                            amplitude: 420f, ease: EaseKind.InOut),
+                        Impact(1.48f, 0.72f),
+                        Haptic(1.48f, "medium"),
+                        Sfx(1.52f, "crystal"),
+
+                        // WORLD EVENT: resonance splits both sealed halves,
+                        // replaces the mine rail with a crystalline causeway,
+                        // and reveals an animated geode cathedral.
+                        Move(1.54f, 0.36f, StepKind.Shake, "SealLeft", Vector3.zero,
+                            amplitude: 8f, ease: EaseKind.InOut),
+                        Move(1.54f, 0.36f, StepKind.Shake, "SealRight", Vector3.zero,
+                            amplitude: 8f, ease: EaseKind.InOut),
+                        Move(1.58f, 0.32f, StepKind.Fly, "SealLeft",
+                            new Vector3(-0.24f, 0.16f, 0f), ease: EaseKind.In),
+                        Move(1.58f, 0.32f, StepKind.Fly, "SealRight",
+                            new Vector3(0.24f, 0.16f, 0f), ease: EaseKind.In),
+                        Sfx(1.64f, "rumble"),
+                        VisibilitySwap(1.90f, "SealLeft", "GeodeLeft"),
+                        VisibilitySwap(1.90f, "SealRight", "GeodeRight"),
+                        VisibilitySwap(1.90f, "Rail", "CrystalRoute"),
+                        Move(1.90f, 0.10f, StepKind.Show, "GeodeHeart", Vector3.zero),
+                        Resize(1.90f, 0.36f, "GeodeHeart", 1.12f, EaseKind.Back),
+                        Move(1.92f, 0.10f, StepKind.Show, "CrystalFall", Vector3.zero),
+                        Move(1.92f, 0.56f, StepKind.FlyOff, "CrystalFall",
+                            new Vector3(0f, -0.82f, -0.20f), ease: EaseKind.In),
+                        Atmosphere(1.90f, 0.78f, "geode"),
+                        Ambient(1.90f, 0.62f, "CaveDrips", 0.12f),
+                        Ambient(1.90f, 0.48f, "CaveGeode", 1f),
+                        Impact(1.90f, 1.42f),
+                        Haptic(1.92f, "heavy"),
+                        Sfx(1.94f, "crystal"),
+                        Move(1.96f, 0.34f, StepKind.Shake, "CrystalRoute", Vector3.zero,
+                            amplitude: 2.4f, ease: EaseKind.InOut),
+                        Face(1.94f, SceneRef.PepA, PepFace.Happy),
+                        Face(1.94f, SceneRef.PepB, PepFace.Happy),
+
+                        // The cart ride becomes a longer crystal-road finish.
+                        Move(2.08f, 0.34f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.16f, 0.06f, 0.08f), amplitude: 0.22f, ease: EaseKind.Hop),
+                        Move(2.40f, 0.34f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.10f, 0.06f, 0f), amplitude: 0.18f, ease: EaseKind.Hop),
+                        Move(2.42f, 0.32f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.08f, 0f, -0.06f), amplitude: 0.14f, ease: EaseKind.Hop),
+                        Move(2.50f, 0.12f, StepKind.Hide, "CrystalFall", Vector3.zero),
+                        Meet(2.84f, 0.56f),
+                        Sfx(2.90f, "reunion"),
+                        Impact(2.92f, 0.54f),
+                        Haptic(2.94f, "success"),
                     },
                 },
                 new RescueObject

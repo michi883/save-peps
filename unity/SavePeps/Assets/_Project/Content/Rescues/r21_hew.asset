@@ -17,8 +17,8 @@ MonoBehaviour:
   Reasoning: 10
   Goal: Free the mine cart.
   Difficulty: 1
-  SceneDescription: A loaded ore cart sits on the rail across the tunnel, held by
-    one wooden wedge under its front wheel.
+  SceneDescription: A loaded ore cart points at a resonant gate in a cavern sealed
+    by two enormous rock masses. One wooden wedge holds the whole chain still.
   Environment: {fileID: 4335662273392958428, guid: 7c1caeb57900d4a8a8302b5966ab275b, type: 3}
   PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
   PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
@@ -31,7 +31,7 @@ MonoBehaviour:
     AnchorId: Slot_1
     Label: The miner's pick
     Quip: 
-    Duration: 3.4
+    Duration: 3.6
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -44,17 +44,17 @@ MonoBehaviour:
       Ease: 0
       Param: whoosh
     - At: 0
-      Duration: 0.6
+      Duration: 0.42
       Kind: 1
       Target: $self
-      Delta: {x: 0.36, y: 0.18, z: 1.06}
+      Delta: {x: 0.35, y: 0.12, z: 0.54}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.4
+      Amplitude: 0.34
       Ease: 5
       Param: 
-    - At: 0.62
-      Duration: 0.36
+    - At: 0.42
+      Duration: 0.22
       Kind: 4
       Target: $self
       Delta: {x: 0, y: 0, z: 0}
@@ -63,7 +63,7 @@ MonoBehaviour:
       Amplitude: 24
       Ease: 2
       Param: 
-    - At: 0.82
+    - At: 0.48
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -73,27 +73,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: chip
-    - At: 0.98
-      Duration: 0.36
-      Kind: 4
-      Target: $self
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 24
-      Ease: 2
-      Param: 
-    - At: 1.18
-      Duration: 0.5
-      Kind: 101
-      Target: $self
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: chip
-    - At: 1.2
+    - At: 0.5
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -103,17 +83,17 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: medium
-    - At: 1.22
-      Duration: 0.6
+    - At: 0.5
+      Duration: 0.34
       Kind: 8
       Target: Chock
-      Delta: {x: -0.36, y: 0.06, z: -0.28}
+      Delta: {x: -0.42, y: 0.18, z: -0.26}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 1
       Param: 
-    - At: 1.3
+    - At: 0.58
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -123,27 +103,327 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: rumble
-    - At: 1.34
-      Duration: 0.96
+    - At: 0.52
+      Duration: 0.3
+      Kind: 2
+      Target: $pepA
+      Delta: {x: 0.48, y: 0.18, z: 0.42}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.24
+      Ease: 5
+      Param: 
+    - At: 0.8
+      Duration: 0.28
       Kind: 0
       Target: MineCart
-      Delta: {x: 0, y: 0, z: 1.42}
+      Delta: {x: 0.12, y: 0, z: 0.42}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 1
       Param: 
-    - At: 1.34
-      Duration: 0.7
+    - At: 0.8
+      Duration: 0.28
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0.12, y: 0, z: 0.42}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 0.8
+      Duration: 0.72
       Kind: 4
       Target: Rail
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 1.2
+      Amplitude: 1.6
       Ease: 2
       Param: 
-    - At: 1.42
+    - At: 1.06
+      Duration: 0.28
+      Kind: 0
+      Target: MineCart
+      Delta: {x: -0.2, y: 0, z: 0.4}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.06
+      Duration: 0.28
+      Kind: 0
+      Target: $pepA
+      Delta: {x: -0.2, y: 0, z: 0.4}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.32
+      Duration: 0.26
+      Kind: 0
+      Target: MineCart
+      Delta: {x: 0.12, y: 0, z: 0.34}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.32
+      Duration: 0.26
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0.12, y: 0, z: 0.34}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.46
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: clank
+    - At: 1.46
+      Duration: 0.42
+      Kind: 5
+      Target: TuningGate
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 420
+      Ease: 2
+      Param: 
+    - At: 1.48
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.72
+      Ease: 0
+      Param: 
+    - At: 1.48
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: medium
+    - At: 1.52
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: crystal
+    - At: 1.54
+      Duration: 0.36
+      Kind: 4
+      Target: SealLeft
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 8
+      Ease: 2
+      Param: 
+    - At: 1.54
+      Duration: 0.36
+      Kind: 4
+      Target: SealRight
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 8
+      Ease: 2
+      Param: 
+    - At: 1.58
+      Duration: 0.32
+      Kind: 0
+      Target: SealLeft
+      Delta: {x: -0.24, y: 0.16, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.58
+      Duration: 0.32
+      Kind: 0
+      Target: SealRight
+      Delta: {x: 0.24, y: 0.16, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.64
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: rumble
+    - At: 1.9
+      Duration: 0.5
+      Kind: 104
+      Target: SealLeft
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: GeodeLeft
+    - At: 1.9
+      Duration: 0.5
+      Kind: 104
+      Target: SealRight
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: GeodeRight
+    - At: 1.9
+      Duration: 0.5
+      Kind: 104
+      Target: Rail
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: CrystalRoute
+    - At: 1.9
+      Duration: 0.1
+      Kind: 6
+      Target: GeodeHeart
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.9
+      Duration: 0.36
+      Kind: 0
+      Target: GeodeHeart
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.12
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.92
+      Duration: 0.1
+      Kind: 6
+      Target: CrystalFall
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.92
+      Duration: 0.56
+      Kind: 8
+      Target: CrystalFall
+      Delta: {x: 0, y: -0.82, z: -0.2}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.9
+      Duration: 0.78
+      Kind: 106
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: geode
+    - At: 1.9
+      Duration: 0.62
+      Kind: 107
+      Target: CaveDrips
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 0.12
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.9
+      Duration: 0.48
+      Kind: 107
+      Target: CaveGeode
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.9
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 1.42
+      Ease: 0
+      Param: 
+    - At: 1.92
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: heavy
+    - At: 1.94
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: crystal
+    - At: 1.96
+      Duration: 0.34
+      Kind: 4
+      Target: CrystalRoute
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 2.4
+      Ease: 2
+      Param: 
+    - At: 1.94
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -152,8 +432,8 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: Hopeful
-    - At: 1.42
+      Param: Happy
+    - At: 1.94
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -162,19 +442,49 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: Hopeful
-    - At: 1.66
-      Duration: 0.82
+      Param: Happy
+    - At: 2.08
+      Duration: 0.34
+      Kind: 2
+      Target: $pepA
+      Delta: {x: 0.16, y: 0.06, z: 0.08}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.22
+      Ease: 5
+      Param: 
+    - At: 2.4
+      Duration: 0.34
+      Kind: 2
+      Target: $pepA
+      Delta: {x: 0.1, y: 0.06, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.18
+      Ease: 5
+      Param: 
+    - At: 2.42
+      Duration: 0.32
       Kind: 2
       Target: $pepB
-      Delta: {x: -0.34, y: 0, z: -0.9}
+      Delta: {x: -0.08, y: 0, z: -0.06}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0.14
       Ease: 5
       Param: 
-    - At: 2.56
-      Duration: 0.74
+    - At: 2.5
+      Duration: 0.12
+      Kind: 7
+      Target: CrystalFall
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.84
+      Duration: 0.56
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -183,7 +493,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.62
+    - At: 2.9
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -193,6 +503,26 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: reunion
+    - At: 2.92
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.54
+      Ease: 0
+      Param: 
+    - At: 2.94
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: success
   - Id: rope
     Prop: {fileID: 990983975125652325, guid: e25b2013dec394766b8acc040394c44b, type: 3}
     AnchorId: Slot_2

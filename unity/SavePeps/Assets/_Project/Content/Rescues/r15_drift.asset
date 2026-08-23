@@ -15,10 +15,11 @@ MonoBehaviour:
   Id: r15
   Verb: drift
   Reasoning: 0
-  Goal: Ride the current.
+  Goal: Release the tide.
   Difficulty: 2
-  SceneDescription: A fast channel runs left to right between two docks, and there
-    is a mooring post on the upstream side of it.
+  SceneDescription: At extreme low tide, broad mudflats strand two boats and a broken
+    dock across the bay. A full-width barrage seals the horizon above a buoyancy
+    release wheel.
   Environment: {fileID: 2959345621471182417, guid: ed434b36115184574aeda7caf1fd2ab7, type: 3}
   PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
   PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
@@ -178,16 +179,56 @@ MonoBehaviour:
       Ease: 0
       Param: whoosh
     - At: 0
-      Duration: 0.58
+      Duration: 0.52
       Kind: 1
       Target: $self
-      Delta: {x: -0.84, y: 0.045, z: 1.16}
+      Delta: {x: 0.22, y: 0.28, z: 2.56}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.48
+      Amplitude: 0.56
       Ease: 5
+      Param: 
+    - At: 0.52
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: splash
+    - At: 0.52
+      Duration: 0.3
+      Kind: 0
+      Target: $self
+      Delta: {x: 0, y: 0.24, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 0.56
+      Duration: 0.38
+      Kind: 5
+      Target: TideWheel
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: -240
+      Ease: 2
       Param: 
     - At: 0.6
+      Duration: 0.34
+      Kind: 0
+      Target: GateChains
+      Delta: {x: 0, y: 0.34, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 0.66
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -196,18 +237,38 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: splash
-    - At: 0.72
-      Duration: 0.18
+      Param: ratchet
+    - At: 0.68
+      Duration: 0.52
+      Kind: 0
+      Target: TideGate
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: -82, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 0.76
+      Duration: 0.12
       Kind: 6
-      Target: Swing
+      Target: SurgeFront
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 0.74
+    - At: 0.76
+      Duration: 0.76
+      Kind: 0
+      Target: SurgeFront
+      Delta: {x: 0, y: 0, z: -2.52}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 0.88
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -216,38 +277,8 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: creak
-    - At: 0.8
-      Duration: 0.5
-      Kind: 100
-      Target: $pepA
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: Hopeful
-    - At: 0.85
-      Duration: 0.5
-      Kind: 2
-      Target: $pepA
-      Delta: {x: 0.28, y: -0.09, z: -0.3}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0.14
-      Ease: 5
-      Param: 
-    - At: 1.35
-      Duration: 0.5
-      Kind: 101
-      Target: $self
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: splash
-    - At: 1.35
+      Param: rumble
+    - At: 0.94
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -256,49 +287,259 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: medium
-    - At: 1.35
-      Duration: 1.1
-      Kind: 4
-      Target: Current
+      Param: heavy
+    - At: 0.94
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 4
-      Ease: 2
+      Amplitude: 1.15
+      Ease: 0
       Param: 
-    - At: 1.35
-      Duration: 1.1
-      Kind: 1
-      Target: $pepA
-      Delta: {x: 0.8, y: 0, z: 0.5}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0.32
-      Ease: 2
-      Param: 
-    - At: 1.35
-      Duration: 1.1
-      Kind: 1
+    - At: 0.94
+      Duration: 0.7
+      Kind: 106
       Target: $self
-      Delta: {x: 0.8, y: 0.06, z: 0.5}
+      Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.32
+      Amplitude: 0
+      Ease: 0
+      Param: high_tide
+    - At: 0.96
+      Duration: 0.5
+      Kind: 104
+      Target: LowTideWorld
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: HighTideWorld
+    - At: 0.98
+      Duration: 0.5
+      Kind: 104
+      Target: StrandedBoatLeft
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: FloatingBoatLeft
+    - At: 1
+      Duration: 0.5
+      Kind: 104
+      Target: StrandedBoatRight
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: FloatingBoatRight
+    - At: 1.02
+      Duration: 0.5
+      Kind: 104
+      Target: CollapsedDock
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: TideRaft
+    - At: 0.98
+      Duration: 0.46
+      Kind: 0
+      Target: HighTideWorld
+      Delta: {x: 0, y: 0.13, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1
+      Duration: 0.54
+      Kind: 0
+      Target: FloatingBoatLeft
+      Delta: {x: -0.12, y: 0.2, z: 0.22}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.02
+      Duration: 0.56
+      Kind: 0
+      Target: FloatingBoatRight
+      Delta: {x: 0.16, y: 0.21, z: -0.28}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.02
+      Duration: 0.48
+      Kind: 0
+      Target: TideRaft
+      Delta: {x: 0, y: 0.18, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.02
+      Duration: 0.48
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0, y: 0.07, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.02
+      Duration: 0.16
+      Kind: 6
+      Target: CurrentField
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.12
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Happy
+    - At: 1.12
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.54
+      Duration: 0.12
+      Kind: 7
+      Target: SurgeFront
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.54
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: splash
+    - At: 1.54
+      Duration: 0.42
+      Kind: 0
+      Target: TideRaft
+      Delta: {x: 0.48, y: 0.02, z: 0.62}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
       Ease: 2
       Param: 
-    - At: 2.5
-      Duration: 0.44
+    - At: 1.54
+      Duration: 0.42
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0.48, y: 0.02, z: 0.62}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.96
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: splash
+    - At: 1.96
+      Duration: 0.4
+      Kind: 0
+      Target: TideRaft
+      Delta: {x: 0.48, y: -0.01, z: 0.62}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.96
+      Duration: 0.4
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0.48, y: -0.01, z: 0.62}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 2.36
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: splash
+    - At: 2.36
+      Duration: 0.34
+      Kind: 0
+      Target: TideRaft
+      Delta: {x: 0.22, y: 0, z: 0.48}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 2.36
+      Duration: 0.34
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0.22, y: 0, z: 0.48}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 2.7
+      Duration: 0.28
       Kind: 2
       Target: $pepA
-      Delta: {x: 0.1, y: 0.09, z: 0.1}
+      Delta: {x: 0, y: -0.02, z: 0.12}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.12
+      Amplitude: 0.13
       Ease: 5
       Param: 
-    - At: 2.72
-      Duration: 0.72
+    - At: 2.98
+      Duration: 0.56
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -307,7 +548,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.78
+    - At: 3.04
       Duration: 0.5
       Kind: 101
       Target: $self

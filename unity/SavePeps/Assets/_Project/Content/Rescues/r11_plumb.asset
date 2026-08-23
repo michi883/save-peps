@@ -15,10 +15,10 @@ MonoBehaviour:
   Id: r11
   Verb: plumb
   Reasoning: 4
-  Goal: Stop the swinging.
+  Goal: Stabilise the cableway.
   Difficulty: 1
-  SceneDescription: A wooden car hangs from a cable over the chasm and swings too
-    wildly in the wind to step into.
+  SceneDescription: A diagonal cableway spans both height and chasm. Its cables sag,
+    both towers flex and the suspended car swings sideways in a broad crosswind.
   Environment: {fileID: 6818441528229134032, guid: edd48610026c04e01b17649240530b24, type: 3}
   PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
   PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
@@ -165,7 +165,7 @@ MonoBehaviour:
     AnchorId: Slot_3
     Label: The iron weight
     Quip: 
-    Duration: 3.5
+    Duration: 3.45
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -178,16 +178,16 @@ MonoBehaviour:
       Ease: 0
       Param: slide
     - At: 0
-      Duration: 0.58
+      Duration: 0.5
       Kind: 1
       Target: $self
-      Delta: {x: 0, y: 0.24, z: 1.09}
+      Delta: {x: -0.76, y: 0.18, z: 0.54}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.44
+      Amplitude: 0.48
       Ease: 5
       Param: 
-    - At: 0.58
+    - At: 0.52
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -197,7 +197,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: clank
-    - At: 0.6
+    - At: 0.54
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -207,57 +207,107 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: medium
-    - At: 0.6
-      Duration: 0.25
-      Kind: 4
-      Target: Basket
+    - At: 0.54
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 8
+      Amplitude: 0.45
+      Ease: 0
+      Param: 
+    - At: 0.54
+      Duration: 0.42
+      Kind: 0
+      Target: $self
+      Delta: {x: 0, y: -0.22, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 0.54
+      Duration: 0.42
+      Kind: 0
+      Target: CounterweightRig
+      Delta: {x: 0, y: -0.16, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 0.56
+      Duration: 0.38
+      Kind: 0
+      Target: NearTower
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: -3.5}
+      Scale: 1
+      Amplitude: 0
       Ease: 2
       Param: 
-    - At: 0.85
-      Duration: 0.12
-      Kind: 7
+    - At: 0.6
+      Duration: 0.38
+      Kind: 0
+      Target: FarTower
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 3.5}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 0.62
+      Duration: 0.34
+      Kind: 4
+      Target: SlackCable
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 4.5
+      Ease: 2
+      Param: 
+    - At: 0.56
+      Duration: 0.62
+      Kind: 107
+      Target: BasketSwing
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 0
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.56
+      Duration: 0.62
+      Kind: 107
+      Target: CableWind
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 0.12
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1
+      Duration: 0.5
+      Kind: 104
+      Target: SlackCable
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: TautCable
+    - At: 1.04
+      Duration: 0.5
+      Kind: 104
       Target: Basket
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: 
-    - At: 0.85
-      Duration: 0.12
-      Kind: 6
-      Target: SteadyCar
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 0.95
-      Duration: 0.5
-      Kind: 100
-      Target: $pepA
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: Hopeful
-    - At: 1
-      Duration: 0.52
-      Kind: 2
-      Target: $pepA
-      Delta: {x: -0.02, y: 0.39, z: 0.75}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0.22
-      Ease: 5
-      Param: 
-    - At: 1.55
+      Param: SteadyCar
+    - At: 1.04
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -267,7 +317,47 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: ratchet
-    - At: 1.85
+    - At: 1.04
+      Duration: 0.24
+      Kind: 4
+      Target: TautCable
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 2.2
+      Ease: 2
+      Param: 
+    - At: 1.06
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.1
+      Duration: 0.44
+      Kind: 2
+      Target: $pepA
+      Delta: {x: 0.16, y: 0.39, z: 0.4}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.22
+      Ease: 5
+      Param: 
+    - At: 1.32
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.56
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -277,48 +367,38 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: slide
-    - At: 1.55
-      Duration: 0.9
+    - At: 1.56
+      Duration: 0.98
       Kind: 0
       Target: SteadyCar
-      Delta: {x: 0, y: 0.14, z: 0.62}
+      Delta: {x: 0.92, y: 0.18, z: 1.05}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 1.55
-      Duration: 0.9
+    - At: 1.56
+      Duration: 0.98
       Kind: 0
       Target: $pepA
-      Delta: {x: 0, y: 0.14, z: 0.62}
+      Delta: {x: 0.92, y: 0.18, z: 1.05}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 1.55
-      Duration: 0.9
-      Kind: 0
-      Target: $self
-      Delta: {x: 0, y: 0.14, z: 0.62}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 2
-      Param: 
-    - At: 2.48
-      Duration: 0.45
+    - At: 2.56
+      Duration: 0.34
       Kind: 2
       Target: $pepA
-      Delta: {x: -0.02, y: -0.29, z: 0.13}
+      Delta: {x: -0.02, y: -0.33, z: 0.12}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.12
+      Amplitude: 0.14
       Ease: 5
       Param: 
-    - At: 2.7
-      Duration: 0.72
+    - At: 2.94
+      Duration: 0.46
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -327,7 +407,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.76
+    - At: 3
       Duration: 0.5
       Kind: 101
       Target: $self

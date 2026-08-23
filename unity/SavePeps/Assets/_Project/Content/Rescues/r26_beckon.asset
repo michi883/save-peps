@@ -44,16 +44,16 @@ MonoBehaviour:
       Ease: 0
       Param: bubble
     - At: 0
-      Duration: 0.9
+      Duration: 0.86
       Kind: 1
       Target: $self
-      Delta: {x: -0.2, y: 0.55, z: 0.9}
+      Delta: {x: -0.18, y: 0.54, z: 0.9}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0.24
       Ease: 2
       Param: 
-    - At: 0.96
+    - At: 0.88
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -63,7 +63,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1
+    - At: 0.88
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -73,78 +73,148 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: sonar
-    - At: 1.02
-      Duration: 1
+    - At: 0.88
+      Duration: 0.5
+      Kind: 4
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 5
+      Ease: 2
+      Param: 
+    - At: 0.92
+      Duration: 0.42
+      Kind: 0
+      Target: AnglerLure
+      Delta: {x: -0.16, y: 0.08, z: 0.16}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.05
+      Duration: 1.1
       Kind: 0
       Target: $self
-      Delta: {x: -0.44, y: 0.16, z: -0.62}
+      Delta: {x: -0.95, y: 0.25, z: -0.65}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 2
       Param: 
     - At: 1.1
-      Duration: 0.96
+      Duration: 1.1
       Kind: 0
       Target: Angler
-      Delta: {x: -0.7, y: 0.3, z: -0.5}
+      Delta: {x: -0.85, y: 0.3, z: -0.55}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 2
       Param: 
     - At: 1.1
-      Duration: 0.96
+      Duration: 1.1
       Kind: 0
       Target: AnglerLure
-      Delta: {x: -0.7, y: 0.3, z: -0.5}
+      Delta: {x: -0.85, y: 0.3, z: -0.55}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 2.06
-      Duration: 0.6
+    - At: 2.2
+      Duration: 0.55
       Kind: 8
       Target: Angler
-      Delta: {x: -0.6, y: 0.2, z: -0.4}
+      Delta: {x: -0.7, y: 0.2, z: -0.4}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 1
       Param: 
-    - At: 2.06
-      Duration: 0.6
+    - At: 2.2
+      Duration: 0.55
       Kind: 8
       Target: AnglerLure
-      Delta: {x: -0.6, y: 0.2, z: -0.4}
+      Delta: {x: -0.7, y: 0.2, z: -0.4}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 1
       Param: 
-    - At: 1.86
-      Duration: 0.84
-      Kind: 2
+    - At: 1.55
+      Duration: 0.01
+      Kind: 6
+      Target: LitWreckPassage
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.58
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: bubble
+    - At: 1.58
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: light
+    - At: 1.62
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.62
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.72
+      Duration: 0.96
+      Kind: 0
       Target: $pepA
       Delta: {x: 0.32, y: 0, z: 0.6}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.1
+      Amplitude: 0
       Ease: 2
       Param: 
-    - At: 1.86
-      Duration: 0.84
-      Kind: 2
+    - At: 1.72
+      Duration: 0.96
+      Kind: 0
       Target: $pepB
       Delta: {x: -0.22, y: 0, z: -1.32}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.1
+      Amplitude: 0
       Ease: 2
       Param: 
-    - At: 2.76
-      Duration: 0.7
+    - At: 2.72
+      Duration: 0.72
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -153,7 +223,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.82
+    - At: 2.78
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -197,7 +267,7 @@ MonoBehaviour:
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 8
+      Amplitude: 10
       Ease: 2
       Param: 
     - At: 1.62
@@ -254,7 +324,7 @@ MonoBehaviour:
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 11
+      Amplitude: 12
       Ease: 2
       Param: 
     - At: 1.44

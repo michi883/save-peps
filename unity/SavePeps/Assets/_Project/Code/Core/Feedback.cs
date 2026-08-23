@@ -194,11 +194,20 @@ namespace SavePeps.Core
         {
             if (!_hapticsEnabled || !HapticsAllowed || string.IsNullOrEmpty(strength)) return;
 
+            if (!SupportsHaptic(strength))
+            {
+                Debug.LogWarning($"[SavePeps] Unknown haptic strength '{strength}'.");
+                return;
+            }
+
+            var normalized = strength.Trim().ToLowerInvariant();
+
 #if UNITY_ANDROID && !UNITY_EDITOR
-            var (ms, amplitude) = strength.ToLowerInvariant() switch
+            var (ms, amplitude) = normalized switch
             {
                 "light"   => (12L, 60),
                 "medium"  => (24L, 140),
+                "heavy"   => (36L, 235),
                 "success" => (18L, 200),
                 _         => (12L, 60),
             };
@@ -221,7 +230,7 @@ namespace SavePeps.Core
                     vibrator.Call("vibrate", ms);
                 }
 
-                if (strength == "success")
+                if (normalized == "success")
                 {
                     // Two quick beats: the reunion should feel like a
                     // heartbeat rather than a notification.
@@ -235,6 +244,9 @@ namespace SavePeps.Core
             }
 #endif
         }
+
+        public static bool SupportsHaptic(string strength) =>
+            strength?.Trim().ToLowerInvariant() is "light" or "medium" or "heavy" or "success";
 
         private void SecondBeat() => Haptic("light");
 

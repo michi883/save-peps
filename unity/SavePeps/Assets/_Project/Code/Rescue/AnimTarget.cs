@@ -33,6 +33,7 @@ namespace SavePeps.Rescue
         private Vector3 _euler;
         private float _scale = 1f;
         private float _alpha = 1f;
+        private bool? _visibilityOverride;
 
         private void Awake() => CacheRenderers();
 
@@ -55,6 +56,7 @@ namespace SavePeps.Rescue
             _position = Vector3.zero;
             _euler = Vector3.zero;
             _scale = 1f;
+            _visibilityOverride = null;
             _alpha = _visibleAtRest ? 1f : 0f;
             Apply();
         }
@@ -76,6 +78,21 @@ namespace SavePeps.Rescue
         }
 
         /// <summary>
+        /// Changes visibility without changing the authored rest state.
+        /// Outcome state swaps use this instead of cross-fading two opaque
+        /// toys through each other, which can flash or z-fight on mobile.
+        /// </summary>
+        public void SetVisible(bool visible)
+        {
+            // This is an outcome-state override, not a one-frame renderer
+            // write. Choreography may also be moving the incoming twin; its
+            // next Accumulate must preserve the atomic swap.
+            _visibilityOverride = visible;
+            _alpha = visible ? 1f : 0f;
+            ApplyAlpha();
+        }
+
+        /// <summary>
         /// Sums the deltas of all live moves and writes them to the transform.
         /// Positions and rotations add; scales multiply; alpha is
         /// last-writer-wins, matching how Save Pip ran opacity as a replacing
@@ -86,7 +103,7 @@ namespace SavePeps.Rescue
             _position = Vector3.zero;
             _euler = Vector3.zero;
             _scale = 1f;
-            _alpha = _visibleAtRest ? 1f : 0f;
+            _alpha = (_visibilityOverride ?? _visibleAtRest) ? 1f : 0f;
 
             for (var i = 0; i < moves.Count; i++)
             {

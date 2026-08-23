@@ -491,12 +491,11 @@ namespace SavePeps.EditorTools
                 shadow: false);
             var statLabel = stat.GetComponentInChildren<Text>();
 
-            // These transparent hit areas sit over the three title-tableau
-            // characters. TesterMode activates them only in the editor or a
-            // Development Build, so release players do not even have an
-            // interactive secret surface under their fingers.
+            // These transparent hit areas sit over the title and tableau
+            // characters. TesterMode shows them at boot; the seven-tap command
+            // is the only way in, so there is nothing to find by accident.
             var secretHeart = SecretTapArea(home.transform, "TesterSecretHeart",
-                new Vector2(290f, 250f), new Vector2(0f, 550f));
+                new Vector2(1080f, 1550f), new Vector2(0f, 325f));
             var secretGreen = SecretTapArea(home.transform, "TesterSecretGreenPep",
                 new Vector2(330f, 390f), new Vector2(250f, 150f));
             var secretPink = SecretTapArea(home.transform, "TesterSecretPinkPep",
@@ -933,7 +932,7 @@ namespace SavePeps.EditorTools
                 24, Color.white, shadow: false);
             var indicatorRt = indicator.GetComponent<RectTransform>();
             indicatorRt.anchorMin = indicatorRt.anchorMax = new Vector2(0f, 1f);
-            indicatorRt.anchoredPosition = new Vector2(125f, -44f);
+            indicatorRt.anchoredPosition = new Vector2(130f, -104f);
             indicator.GetComponentInChildren<Text>().alignment = TextAnchor.MiddleCenter;
 
             var root = new GameObject("TesterOverlay", typeof(Image), typeof(CanvasGroup));
@@ -949,13 +948,17 @@ namespace SavePeps.EditorTools
             card.anchoredPosition = Vector2.zero;
             StylePanel(cardGo.GetComponent<Image>(), new Color(1f, 0.97f, 0.88f, 0.99f));
 
-            var title = Text(card, "Title", font, 44, ink, new Vector2(0.5f, 0.5f),
-                new Vector2(-100f, 570f), new Vector2(650f, 65f));
+            var title = Text(card, "Title", font, 40, ink, new Vector2(0.5f, 0.5f),
+                new Vector2(-230f, 570f), new Vector2(420f, 65f));
             title.text = "TESTER TOOLS";
             title.fontStyle = FontStyle.Bold;
 
+            var exitMode = ShellButton(card, "TesterExitMode", font, "NORMAL MODE",
+                new Vector2(230f, 66f), new Vector2(170f, 570f), cream,
+                24, ink, shadow: false);
+
             var close = ShellButton(card, "TesterClose", font, "CLOSE",
-                new Vector2(170f, 66f), new Vector2(370f, 570f), new Color(ink.r, ink.g, ink.b, 0.86f),
+                new Vector2(150f, 66f), new Vector2(385f, 570f), new Color(ink.r, ink.g, ink.b, 0.86f),
                 26, Color.white, shadow: false);
 
             // 1. GO TO
@@ -1033,6 +1036,7 @@ namespace SavePeps.EditorTools
             Wire(tester, "_root", root);
             Wire(tester, "_group", root.GetComponent<CanvasGroup>());
             Wire(tester, "_closeButton", close);
+            Wire(tester, "_exitModeButton", exitMode);
             WireArray(tester, "_roundButtons", roundButtons);
             WireArray(tester, "_rescueButtons", rescueButtons);
             Wire(tester, "_playRescueButton", playRescue);

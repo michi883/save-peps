@@ -114,6 +114,142 @@ namespace SavePeps.EditorTools
                       $"{pepA.name} and {pepB.name}, 36 props, {stages} stages across 12 worlds.");
         }
 
+        [MenuItem("Tools/Save Peps/Escalation/Generate R3-R4 Pilot Environments")]
+        public static void GenerateRoundsThreeAndFour()
+        {
+            Directory.CreateDirectory(EnvDir);
+            var mats = LoadExistingMaterials();
+            if (mats == null) return;
+
+            Toy.ShadowMaterial = mats["Shadow"];
+            Worlds.M = mats;
+            var stages = DioramaLibrary.BuildRoundsThreeAndFour(EnvDir);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"[SavePeps] Escalation pilot art generated: {stages} R3-R4 environments only.");
+        }
+
+        [MenuItem("Tools/Save Peps/Escalation/Generate R4-R5 Pilot Environments")]
+        public static void GenerateRoundsFourAndFive()
+        {
+            Directory.CreateDirectory(EnvDir);
+            var mats = LoadExistingMaterials();
+            if (mats == null) return;
+
+            Toy.ShadowMaterial = mats["Shadow"];
+            Worlds.M = mats;
+            var stages = DioramaLibrary.BuildRoundsFourAndFive(EnvDir);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"[SavePeps] Escalation pilot art generated: {stages} R4-R5 environments only.");
+        }
+
+        [MenuItem("Tools/Save Peps/Escalation/Generate Round 3 Environments")]
+        public static void GenerateRoundThree()
+        {
+            Directory.CreateDirectory(EnvDir);
+            var mats = LoadExistingMaterials();
+            if (mats == null) return;
+
+            Toy.ShadowMaterial = mats["Shadow"];
+            Worlds.M = mats;
+            var stages = DioramaLibrary.BuildRoundThree(EnvDir);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"[SavePeps] Round 3 art generated: {stages} environments only.");
+        }
+
+        [MenuItem("Tools/Save Peps/Escalation/Generate Round 6 Environments")]
+        public static void GenerateRoundSix()
+        {
+            Directory.CreateDirectory(EnvDir);
+            var mats = LoadExistingMaterials();
+            if (mats == null) return;
+
+            Toy.ShadowMaterial = mats["Shadow"];
+            Worlds.M = mats;
+            var stages = DioramaLibrary.BuildRoundSix(EnvDir);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"[SavePeps] Round 6 art generated: {stages} environments only.");
+        }
+
+        [MenuItem("Tools/Save Peps/Escalation/Generate Round 7 Environments")]
+        public static void GenerateRoundSeven()
+        {
+            Directory.CreateDirectory(EnvDir);
+            var mats = LoadExistingMaterials();
+            if (mats == null) return;
+
+            Toy.ShadowMaterial = mats["Shadow"];
+            Worlds.M = mats;
+            var stages = DioramaLibrary.BuildRoundSeven(EnvDir);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"[SavePeps] Round 7 art generated: {stages} environments only.");
+        }
+
+        [MenuItem("Tools/Save Peps/Escalation/Generate Round 8 Environments")]
+        public static void GenerateRoundEight()
+        {
+            Directory.CreateDirectory(EnvDir);
+            var mats = LoadExistingMaterials();
+            if (mats == null) return;
+
+            Toy.ShadowMaterial = mats["Shadow"];
+            Worlds.M = mats;
+            var stages = DioramaLibrary.BuildRoundEight(EnvDir);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"[SavePeps] Round 8 art generated: {stages} environments only.");
+        }
+
+        [MenuItem("Tools/Save Peps/Escalation/Generate Round 9 Environments")]
+        public static void GenerateRoundNine()
+        {
+            Directory.CreateDirectory(EnvDir);
+            var mats = LoadExistingMaterials();
+            if (mats == null) return;
+
+            Toy.ShadowMaterial = mats["Shadow"];
+            Worlds.M = mats;
+            var stages = DioramaLibrary.BuildRoundNine(EnvDir);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"[SavePeps] Round 9 art generated: {stages} environments only.");
+        }
+
+        private static Dictionary<string, Material> LoadExistingMaterials()
+        {
+            var result = new Dictionary<string, Material>();
+            foreach (var (name, _) in Swatches)
+            {
+                var material = AssetDatabase.LoadAssetAtPath<Material>($"{MatDir}/M_Pal_{name}.mat");
+                if (material == null)
+                {
+                    Debug.LogError($"[SavePeps] Missing palette material '{name}'. Run full prototype generation once.");
+                    return null;
+                }
+                result[name] = material;
+            }
+
+            var shadow = AssetDatabase.LoadAssetAtPath<Material>($"{MatDir}/M_Pal_Shadow.mat");
+            if (shadow == null)
+            {
+                Debug.LogError("[SavePeps] Missing palette material 'Shadow'. Run full prototype generation once.");
+                return null;
+            }
+            result["Shadow"] = shadow;
+            return result;
+        }
+
         private static void RemoveSupersededDioramas()
         {
             foreach (var name in SupersededDioramas)

@@ -79,6 +79,87 @@ namespace SavePeps.EditorTools
             return 36;
         }
 
+        /// <summary>
+        /// Regenerates only the six environments in the escalation pilot.
+        /// Keeping this path separate prevents an R3/R4 iteration from
+        /// serialising unrelated prefab churn across the other ten worlds.
+        /// </summary>
+        internal static int BuildRoundsThreeAndFour(string environmentDir)
+        {
+            var stages = BuildRoundThree(environmentDir);
+            CanyonUpdraft();
+            CanyonCablecar();
+            CanyonSpire();
+            return stages + 3;
+        }
+
+        /// <summary>Regenerates only the three stages owned by Round 3.</summary>
+        internal static int BuildRoundThree(string environmentDir)
+        {
+            _dir = environmentDir;
+            WeatherFrost();
+            WeatherBloom();
+            WeatherDownpour();
+            return 3;
+        }
+
+        /// <summary>Regenerates only the three stages owned by Round 6.</summary>
+        internal static int BuildRoundSix(string environmentDir)
+        {
+            _dir = environmentDir;
+            StormTarp();
+            StormMast();
+            StormGutter();
+            return 3;
+        }
+
+        /// <summary>Regenerates only the three stages owned by Round 7.</summary>
+        internal static int BuildRoundSeven(string environmentDir)
+        {
+            _dir = environmentDir;
+            CaveDark();
+            CaveVein();
+            CaveCart();
+            return 3;
+        }
+
+        /// <summary>Regenerates only the three stages owned by Round 8.</summary>
+        internal static int BuildRoundEight(string environmentDir)
+        {
+            _dir = environmentDir;
+            PeakPowder();
+            PeakChute();
+            PeakTraverse();
+            return 3;
+        }
+
+        /// <summary>Regenerates only the three stages owned by Round 9.</summary>
+        internal static int BuildRoundNine(string environmentDir)
+        {
+            _dir = environmentDir;
+            AbyssFloor();
+            AbyssWreck();
+            AbyssCurrent();
+            return 3;
+        }
+
+        /// <summary>
+        /// Regenerates only the six stages in the second escalation pilot.
+        /// R3 remains the visual benchmark; R6-R12 are deliberately outside
+        /// this write boundary.
+        /// </summary>
+        internal static int BuildRoundsFourAndFive(string environmentDir)
+        {
+            _dir = environmentDir;
+            CanyonUpdraft();
+            CanyonCablecar();
+            CanyonSpire();
+            TidePunt();
+            TideChannel();
+            TideCurrent();
+            return 6;
+        }
+
         private static Material M(string key) => Worlds.M[key];
 
         /// <summary>Hides a mover until choreography reveals it — beams, glows, melt puddles.</summary>
@@ -552,10 +633,12 @@ namespace SavePeps.EditorTools
             var root = Worlds.Begin(Worlds.Weather, "Frost");
             var t = root.transform;
 
-            Ball(t, "FrozenPatch", M("WaterLight"), new Vector3(0.30f, 0.710f, 1.22f),
-                new Vector3(0.52f, 0.016f, 0.46f));
-
             var shell = Mover(t, "IceShell");
+            // The frozen skin belongs to the shell so it shrinks away with
+            // the crystals. The revealed puddle sits more than 0.01m above
+            // the terrace; no coplanar water faces remain to flicker on phone.
+            Ball(shell, "FrozenPatch", M("WaterLight"), new Vector3(0.30f, 0.708f, 1.22f),
+                new Vector3(0.52f, 0.012f, 0.46f));
             foreach (var (x, y, angle, height) in new[]
                      {
                          (0.10f, 0.90f, -13f, 0.44f), (0.48f, 0.89f, 15f, 0.42f),
@@ -569,7 +652,8 @@ namespace SavePeps.EditorTools
             Ball(shell, "IceCap", M("Ice"), new Vector3(0.30f, 1.04f, 1.24f), new Vector3(0.40f, 0.15f, 0.30f));
 
             var puddle = Hidden(Mover(t, "MeltPuddle"));
-            Ball(puddle, "Puddle", M("Water"), new Vector3(0.30f, 0.712f, 1.22f), new Vector3(0.50f, 0.018f, 0.42f));
+            Ball(puddle, "Puddle", M("Water"), new Vector3(0.30f, 0.717f, 1.22f),
+                new Vector3(0.50f, 0.012f, 0.42f));
 
             var snow = Living(t, "Snowfall", AmbientMode.Drift, -0.95f, 0.30f, Vector3.up, stagger: true);
             for (var i = 0; i < 8; i++)
@@ -588,22 +672,47 @@ namespace SavePeps.EditorTools
             Worlds.Finish(root, Worlds.Weather, _dir);
         }
 
-        /// <summary>Movers: Plant.</summary>
+        /// <summary>
+        /// Movers: RootHeave, Plant, VineSpine, VineStep1/2/3 and VineCrown.
+        /// The final six form a diagonal route across most of the hillside.
+        /// </summary>
         private static void WeatherBloom()
         {
             Worlds.WeatherTint = "sun";
             var root = Worlds.Begin(Worlds.Weather, "Bloom");
             var t = root.transform;
 
-            Rod(t, "FlowerPot", M("Clay"), new Vector3(0.34f, 0.465f, 0.30f), new Vector3(0.22f, 0.09f, 0.22f));
-            Rod(t, "PotRim", M("EarthLight"), new Vector3(0.34f, 0.515f, 0.30f), new Vector3(0.245f, 0.022f, 0.245f));
-            Box(t, "TerraceEdge", M("EarthLight"), new Vector3(-0.02f, 0.56f, 1.15f),
-                new Vector3(0.06f, 0.28f, 1.08f));
+            // R3.2 starts in a dry basin on the low near shelf, then grows a
+            // living stair all the way to the snow ledge. The full diagonal
+            // is deliberately unlike R3.1's close two-Pep composition.
+            var rootHeave = Mover(t, "RootHeave");
+            Ball(rootHeave, "DryBasin", M("EarthDark"), new Vector3(0.36f, 0.179f, -0.36f),
+                new Vector3(0.58f, 0.035f, 0.48f));
+            foreach (var (x, z, angle) in new[]
+                     {
+                         (0.18f, -0.48f, -24f), (0.38f, -0.26f, 18f), (0.52f, -0.45f, 38f),
+                     })
+            {
+                Box(rootHeave, "DryCrack", M("WoodDark"), new Vector3(x, 0.205f, z),
+                    new Vector3(0.16f, 0.012f, 0.025f), new Vector3(0f, angle, 0f));
+            }
+
+            Rod(t, "FlowerPot", M("Clay"), new Vector3(0.38f, 0.205f, -0.36f),
+                new Vector3(0.22f, 0.09f, 0.22f));
+            Rod(t, "PotRim", M("EarthLight"), new Vector3(0.38f, 0.255f, -0.36f),
+                new Vector3(0.245f, 0.022f, 0.245f));
+
+            // A tall ledge at the opposite corner makes the route, not just
+            // the plant's scale, the problem to solve.
+            Box(t, "HighLedgeFace", M("EarthLight"), new Vector3(-0.42f, 0.56f, 0.96f),
+                new Vector3(0.48f, 0.28f, 0.56f));
+            Box(t, "HighLedgeCap", M("FoliageBright"), new Vector3(-0.42f, 0.713f, 0.96f),
+                new Vector3(0.50f, 0.016f, 0.58f));
 
             // The plant's container sits inside the pot rim, so a Resize step
-            // grows it upward out of the pot cleanly.
+            // begins the response before the landscape-scale vine takes over.
             var plant = Mover(t, "Plant");
-            plant.parent.localPosition = new Vector3(0.34f, 0.43f, 0.30f);
+            plant.parent.localPosition = new Vector3(0.38f, 0.17f, -0.36f);
             Rod(plant, "Stem", M("FoliageDark"), new Vector3(0f, 0.075f, 0f), new Vector3(0.028f, 0.075f, 0.028f));
             foreach (var side in new[] { -1f, 1f })
             {
@@ -620,42 +729,179 @@ namespace SavePeps.EditorTools
                     new Vector3(0.12f, 0.035f, 0.085f));
             }
 
-            // Small floral garden dressing along the middle terrace
-            Ball(t, "DecoFlowerA", M("AccentLight"), new Vector3(0.12f, 0.435f, -0.22f), Vector3.one * 0.06f);
-            Ball(t, "DecoFlowerB", M("Accent"), new Vector3(0.52f, 0.435f, -0.15f), Vector3.one * 0.055f);
-            Ball(t, "DecoFlowerC", M("WaterBright"), new Vector3(0.48f, 0.435f, 0.58f), Vector3.one * 0.065f);
+            // The spine occupies most of the stage and physically connects
+            // all three elevations. It begins buried and heaves into view.
+            var spine = Hidden(Mover(t, "VineSpine"));
+            foreach (var (x, y, z, angle, length) in new[]
+                     {
+                         (0.31f, 0.275f, -0.08f, -18f, 0.52f),
+                         (0.10f, 0.405f, 0.34f, -24f, 0.52f),
+                         (-0.13f, 0.545f, 0.73f, -29f, 0.48f),
+                     })
+            {
+                Box(spine, "VineRun", M("FoliageDark"), new Vector3(x, y, z),
+                    new Vector3(0.105f, 0.075f, length), new Vector3(0f, angle, 0f));
+            }
 
-            Worlds.Peps(t, new Vector3(-0.34f, 0.70f, 0.78f), new Vector3(0.34f, 0.58f, 0.30f),
-                new Vector3(-0.06f, 0.70f, 0.72f));
-            Worlds.Slots(t, new Vector3(-0.44f, 0.15f, -1.44f), new Vector3(0.46f, 0.15f, -1.44f),
+            var step1 = Hidden(Mover(t, "VineStep1"));
+            Ball(step1, "LeafPlatform", M("FoliageLight"), new Vector3(0.28f, 0.285f, -0.03f),
+                new Vector3(0.38f, 0.055f, 0.23f), new Vector3(0f, -20f, -6f));
+            var step2 = Hidden(Mover(t, "VineStep2"));
+            Ball(step2, "LeafPlatform", M("Foliage"), new Vector3(0.07f, 0.415f, 0.35f),
+                new Vector3(0.40f, 0.055f, 0.24f), new Vector3(0f, -25f, 5f));
+            var step3 = Hidden(Mover(t, "VineStep3"));
+            Ball(step3, "LeafPlatform", M("FoliageLight"), new Vector3(-0.16f, 0.555f, 0.72f),
+                new Vector3(0.42f, 0.055f, 0.25f), new Vector3(0f, -30f, -5f));
+
+            var crown = Hidden(Mover(t, "VineCrown"));
+            Ball(crown, "Centre", M("Accent"), new Vector3(-0.34f, 0.585f, 1.02f),
+                new Vector3(0.20f, 0.060f, 0.18f));
+            for (var i = 0; i < 6; i++)
+            {
+                var angle = i * Mathf.PI * 2f / 6f;
+                Ball(crown, "Petal", M("AccentLight"),
+                    new Vector3(-0.34f + Mathf.Cos(angle) * 0.21f, 0.59f,
+                        1.02f + Mathf.Sin(angle) * 0.16f),
+                    new Vector3(0.17f, 0.038f, 0.11f));
+            }
+
+            // Sparse markers reinforce the empty before-state without
+            // competing with the route when it erupts.
+            Ball(t, "DecoFlowerA", M("AccentLight"), new Vector3(-0.58f, 0.443f, -0.20f),
+                Vector3.one * 0.055f);
+            Ball(t, "DecoFlowerB", M("WaterBright"), new Vector3(0.54f, 0.443f, 0.48f),
+                Vector3.one * 0.060f);
+
+            Worlds.Peps(t, new Vector3(-0.46f, 0.73f, 1.18f), new Vector3(0.38f, 0.34f, -0.36f),
+                new Vector3(-0.34f, 0.73f, 1.08f));
+            Worlds.Slots(t, new Vector3(-0.44f, 0.15f, -1.44f), new Vector3(0.34f, 0.15f, -1.32f),
                 new Vector3(0f, 0.15f, -1.06f));
             Worlds.Finish(root, Worlds.Weather, _dir);
         }
 
-        /// <summary>Movers: Cloud, Rain, Awning, FloodStream, Rainbow, SunGlow.</summary>
+        /// <summary>
+        /// Movers: StormBankLeft/Right, ClearBankLeft/Right, FloodStream,
+        /// RiverThread, CausewayStep1-4, SluiceGate, DrainWheel, Cloud, Rain,
+        /// GustBands, StormDebris, Awning, Rainbow, SunGlow, Sunbeams and
+        /// MeadowBurst. The before-state and after-state are different worlds,
+        /// not the same terrace with different weather particles.
+        /// </summary>
         private static void WeatherDownpour()
         {
             Worlds.WeatherTint = "rain";
             var root = Worlds.Begin(Worlds.Weather, "Downpour");
             var t = root.transform;
 
-            // Flooded torrent channel separating the two sides of the terrace
+            // Mud-choked banks sit proud of every terrace in the storm state.
+            // Their bright replacements begin below the hillside and rise
+            // inward, physically narrowing the flood into the final route.
+            var stormBankLeft = Mover(t, "StormBankLeft");
+            var stormBankRight = Mover(t, "StormBankRight");
+            var clearBankLeft = Hidden(Mover(t, "ClearBankLeft"));
+            var clearBankRight = Hidden(Mover(t, "ClearBankRight"));
+            foreach (var (y, z, depth) in new[]
+                     {
+                         (0.185f, -1.08f, 0.88f), (0.455f, -0.02f, 1.02f), (0.735f, 1.04f, 0.88f),
+                     })
+            {
+                Box(stormBankLeft, "StormShelf", M("EarthDark"), new Vector3(-0.49f, y, z),
+                    new Vector3(0.39f, 0.08f, depth), new Vector3(0f, -4f, 0f));
+                Box(stormBankRight, "StormShelf", M("WoodDark"), new Vector3(0.49f, y, z),
+                    new Vector3(0.39f, 0.08f, depth), new Vector3(0f, 5f, 0f));
+
+                Box(clearBankLeft, "ClearShelf", M("FoliageBright"), new Vector3(-0.49f, y - 0.12f, z),
+                    new Vector3(0.55f, 0.14f, depth));
+                Box(clearBankRight, "ClearShelf", M("FoliageLight"), new Vector3(0.49f, y - 0.12f, z),
+                    new Vector3(0.55f, 0.14f, depth));
+            }
+
+            foreach (var (x, y, z, s) in new[]
+                     {
+                         (-0.48f, 0.24f, -0.96f, 0.12f), (0.46f, 0.51f, 0.16f, 0.15f),
+                         (-0.42f, 0.79f, 1.18f, 0.14f),
+                     })
+            {
+                Ball(x < 0f ? stormBankLeft : stormBankRight, "StormRock", M("Stone"),
+                    new Vector3(x, y, z), Vector3.one * s);
+            }
+
+            // A continuous torrent cuts through all three elevations. Surface
+            // streaks make its direction legible before the umbrella drives
+            // the drainage mechanism.
             var flood = Mover(t, "FloodStream");
-            flood.parent.localPosition = new Vector3(-0.02f, 0.428f, 0.02f);
-            Box(flood, "TorrentWater", M("Water"), Vector3.zero, new Vector3(0.44f, 0.014f, 1.12f));
+            foreach (var (y, z, depth) in new[]
+                     {
+                         (0.171f, -1.08f, 0.92f), (0.441f, -0.02f, 1.06f), (0.721f, 1.04f, 0.92f),
+                     })
+            {
+                Box(flood, "TorrentWater", M("WaterDeep"), new Vector3(0f, y, z),
+                    new Vector3(0.66f, 0.018f, depth));
+            }
 
-            // Cobblestone walkway stepping stones on the dry left side
-            Box(t, "PathStone1", M("StoneLight"), new Vector3(-0.38f, 0.427f, 0.18f),
-                new Vector3(0.24f, 0.012f, 0.32f));
-            Box(t, "PathStone2", M("StoneLight"), new Vector3(-0.38f, 0.427f, -0.18f),
-                new Vector3(0.24f, 0.012f, 0.32f));
+            var current = Living(flood, "FloodCurrent", AmbientMode.Drift, -0.52f, 0.62f,
+                Vector3.forward, stagger: true, controlId: "FloodCurrent");
+            for (var i = 0; i < 9; i++)
+            {
+                var tier = i / 3;
+                var y = new[] { 0.184f, 0.454f, 0.734f }[tier];
+                var z = new[] { -1.24f, -0.18f, 0.90f }[tier] + (i % 3) * 0.18f;
+                Box(current, "WhiteWater", M("WaterBright"), new Vector3(-0.16f + (i % 2) * 0.30f, y, z),
+                    new Vector3(0.22f, 0.010f, 0.035f));
+            }
 
-            // Sluice gate / gutter mechanism
-            Box(t, "SluiceGate", M("WoodDark"), new Vector3(-0.23f, 0.48f, 0.48f),
-                new Vector3(0.06f, 0.12f, 0.22f));
+            var river = Hidden(Mover(t, "RiverThread"));
+            foreach (var (y, z, depth) in new[]
+                     {
+                         (0.172f, -1.08f, 0.92f), (0.442f, -0.02f, 1.06f), (0.722f, 1.04f, 0.92f),
+                     })
+            {
+                Box(river, "ClearWater", M("WaterLight"), new Vector3(0f, y, z),
+                    new Vector3(0.16f, 0.020f, depth));
+            }
+            foreach (var (y, z) in new[] { (0.187f, -1.18f), (0.457f, -0.10f), (0.737f, 0.96f) })
+            {
+                Box(river, "Ripple", M("WaterBright"), new Vector3(0f, y, z),
+                    new Vector3(0.13f, 0.009f, 0.030f));
+            }
+
+            // Four buried stones emerge as one long diagonal causeway. They
+            // are the physical before/after difference the Peps then traverse.
+            foreach (var (name, x, y, z, angle) in new[]
+                     {
+                         ("CausewayStep1", 0.38f, 0.59f, 0.78f, -14f),
+                         ("CausewayStep2", 0.18f, 0.32f, 0.36f, -22f),
+                         ("CausewayStep3", -0.04f, 0.32f, -0.06f, -28f),
+                         ("CausewayStep4", -0.28f, 0.06f, -0.50f, -34f),
+                     })
+            {
+                var step = Hidden(Mover(t, name));
+                Box(step, "CausewayStone", M("StoneLight"), new Vector3(x, y, z),
+                    new Vector3(0.34f, 0.10f, 0.30f), new Vector3(0f, angle, 0f));
+                Box(step, "Moss", M("FoliageBright"), new Vector3(x, y + 0.058f, z),
+                    new Vector3(0.24f, 0.018f, 0.20f), new Vector3(0f, angle, 0f));
+            }
+
+            // The umbrella catches the gale beside this oversized wheel. The
+            // wheel's rotation pulls the gate out of the torrent, making the
+            // drainage chain causal rather than a decorative weather cut.
+            var sluice = Mover(t, "SluiceGate");
+            Box(sluice, "Gate", M("WoodDark"), new Vector3(0f, 0.79f, 0.68f),
+                new Vector3(0.70f, 0.13f, 0.11f));
+            foreach (var x in new[] { -0.25f, 0f, 0.25f })
+            {
+                Box(sluice, "GateSlat", M("Wood"), new Vector3(x, 0.79f, 0.68f),
+                    new Vector3(0.055f, 0.24f, 0.13f));
+            }
+
+            var wheel = Mover(t, "DrainWheel");
+            Cog(wheel, "StormWheel", M("AccentDeep"), M("AccentLight"),
+                new Vector3(0.50f, 0.93f, 0.76f), 0.20f, 8);
+            Box(wheel, "WheelAxle", M("WoodDark"), new Vector3(0.50f, 0.93f, 0.76f),
+                new Vector3(0.06f, 0.06f, 0.18f));
 
             // Weather vane on the lower terrace spinning rapidly in the storm
-            var vane = Living(t, "StormVane", AmbientMode.Spin, 240f, 0.05f, Vector3.up);
+            var vane = Living(t, "StormVane", AmbientMode.Spin, 240f, 0.05f, Vector3.up,
+                controlId: "StormVane");
             vane.localPosition = new Vector3(0.50f, 0.24f, -1.15f);
             Rod(vane, "VanePost", M("Stone"), new Vector3(0f, 0f, 0f), new Vector3(0.02f, 0.18f, 0.02f));
             Box(vane, "VaneFinA", M("Accent"), new Vector3(0.06f, 0.06f, 0f), new Vector3(0.12f, 0.04f, 0.01f));
@@ -664,57 +910,95 @@ namespace SavePeps.EditorTools
             var awning = Mover(t, "Awning");
             foreach (var x in new[] { -0.58f, -0.20f })
             {
-                Box(awning, "AwningPost", M("Wood"), new Vector3(x, 0.67f, -0.30f),
-                    new Vector3(0.045f, 0.50f, 0.045f));
+                Box(awning, "AwningPost", M("Wood"), new Vector3(x, 0.39f, -0.72f),
+                    new Vector3(0.045f, 0.46f, 0.045f));
             }
 
-            Box(awning, "Canopy", M("Accent"), new Vector3(-0.39f, 0.94f, -0.30f),
-                new Vector3(0.48f, 0.065f, 0.46f), new Vector3(-8f, 0f, 0f));
+            Box(awning, "Canopy", M("AccentDeep"), new Vector3(-0.39f, 0.64f, -0.72f),
+                new Vector3(0.50f, 0.065f, 0.48f), new Vector3(-9f, 0f, 0f));
 
-            // Dark storm cloud system
+            // One cloud mass spans almost the full world silhouette. Its exit
+            // therefore changes the composition rather than clearing one
+            // corner above a Pep.
             var cloud = Mover(t, "Cloud");
-            cloud.parent.localPosition = new Vector3(0.30f, 1.18f, 0.30f);
-            var drift = Idle(cloud, AmbientMode.Bob, 0.025f, 0.22f, Vector3.up);
+            // Keep the storm mass enormous, but place it behind the upper
+            // terrace so Pep B remains readable before the player acts.
+            cloud.parent.localPosition = new Vector3(0f, 1.34f, 1.48f);
+            var drift = Idle(cloud, AmbientMode.Bob, 0.045f, 0.22f, Vector3.up,
+                controlId: "StormCloud");
             foreach (var (x, y, s) in new[]
                      {
-                         (-0.22f, -0.02f, 0.20f), (-0.08f, 0.05f, 0.28f), (0.10f, 0.07f, 0.30f),
-                         (0.24f, -0.01f, 0.22f), (0f, -0.05f, 0.36f)
+                         (-0.62f, -0.02f, 0.30f), (-0.38f, 0.07f, 0.40f), (-0.10f, 0.10f, 0.44f),
+                         (0.20f, 0.08f, 0.42f), (0.50f, 0.00f, 0.34f), (0f, -0.08f, 0.54f),
                      })
             {
                 Ball(drift, "CloudPuff", M("Stone"), new Vector3(x, y, 0f),
                     new Vector3(s, s * 0.70f, s * 0.78f));
             }
 
-            Box(drift, "CloudBase", M("Ink"), new Vector3(0.01f, -0.065f, 0f), new Vector3(0.55f, 0.08f, 0.26f));
+            Box(drift, "CloudBase", M("Ink"), new Vector3(0f, -0.075f, 0f),
+                new Vector3(1.35f, 0.11f, 0.34f));
 
-            // Torrential rain streaks
+            // Rain occupies all three shelves and the full screen width.
             var rain = Mover(t, "Rain");
-            rain.parent.localPosition = new Vector3(0.34f, 0.45f, 0.30f);
-            var fall = Living(rain, "Fall", AmbientMode.Drift, -0.52f, 1.25f, Vector3.up, stagger: true);
-            for (var i = 0; i < 9; i++)
+            var fall = Living(rain, "Fall", AmbientMode.Drift, -1.15f, 1.15f, Vector3.up,
+                stagger: true, controlId: "Rainfall");
+            for (var i = 0; i < 18; i++)
             {
+                var row = i / 6;
                 Box(fall, "RainDrop", M("WaterBright"),
-                    new Vector3(-0.25f + i * 0.062f, 0.36f + (i % 3) * 0.12f, ((i % 2) - 0.5f) * 0.08f),
-                    new Vector3(0.018f, 0.18f, 0.018f), new Vector3(0f, 0f, -11f));
+                    new Vector3(-0.66f + (i % 6) * 0.265f, 0.86f + (i % 3) * 0.23f,
+                        -0.52f + row * 0.58f),
+                    new Vector3(0.020f, 0.24f, 0.020f), new Vector3(0f, 0f, -13f));
             }
 
-            foreach (var (x, z, s) in new[] { (0.33f, 0.26f, 0.28f), (0.49f, 0.05f, 0.16f) })
+            var gusts = Mover(t, "GustBands");
+            var gustFlow = Living(gusts, "GustFlow", AmbientMode.Drift, 1.55f, 0.34f,
+                Vector3.right, stagger: true, controlId: "StormGusts");
+            for (var i = 0; i < 6; i++)
             {
-                Ball(t, "Puddle", M("Water"), new Vector3(x, 0.428f, z), new Vector3(s, 0.014f, s * 0.68f));
+                Box(gustFlow, "Gust", M("StoneLight"),
+                    new Vector3(-1.15f, 0.58f + (i % 3) * 0.28f, -0.70f + (i / 3) * 1.15f),
+                    new Vector3(0.42f, 0.018f, 0.030f), new Vector3(0f, 0f, 8f));
             }
+
+            var stormTrees = Living(t, "StormTrees", AmbientMode.Sway, 13f, 0.70f,
+                Vector3.forward, stagger: true, controlId: "StormTrees");
+            foreach (var (x, y, z, scale) in new[]
+                     {
+                         (-0.58f, 0.45f, 0.24f, 0.72f), (0.57f, 0.19f, -0.92f, 0.58f),
+                     })
+            {
+                var tree = Child(stormTrees, "WindTree");
+                tree.localPosition = new Vector3(x, y, z);
+                Rod(tree, "Trunk", M("EarthDark"), new Vector3(0f, 0.16f * scale, 0f),
+                    new Vector3(0.035f, 0.18f * scale, 0.035f));
+                Ball(tree, "Crown", M("FoliageDark"), new Vector3(0f, 0.39f * scale, 0f),
+                    new Vector3(0.24f * scale, 0.22f * scale, 0.18f * scale));
+            }
+
+            // Logs and stones are swept off only after the gate opens. Their
+            // cross-screen exit is the first large consequence of drainage.
+            var debris = Mover(t, "StormDebris");
+            Box(debris, "WashedLog", M("WoodDark"), new Vector3(-0.04f, 0.49f, 0.20f),
+                new Vector3(0.42f, 0.08f, 0.10f), new Vector3(0f, 24f, 12f));
+            Box(debris, "WashedLog", M("Wood"), new Vector3(0.08f, 0.76f, 1.20f),
+                new Vector3(0.34f, 0.065f, 0.09f), new Vector3(0f, -30f, -8f));
+            Ball(debris, "DebrisRock", M("Stone"), new Vector3(0.16f, 0.22f, -0.92f),
+                Vector3.one * 0.12f);
 
             // Rainbow arch (hidden initially, revealed during climax transformation)
             var rainbow = Hidden(Mover(t, "Rainbow"));
-            rainbow.parent.localPosition = new Vector3(0f, 1.25f, 0.90f);
+            rainbow.parent.localPosition = new Vector3(0f, 1.00f, 0.92f);
             var colors = new[] { M("Accent"), M("AccentLight"), M("WaterBright"), M("Violet") };
             for (var c = 0; c < 4; c++)
             {
-                var radius = 0.58f + c * 0.045f;
+                var radius = 0.52f + c * 0.040f;
                 for (var seg = 0; seg < 9; seg++)
                 {
                     var angle = (seg / 8f) * Mathf.PI; // 0 to 180 degrees arch
                     var x = -Mathf.Cos(angle) * radius;
-                    var y = Mathf.Sin(angle) * (radius * 0.75f);
+                    var y = Mathf.Sin(angle) * (radius * 0.72f);
                     Ball(rainbow, $"RainbowSeg_{c}_{seg}", colors[c], new Vector3(x, y, c * -0.015f),
                         new Vector3(0.12f, 0.040f, 0.035f), new Vector3(0f, 0f, (angle * Mathf.Rad2Deg) - 90f));
                 }
@@ -722,11 +1006,41 @@ namespace SavePeps.EditorTools
 
             // Sun glow disk behind rainbow
             var sunglow = Hidden(Mover(t, "SunGlow"));
-            sunglow.parent.localPosition = new Vector3(0f, 1.40f, 0.95f);
-            Ball(sunglow, "GlowCore", M("AccentPale"), Vector3.zero, new Vector3(0.48f, 0.48f, 0.05f));
+            sunglow.parent.localPosition = new Vector3(0f, 1.22f, 0.98f);
+            Ball(sunglow, "GlowCore", M("AccentPale"), Vector3.zero, new Vector3(0.42f, 0.42f, 0.05f));
 
-            Worlds.Peps(t, new Vector3(-0.39f, 0.42f, -0.34f), new Vector3(0.34f, 0.42f, 0.30f),
-                new Vector3(-0.10f, 0.42f, -0.16f));
+            var sunbeams = Hidden(Mover(t, "Sunbeams"));
+            sunbeams.parent.localPosition = new Vector3(0f, 0.92f, 0.80f);
+            foreach (var (x, angle) in new[]
+                     {
+                         (-0.52f, -22f), (-0.26f, -12f), (0f, 0f), (0.26f, 12f), (0.52f, 22f),
+                     })
+            {
+                Box(sunbeams, "Ray", M("AccentPale"), new Vector3(x, 0f, 0f),
+                    new Vector3(0.060f, 0.78f, 0.025f), new Vector3(0f, 0f, angle));
+            }
+
+            // One reveal paints all three shelves at once after the terrain
+            // has moved. It is a consequence marker, not the main event.
+            var meadow = Hidden(Mover(t, "MeadowBurst"));
+            foreach (var (x, y, z, material) in new[]
+                     {
+                         (-0.58f, 0.11f, -1.15f, "AccentLight"),
+                         (0.50f, 0.11f, -0.80f, "Accent"),
+                         (-0.52f, 0.38f, -0.20f, "WaterBright"),
+                         (0.48f, 0.38f, 0.20f, "AccentLight"),
+                         (-0.50f, 0.66f, 0.92f, "Accent"),
+                         (0.52f, 0.66f, 1.28f, "WaterBright"),
+                     })
+            {
+                Rod(meadow, "Stem", M("FoliageDark"), new Vector3(x, y, z),
+                    new Vector3(0.018f, 0.08f, 0.018f));
+                Ball(meadow, "Bloom", M(material), new Vector3(x, y + 0.09f, z),
+                    new Vector3(0.10f, 0.045f, 0.09f));
+            }
+
+            Worlds.Peps(t, new Vector3(-0.48f, 0.18f, -0.72f), new Vector3(0.48f, 0.73f, 1.18f),
+                new Vector3(-0.36f, 0.18f, -0.60f));
             Worlds.Slots(t, new Vector3(-0.44f, 0.15f, -1.44f), new Vector3(0.46f, 0.15f, -1.44f),
                 new Vector3(0f, 0.15f, -1.06f));
             Worlds.Finish(root, Worlds.Weather, _dir);
@@ -736,24 +1050,27 @@ namespace SavePeps.EditorTools
         // World 4 — Windrock canyon. The gap is vertical too, and the air moves.
         // ===================================================================
 
-        /// <summary>Movers: Thermal, RimGrass.</summary>
+        /// <summary>Movers: Thermal.</summary>
         private static void CanyonUpdraft()
         {
             var root = Worlds.Begin(Worlds.Canyon, "Updraft");
             var t = root.transform;
 
-            // The updraft is drawn, not implied. Three pale columns rising out
-            // of the chasm are the difference between "there is a gap" and
-            // "there is a gap and the air is going up".
+            // One compact thermal pocket: this is deliberately the smallest
+            // event in the round, not a wind field spanning the whole chasm.
             var thermal = Mover(t, "Thermal");
             var rise = Living(thermal, "Rise", AmbientMode.Drift, 1.05f, 0.34f, Vector3.up, stagger: true);
-            foreach (var (x, phase) in new[] { (-0.34f, 0f), (0.02f, 0.3f), (0.36f, 0.6f) })
+            foreach (var (x, y, s) in new[]
+                     {
+                         (-0.10f, -0.46f, 0.10f), (0.04f, -0.20f, 0.08f), (-0.03f, 0.06f, 0.06f),
+                     })
             {
-                Box(rise, "Column", M("AccentPale"), new Vector3(x, -0.42f + phase, 0f),
-                    new Vector3(0.10f, 0.34f, 0.10f));
+                Box(rise, "Column", M("AccentPale"), new Vector3(x, y, -0.04f),
+                    new Vector3(s, 0.24f, s));
             }
 
-            Box(t, "LaunchLedge", M("Clay"), new Vector3(0f, 0.15f, -0.50f), new Vector3(0.70f, 0.06f, 0.22f));
+            Box(t, "LaunchLedge", M("Clay"), new Vector3(-0.10f, 0.15f, -0.50f),
+                new Vector3(0.50f, 0.06f, 0.22f));
             foreach (var x in new[] { -0.30f, 0.30f })
             {
                 Box(t, "LandingPost", M("WoodDark"), new Vector3(x, 0.50f, 0.62f),
@@ -762,99 +1079,236 @@ namespace SavePeps.EditorTools
 
             Box(t, "LandingRail", M("Wood"), new Vector3(0f, 0.57f, 0.62f), new Vector3(0.66f, 0.035f, 0.05f));
 
-            Worlds.Peps(t, new Vector3(0f, 0.18f, -0.66f), new Vector3(0f, 0.42f, 0.86f),
-                new Vector3(0f, 0.42f, 0.74f));
+            Worlds.Peps(t, new Vector3(-0.10f, 0.18f, -0.66f), new Vector3(0.12f, 0.42f, 0.86f),
+                new Vector3(0.08f, 0.42f, 0.74f));
             Worlds.Slots(t, new Vector3(-0.44f, 0.18f, -1.32f), new Vector3(0.46f, 0.18f, -1.44f),
                 new Vector3(0f, 0.18f, -1.06f));
             Worlds.Finish(root, Worlds.Canyon, _dir);
         }
 
-        /// <summary>Movers: Basket, SpanCable.</summary>
+        /// <summary>
+        /// Movers: NearTower, FarTower, SlackCable, TautCable (hidden), Basket,
+        /// SteadyCar (hidden), CounterweightRig, Crosswind.
+        /// </summary>
         private static void CanyonCablecar()
         {
             var root = Worlds.Begin(Worlds.Canyon, "Cablecar");
             var t = root.transform;
 
-            Box(t, "MastNear", M("WoodDark"), new Vector3(0f, 0.52f, -0.52f), new Vector3(0.09f, 0.70f, 0.09f));
-            Box(t, "MastFar", M("WoodDark"), new Vector3(0f, 0.72f, 0.62f), new Vector3(0.09f, 0.62f, 0.09f));
+            Box(t, "NearLanding", M("Clay"), new Vector3(-0.48f, 0.19f, -0.52f),
+                new Vector3(0.52f, 0.08f, 0.38f));
+            Box(t, "FarLanding", M("Clay"), new Vector3(0.48f, 0.43f, 0.70f),
+                new Vector3(0.54f, 0.08f, 0.40f));
 
-            var cable = Mover(t, "SpanCable");
-            Box(cable, "Line", M("Stone"), new Vector3(0f, 0.92f, 0.05f), new Vector3(0.022f, 0.022f, 1.20f),
-                new Vector3(-6f, 0f, 0f));
+            var nearTower = Mover(t, "NearTower");
+            nearTower.parent.localPosition = new Vector3(-0.58f, 0.18f, -0.52f);
+            Box(nearTower, "Mast", M("WoodDark"), new Vector3(0f, 0.48f, 0f),
+                new Vector3(0.11f, 0.96f, 0.11f));
+            Beam(nearTower, "Crossarm", M("Wood"), new Vector3(-0.25f, 0.88f, 0f),
+                new Vector3(0.25f, 0.88f, 0f), 0.07f);
+            foreach (var x in new[] { -0.20f, 0.20f })
+                Rod(nearTower, "Pulley", M("Accent"), new Vector3(x, 0.88f, 0f),
+                    new Vector3(0.09f, 0.025f, 0.09f), new Vector3(90f, 0f, 0f));
 
-            // The car hangs and swings on its own. Its rest pose is the
-            // problem, which means the idle has to be big enough to read as
-            // "you cannot step onto that".
+            var farTower = Mover(t, "FarTower");
+            farTower.parent.localPosition = new Vector3(0.58f, 0.42f, 0.64f);
+            Box(farTower, "Mast", M("WoodDark"), new Vector3(0f, 0.49f, 0f),
+                new Vector3(0.11f, 0.98f, 0.11f));
+            Beam(farTower, "Crossarm", M("Wood"), new Vector3(-0.25f, 0.91f, 0f),
+                new Vector3(0.25f, 0.91f, 0f), 0.07f);
+            foreach (var x in new[] { -0.20f, 0.20f })
+                Rod(farTower, "Pulley", M("Accent"), new Vector3(x, 0.91f, 0f),
+                    new Vector3(0.09f, 0.025f, 0.09f), new Vector3(90f, 0f, 0f));
+
+            var nearTop = new Vector3(-0.58f, 1.06f, -0.52f);
+            var farTop = new Vector3(0.58f, 1.33f, 0.64f);
+            var sag = new Vector3(-0.06f, 0.78f, 0.02f);
+            var slack = Mover(t, "SlackCable");
+            Beam(slack, "CableNear", M("Stone"), nearTop, sag, 0.025f);
+            Beam(slack, "CableFar", M("Stone"), sag, farTop, 0.025f);
+            Beam(slack, "ReturnNear", M("Cream"), nearTop + Vector3.forward * 0.07f,
+                sag + Vector3.forward * 0.07f, 0.012f);
+            Beam(slack, "ReturnFar", M("Cream"), sag + Vector3.forward * 0.07f,
+                farTop + Vector3.forward * 0.07f, 0.012f);
+
+            var taut = Hidden(Mover(t, "TautCable"));
+            Beam(taut, "MainCable", M("Stone"), nearTop, farTop, 0.030f);
+            Beam(taut, "ReturnCable", M("Cream"), nearTop + Vector3.forward * 0.07f,
+                farTop + Vector3.forward * 0.07f, 0.014f);
+
+            // A diagonal cableway occupies both height and width. Its live car
+            // is unsafe; the still twin becomes a route only after the whole
+            // tower/cable/counterweight system reacts.
             var basket = Mover(t, "Basket");
-            basket.parent.localPosition = new Vector3(0f, 0.90f, 0.05f);
-            var swing = Idle(basket, AmbientMode.Sway, 15f, 0.55f, Vector3.forward);
-            Box(swing, "Hanger", M("Stone"), new Vector3(0f, -0.16f, 0f), new Vector3(0.02f, 0.32f, 0.02f));
-            Box(swing, "Car", M("Wood"), new Vector3(0f, -0.40f, 0f), new Vector3(0.42f, 0.16f, 0.40f));
-            Box(swing, "CarFloor", M("Sand"), new Vector3(0f, -0.33f, 0f), new Vector3(0.38f, 0.02f, 0.36f));
+            basket.parent.localPosition = new Vector3(-0.42f, 0.91f, -0.34f);
+            var swing = Idle(basket, AmbientMode.Sway, 17f, 0.55f, Vector3.forward,
+                controlId: "BasketSwing");
+            Box(swing, "Hanger", M("Stone"), new Vector3(0f, -0.15f, 0f), new Vector3(0.025f, 0.30f, 0.025f));
+            Box(swing, "Car", M("Wood"), new Vector3(0f, -0.39f, 0f), new Vector3(0.44f, 0.17f, 0.40f));
+            Box(swing, "CarFloor", M("Sand"), new Vector3(0f, -0.30f, 0f), new Vector3(0.40f, 0.025f, 0.36f));
             foreach (var x in new[] { -0.20f, 0.20f })
             {
-                Box(swing, "CarRail", M("WoodDark"), new Vector3(x, -0.30f, 0f), new Vector3(0.025f, 0.16f, 0.38f));
+                Box(swing, "CarRail", M("WoodDark"), new Vector3(x, -0.25f, 0f),
+                    new Vector3(0.025f, 0.18f, 0.38f));
             }
 
-            // Choreography composes *onto* an idle and cannot switch one off,
-            // so "it stops swinging" is a still twin revealed in place. Same
-            // pattern as the reflected beam: the state change is a swap.
             var steady = Hidden(Mover(t, "SteadyCar"));
-            Box(steady, "Hanger", M("Stone"), new Vector3(0f, 0.74f, 0.05f), new Vector3(0.02f, 0.32f, 0.02f));
-            Box(steady, "Car", M("Wood"), new Vector3(0f, 0.50f, 0.05f), new Vector3(0.42f, 0.16f, 0.40f));
-            Box(steady, "CarFloor", M("Sand"), new Vector3(0f, 0.57f, 0.05f), new Vector3(0.38f, 0.02f, 0.36f));
+            steady.parent.localPosition = new Vector3(-0.42f, 0.91f, -0.34f);
+            Box(steady, "Hanger", M("Stone"), new Vector3(0f, -0.15f, 0f),
+                new Vector3(0.025f, 0.30f, 0.025f));
+            Box(steady, "Car", M("Wood"), new Vector3(0f, -0.39f, 0f), new Vector3(0.44f, 0.17f, 0.40f));
+            Box(steady, "CarFloor", M("Sand"), new Vector3(0f, -0.30f, 0f),
+                new Vector3(0.40f, 0.025f, 0.36f));
             foreach (var x in new[] { -0.20f, 0.20f })
             {
-                Box(steady, "CarRail", M("WoodDark"), new Vector3(x, 0.60f, 0.05f),
+                Box(steady, "CarRail", M("WoodDark"), new Vector3(x, -0.25f, 0f),
                     new Vector3(0.025f, 0.16f, 0.38f));
             }
 
-            Worlds.Peps(t, new Vector3(0.02f, 0.18f, -0.70f), new Vector3(-0.05f, 0.42f, 0.92f),
-                new Vector3(-0.02f, 0.42f, 0.80f));
+            var rig = Mover(t, "CounterweightRig");
+            rig.parent.localPosition = new Vector3(-0.76f, 0.74f, -0.50f);
+            Beam(rig, "GuyLine", M("Cream"), new Vector3(0f, 0.36f, 0f),
+                new Vector3(0f, -0.34f, 0f), 0.018f);
+            Box(rig, "Cradle", M("Accent"), new Vector3(0f, -0.38f, 0f),
+                new Vector3(0.25f, 0.08f, 0.22f));
+            Box(rig, "BrakeArm", M("WoodDark"), new Vector3(0.13f, 0.18f, 0f),
+                new Vector3(0.05f, 0.42f, 0.05f), new Vector3(0f, 0f, -24f));
+
+            var crosswind = Mover(t, "Crosswind");
+            var ribbons = Living(crosswind, "WindRibbons", AmbientMode.Drift, 1.55f, 0.38f,
+                new Vector3(1f, 0.10f, 0f), stagger: true, controlId: "CableWind");
+            for (var i = 0; i < 7; i++)
+                Box(ribbons, "Ribbon", M("AccentPale"),
+                    new Vector3(-0.78f + i * 0.25f, 0.60f + (i % 3) * 0.20f, -0.34f + (i % 2) * 0.68f),
+                    new Vector3(0.24f, 0.018f, 0.035f), new Vector3(0f, 0f, 8f));
+
+            Worlds.Peps(t, new Vector3(-0.58f, 0.22f, -0.74f), new Vector3(0.58f, 0.46f, 0.92f),
+                new Vector3(0.48f, 0.46f, 0.82f));
             Worlds.Slots(t, new Vector3(-0.46f, 0.18f, -1.26f), new Vector3(0.46f, 0.18f, -1.40f),
                 new Vector3(0f, 0.18f, -1.04f));
             Worlds.Finish(root, Worlds.Canyon, _dir);
         }
 
-        /// <summary>Movers: Spire, SpireDust (hidden).</summary>
+        /// <summary>
+        /// Movers: Spire, GrappleLine, both RimCrowns and Rockfalls; hidden
+        /// FallenSpan, AfterRims, RockSteps, FaultCracks and SpireDust.
+        /// </summary>
         private static void CanyonSpire()
         {
             var root = Worlds.Begin(Worlds.Canyon, "Spire");
             var t = root.transform;
 
-            // A finger of rock standing in the chasm, taller than both rims.
-            // Nothing else in the game is asking to be pulled over.
+            // A leaning monolith and two hoodoos make a tall, broken skyline.
+            // The successful state replaces that skyline with a broad diagonal
+            // shelf, so the before/after reads even in silhouette.
             var spire = Mover(t, "Spire");
-            spire.parent.localPosition = new Vector3(0.02f, -0.40f, 0.02f);
-            Box(spire, "Shaft", M("Clay"), new Vector3(0f, 0.82f, 0f), new Vector3(0.28f, 1.64f, 0.26f),
-                new Vector3(-3f, 0f, 2f));
-            Box(spire, "ShaftDark", M("EarthDark"), new Vector3(-0.11f, 0.82f, 0f),
-                new Vector3(0.08f, 1.60f, 0.27f), new Vector3(-3f, 0f, 2f));
-            Box(spire, "Cap", M("Sand"), new Vector3(0.01f, 1.68f, 0.01f), new Vector3(0.34f, 0.12f, 0.32f));
-            foreach (var (y, s) in new[] { (0.34f, 0.36f), (0.92f, 0.32f), (1.42f, 0.30f) })
-            {
-                Box(spire, "Collar", M("Earth"), new Vector3(0f, y, 0f), new Vector3(s, 0.07f, s * 0.9f));
-            }
+            spire.parent.localPosition = new Vector3(0.25f, -0.64f, 0.08f);
+            Beam(spire, "Monolith", M("Clay"), Vector3.zero, new Vector3(-0.16f, 2.25f, 0.08f), 0.40f);
+            Beam(spire, "DarkFace", M("EarthDark"), new Vector3(-0.16f, 0.10f, -0.12f),
+                new Vector3(-0.30f, 2.16f, -0.04f), 0.15f);
+            Box(spire, "Crown", M("Sand"), new Vector3(-0.17f, 2.18f, 0.08f),
+                new Vector3(0.62f, 0.16f, 0.46f), new Vector3(0f, 0f, -8f));
+            Box(spire, "Overhang", M("EarthLight"), new Vector3(0.12f, 1.70f, 0.04f),
+                new Vector3(0.64f, 0.18f, 0.42f), new Vector3(0f, 0f, -18f));
+            foreach (var y in new[] { 0.45f, 1.02f, 1.52f })
+                Box(spire, "Stratum", M("Earth"), new Vector3(-0.08f, y, 0.08f),
+                    new Vector3(0.46f, 0.075f, 0.43f), new Vector3(0f, 0f, -4f));
+
+            var nearCrown = Mover(t, "RimCrownNear");
+            nearCrown.parent.localPosition = new Vector3(-0.62f, 0.17f, -0.46f);
+            Beam(nearCrown, "Hoodoo", M("EarthLight"), Vector3.zero, new Vector3(0.10f, 0.88f, 0.02f), 0.25f);
+            Box(nearCrown, "Cap", M("Sand"), new Vector3(0.12f, 0.86f, 0.02f),
+                new Vector3(0.42f, 0.12f, 0.32f), new Vector3(0f, 0f, 7f));
+
+            var farCrown = Mover(t, "RimCrownFar");
+            farCrown.parent.localPosition = new Vector3(0.63f, 0.41f, 0.62f);
+            Beam(farCrown, "Hoodoo", M("Clay"), Vector3.zero, new Vector3(-0.12f, 1.02f, 0f), 0.28f);
+            Box(farCrown, "Cap", M("Sand"), new Vector3(-0.14f, 1.00f, 0f),
+                new Vector3(0.46f, 0.13f, 0.34f), new Vector3(0f, 0f, -8f));
+
+            var grappleLine = Hidden(Mover(t, "GrappleLine"));
+            Beam(grappleLine, "Rope", M("Cream"), new Vector3(-0.58f, 0.30f, -0.70f),
+                new Vector3(0.08f, 1.55f, 0.15f), 0.024f);
+
+            var fault = Hidden(Mover(t, "FaultCracks"));
+            Beam(fault, "CrackNear", M("AccentPale"), new Vector3(-0.70f, 0.22f, -0.43f),
+                new Vector3(-0.23f, 0.30f, -0.18f), 0.025f);
+            Beam(fault, "CrackFar", M("AccentPale"), new Vector3(0.23f, 0.44f, 0.30f),
+                new Vector3(0.72f, 0.50f, 0.60f), 0.025f);
+
+            var rockfallNear = Mover(t, "RockfallNear");
+            foreach (var (x, y, z, s) in new[]
+                     {
+                         (-0.64f, 0.98f, -0.46f, 0.16f), (-0.45f, 0.72f, -0.40f, 0.11f),
+                     })
+                Ball(rockfallNear, "Boulder", M("Clay"), new Vector3(x, y, z), Vector3.one * s);
+
+            var rockfallFar = Mover(t, "RockfallFar");
+            foreach (var (x, y, z, s) in new[]
+                     {
+                         (0.52f, 1.30f, 0.62f, 0.17f), (0.70f, 1.05f, 0.54f, 0.12f),
+                     })
+                Ball(rockfallFar, "Boulder", M("EarthLight"), new Vector3(x, y, z), Vector3.one * s);
 
             var dust = Hidden(Mover(t, "SpireDust"));
-            foreach (var (x, z, s) in new[] { (-0.40f, 0.10f, 0.30f), (0.34f, -0.16f, 0.24f), (0.02f, 0.34f, 0.34f) })
+            foreach (var (x, z, s) in new[]
+                     {
+                         (-0.72f, -0.42f, 0.34f), (-0.30f, -0.08f, 0.30f),
+                         (0.18f, 0.30f, 0.38f), (0.68f, 0.66f, 0.32f),
+                     })
             {
-                Ball(dust, "Plume", M("Sand"), new Vector3(x, 0.10f, z), new Vector3(s, s * 0.55f, s * 0.8f));
+                Ball(dust, "Plume", M("Sand"), new Vector3(x, 0.24f, z),
+                    new Vector3(s, s * 0.60f, s * 0.8f));
             }
 
             var span = Hidden(Mover(t, "FallenSpan"));
-            Box(span, "Column", M("Clay"), new Vector3(0.02f, 0.24f, 0.04f), new Vector3(0.26f, 0.22f, 1.36f),
-                new Vector3(6f, 0f, 2f));
-            Box(span, "ColumnTop", M("EarthLight"), new Vector3(0.02f, 0.345f, 0.04f),
-                new Vector3(0.22f, 0.03f, 1.30f), new Vector3(6f, 0f, 2f));
-            foreach (var z in new[] { -0.44f, 0.50f })
+            var spanFrom = new Vector3(-0.68f, 0.28f, -0.56f);
+            var spanTo = new Vector3(0.68f, 0.52f, 0.70f);
+            var spanJointOne = new Vector3(-0.22f, 0.37f, -0.15f);
+            var spanJointTwo = new Vector3(0.26f, 0.45f, 0.32f);
+            Beam(span, "MonolithBridgeNear", M("Clay"), spanFrom, spanJointOne, 0.44f);
+            Beam(span, "MonolithBridgeMid", M("EarthLight"), spanJointOne, spanJointTwo, 0.36f);
+            Beam(span, "MonolithBridgeFar", M("Clay"), spanJointTwo, spanTo, 0.41f);
+            Beam(span, "WalkFacetNear", M("EarthLight"), spanFrom + Vector3.up * 0.13f,
+                spanJointOne + Vector3.up * 0.13f, 0.29f);
+            Beam(span, "WalkFacetMid", M("Clay"), spanJointOne + Vector3.up * 0.12f,
+                spanJointTwo + Vector3.up * 0.12f, 0.25f);
+            Beam(span, "WalkFacetFar", M("EarthLight"), spanJointTwo + Vector3.up * 0.13f,
+                spanTo + Vector3.up * 0.13f, 0.28f);
+            Beam(span, "DarkUnderbelly", M("EarthDark"), spanFrom + Vector3.down * 0.12f,
+                spanTo + Vector3.down * 0.12f, 0.30f);
+            Ball(span, "ImpactBoulder", M("Earth"), spanJointOne + Vector3.up * 0.18f,
+                new Vector3(0.24f, 0.14f, 0.22f));
+            Ball(span, "ImpactBoulder", M("Sand"), spanJointTwo + Vector3.up * 0.17f,
+                new Vector3(0.20f, 0.12f, 0.18f));
+
+            var afterNear = Hidden(Mover(t, "AfterRimNear"));
+            Box(afterNear, "BrokenShelf", M("Clay"), new Vector3(-0.52f, 0.25f, -0.54f),
+                new Vector3(0.72f, 0.18f, 0.52f), new Vector3(0f, 8f, 0f));
+            Ball(afterNear, "Rubble", M("EarthLight"), new Vector3(-0.30f, 0.40f, -0.30f),
+                new Vector3(0.20f, 0.12f, 0.18f));
+
+            var afterFar = Hidden(Mover(t, "AfterRimFar"));
+            Box(afterFar, "BrokenShelf", M("Clay"), new Vector3(0.50f, 0.48f, 0.62f),
+                new Vector3(0.76f, 0.18f, 0.54f), new Vector3(0f, -10f, 0f));
+            Ball(afterFar, "Rubble", M("EarthLight"), new Vector3(0.28f, 0.62f, 0.38f),
+                new Vector3(0.22f, 0.13f, 0.20f));
+
+            foreach (var (name, p, scale) in new[]
+                     {
+                         ("RockStepNear", new Vector3(-0.40f, 0.34f, -0.30f), new Vector3(0.36f, 0.13f, 0.32f)),
+                         ("RockStepMid", new Vector3(0.00f, 0.42f, 0.06f), new Vector3(0.40f, 0.15f, 0.34f)),
+                         ("RockStepFar", new Vector3(0.38f, 0.49f, 0.42f), new Vector3(0.36f, 0.13f, 0.32f)),
+                     })
             {
-                Box(span, "Collar", M("EarthDark"), new Vector3(0.02f, 0.25f, z),
-                    new Vector3(0.30f, 0.26f, 0.06f), new Vector3(6f, 0f, 2f));
+                var step = Hidden(Mover(t, name));
+                Box(step, "Slab", M("EarthLight"), p, scale, new Vector3(0f, 12f, 0f));
+                Box(step, "Top", M("Sand"), p + Vector3.up * (scale.y * 0.52f),
+                    new Vector3(scale.x * 0.88f, 0.025f, scale.z * 0.86f), new Vector3(0f, 12f, 0f));
             }
 
-            Worlds.Peps(t, new Vector3(-0.30f, 0.18f, -0.70f), new Vector3(0.28f, 0.42f, 0.92f),
-                new Vector3(0.12f, 0.42f, 0.78f));
+            Worlds.Peps(t, new Vector3(-0.58f, 0.22f, -0.72f), new Vector3(0.60f, 0.46f, 0.90f),
+                new Vector3(0.50f, 0.46f, 0.80f));
             Worlds.Slots(t, new Vector3(-0.44f, 0.18f, -1.34f), new Vector3(0.46f, 0.18f, -1.22f),
                 new Vector3(0f, 0.18f, -1.00f));
             Worlds.Finish(root, Worlds.Canyon, _dir);
@@ -901,76 +1355,253 @@ namespace SavePeps.EditorTools
             Worlds.Finish(root, Worlds.Tide, _dir);
         }
 
-        /// <summary>Movers: Raft, Mooring.</summary>
+        /// <summary>
+        /// Movers: four lock gates, LockWaterLow/High, Raft, Mooring,
+        /// Capstan, LevelMarker and Wake (hidden).
+        /// </summary>
         private static void TideChannel()
         {
             var root = Worlds.Begin(Worlds.Tide, "Channel");
             var t = root.transform;
 
-            Box(t, "NearDock", M("Wood"), new Vector3(-0.46f, 0.26f, -0.50f), new Vector3(0.66f, 0.06f, 1.00f));
-            Box(t, "FarDock", M("Wood"), new Vector3(0.34f, 0.26f, 1.22f), new Vector3(0.82f, 0.06f, 0.92f));
-            foreach (var (x, z) in new[] { (-0.72f, -0.88f), (-0.20f, -0.88f), (0.02f, 1.55f), (0.66f, 1.55f) })
-            {
-                Rod(t, "Piling", M("WoodDark"), new Vector3(x, 0.13f, z), new Vector3(0.075f, 0.22f, 0.075f));
-            }
+            // A real navigation system rather than open water: two long
+            // embankments, two pairs of gates, a changing lock level and a
+            // diagonal departure/arrival composition.
+            Box(t, "LeftEmbankment", M("WoodMid"), new Vector3(-0.72f, 0.20f, 0.10f),
+                new Vector3(0.56f, 0.20f, 2.72f));
+            Box(t, "LeftDeck", M("Wood"), new Vector3(-0.72f, 0.315f, 0.10f),
+                new Vector3(0.52f, 0.05f, 2.66f));
+            Box(t, "RightEmbankment", M("WoodMid"), new Vector3(0.72f, 0.20f, 0.10f),
+                new Vector3(0.56f, 0.20f, 2.72f));
+            Box(t, "RightDeck", M("Wood"), new Vector3(0.72f, 0.315f, 0.10f),
+                new Vector3(0.52f, 0.05f, 2.66f));
+            foreach (var z in new[] { -1.06f, -0.34f, 0.62f, 1.30f })
+            foreach (var x in new[] { -0.47f, 0.47f })
+                Rod(t, "LockPiling", M("WoodDark"), new Vector3(x, 0.26f, z),
+                    new Vector3(0.065f, 0.32f, 0.065f));
+
+            var lowerLeft = Mover(t, "LowerGateLeft");
+            lowerLeft.parent.localPosition = new Vector3(-0.45f, 0.12f, -0.36f);
+            Box(lowerLeft, "GateLeaf", M("WoodDark"), new Vector3(0.22f, 0.16f, 0f),
+                new Vector3(0.44f, 0.32f, 0.08f));
+            Box(lowerLeft, "Brace", M("Accent"), new Vector3(0.22f, 0.18f, -0.05f),
+                new Vector3(0.36f, 0.045f, 0.035f), new Vector3(0f, 0f, 18f));
+
+            var lowerRight = Mover(t, "LowerGateRight");
+            lowerRight.parent.localPosition = new Vector3(0.45f, 0.12f, -0.36f);
+            Box(lowerRight, "GateLeaf", M("WoodDark"), new Vector3(-0.22f, 0.16f, 0f),
+                new Vector3(0.44f, 0.32f, 0.08f));
+            Box(lowerRight, "Brace", M("Accent"), new Vector3(-0.22f, 0.18f, -0.05f),
+                new Vector3(0.36f, 0.045f, 0.035f), new Vector3(0f, 0f, -18f));
+
+            var upperLeft = Mover(t, "UpperGateLeft");
+            upperLeft.parent.localPosition = new Vector3(-0.45f, 0.14f, 0.68f);
+            Box(upperLeft, "GateLeaf", M("WoodDark"), new Vector3(0.22f, 0.16f, 0f),
+                new Vector3(0.44f, 0.32f, 0.08f));
+            Box(upperLeft, "Brace", M("Accent"), new Vector3(0.22f, 0.18f, -0.05f),
+                new Vector3(0.36f, 0.045f, 0.035f), new Vector3(0f, 0f, 18f));
+
+            var upperRight = Mover(t, "UpperGateRight");
+            upperRight.parent.localPosition = new Vector3(0.45f, 0.14f, 0.68f);
+            Box(upperRight, "GateLeaf", M("WoodDark"), new Vector3(-0.22f, 0.16f, 0f),
+                new Vector3(0.44f, 0.32f, 0.08f));
+            Box(upperRight, "Brace", M("Accent"), new Vector3(-0.22f, 0.18f, -0.05f),
+                new Vector3(0.36f, 0.045f, 0.035f), new Vector3(0f, 0f, -18f));
+
+            var lowWater = Mover(t, "LockWaterLow");
+            Box(lowWater, "LowPool", M("WaterDeep"), new Vector3(0f, 0.085f, 0.16f),
+                new Vector3(0.86f, 0.05f, 0.98f));
+            for (var i = 0; i < 3; i++)
+                Box(lowWater, "LowMark", M("WaterBright"), new Vector3(-0.24f + i * 0.24f, 0.116f, 0.14f),
+                    new Vector3(0.16f, 0.012f, 0.04f), new Vector3(0f, i * 10f - 10f, 0f));
+
+            var highWater = Hidden(Mover(t, "LockWaterHigh"));
+            Box(highWater, "HighPool", M("Water"), new Vector3(0f, 0.175f, 0.16f),
+                new Vector3(0.88f, 0.14f, 1.02f));
+            for (var i = 0; i < 4; i++)
+                Box(highWater, "HighMark", M("WaterLight"), new Vector3(-0.30f + i * 0.20f, 0.251f, 0.12f),
+                    new Vector3(0.15f, 0.012f, 0.04f), new Vector3(0f, i * 9f - 14f, 0f));
+
+            var capstan = Mover(t, "Capstan");
+            capstan.parent.localPosition = new Vector3(-0.72f, 0.44f, -0.05f);
+            Rod(capstan, "Axle", M("WoodDark"), Vector3.zero, new Vector3(0.08f, 0.20f, 0.08f));
+            Cog(capstan, "Wheel", M("Accent"), M("AccentLight"), new Vector3(0f, 0.15f, 0f), 0.22f, 8, 0.07f);
+            Beam(capstan, "ChainToLower", M("Cream"), new Vector3(0.08f, 0.10f, 0f),
+                new Vector3(0.28f, -0.18f, -0.31f), 0.015f);
+            Beam(capstan, "ChainToUpper", M("Cream"), new Vector3(0.08f, 0.10f, 0f),
+                new Vector3(0.28f, -0.18f, 0.73f), 0.015f);
+
+            var level = Mover(t, "LevelMarker");
+            level.parent.localPosition = new Vector3(0.58f, 0.24f, 0.15f);
+            Box(level, "Gauge", M("Cream"), Vector3.zero, new Vector3(0.06f, 0.48f, 0.06f));
+            Box(level, "Float", M("Accent"), new Vector3(0f, -0.18f, 0f), new Vector3(0.18f, 0.07f, 0.12f));
 
             var raft = Mover(t, "Raft");
-            raft.parent.localPosition = new Vector3(-0.02f, 0.07f, 0.15f);
+            raft.parent.localPosition = new Vector3(-0.05f, 0.12f, -0.88f);
             var bob = Idle(raft, AmbientMode.Bob, 0.012f, 0.40f, Vector3.up);
             for (var i = -2; i <= 2; i++)
             {
                 Box(bob, "Log", i % 2 == 0 ? M("Wood") : M("WoodMid"), new Vector3(i * 0.11f, 0.03f, 0f),
-                    new Vector3(0.10f, 0.06f, 0.64f));
+                    new Vector3(0.10f, 0.06f, 0.52f));
             }
 
-            Box(bob, "Lashing", M("Earth"), new Vector3(0f, 0.065f, 0.22f), new Vector3(0.56f, 0.014f, 0.014f));
-            Box(bob, "Post", M("WoodDark"), new Vector3(0.20f, 0.14f, -0.22f), new Vector3(0.035f, 0.18f, 0.035f));
+            Box(bob, "Lashing", M("Earth"), new Vector3(0f, 0.065f, 0.18f), new Vector3(0.56f, 0.014f, 0.014f));
+            Box(bob, "Post", M("WoodDark"), new Vector3(0.20f, 0.14f, -0.18f), new Vector3(0.035f, 0.18f, 0.035f));
 
             var mooring = Mover(t, "Mooring");
-            Box(mooring, "Line", M("Cream"), new Vector3(-0.22f, 0.16f, -0.16f),
-                new Vector3(0.40f, 0.012f, 0.012f), new Vector3(0f, 34f, -12f));
+            Beam(mooring, "Line", M("Cream"), new Vector3(-0.24f, 0.20f, -0.90f),
+                new Vector3(-0.50f, 0.26f, -0.98f), 0.015f);
 
-            Worlds.Peps(t, new Vector3(-0.46f, 0.29f, -0.55f), new Vector3(0.34f, 0.29f, 1.22f),
-                new Vector3(0.20f, 0.29f, 1.06f));
+            var wake = Hidden(Mover(t, "Wake"));
+            for (var i = 0; i < 5; i++)
+                Box(wake, "WakeLine", M("WaterLight"), new Vector3(-0.28f + i * 0.14f, 0.23f, -0.28f + i * 0.25f),
+                    new Vector3(0.26f, 0.014f, 0.045f), new Vector3(0f, i * 8f - 18f, 0f));
+
+            Worlds.Peps(t, new Vector3(-0.66f, 0.35f, -0.98f), new Vector3(0.66f, 0.35f, 1.10f),
+                new Vector3(0.56f, 0.35f, 0.98f));
             Worlds.Slots(t, new Vector3(-0.52f, 0.095f, -1.58f), new Vector3(0.54f, 0.095f, -1.48f),
                 new Vector3(0.02f, 0.095f, -1.28f));
             Worlds.Finish(root, Worlds.Tide, _dir);
         }
 
-        /// <summary>Movers: Current, MooringPost, Swing (hidden).</summary>
+        /// <summary>
+        /// Movers: LowTideWorld/HighTideWorld, TideGate, TideWheel,
+        /// GateChains, SurgeFront, CurrentField, three stranded/floating
+        /// harbor state pairs, and the refloated TideRaft.
+        /// </summary>
         private static void TideCurrent()
         {
             var root = Worlds.Begin(Worlds.Tide, "Current");
             var t = root.transform;
 
-            Box(t, "LeftDock", M("Wood"), new Vector3(-0.58f, 0.26f, 0.15f), new Vector3(0.52f, 0.06f, 1.40f));
-            Box(t, "RightDock", M("Wood"), new Vector3(0.60f, 0.26f, 0.38f), new Vector3(0.52f, 0.06f, 1.40f));
-            foreach (var (x, z) in new[] { (-0.76f, -0.42f), (-0.76f, 0.72f), (0.78f, -0.20f), (0.78f, 0.94f) })
-            {
-                Rod(t, "Piling", M("WoodDark"), new Vector3(x, 0.13f, z), new Vector3(0.075f, 0.22f, 0.075f));
-            }
+            // BEFORE: exposed mud occupies most of the sea, vessels are
+            // stranded at different angles, and the harbor gate seals the
+            // horizon. This entire mover disappears when the tide arrives.
+            var lowTide = Mover(t, "LowTideWorld");
+            Box(lowTide, "MudLeft", M("WoodMid"), new Vector3(-0.67f, 0.13f, -0.05f),
+                new Vector3(0.82f, 0.19f, 2.92f), new Vector3(0f, -4f, 0f));
+            Box(lowTide, "MudRight", M("Sand"), new Vector3(0.67f, 0.14f, 0.08f),
+                new Vector3(0.80f, 0.21f, 2.78f), new Vector3(0f, 5f, 0f));
+            Box(lowTide, "MudTongueNear", M("EarthLight"), new Vector3(-0.22f, 0.13f, -0.82f),
+                new Vector3(0.56f, 0.17f, 0.90f), new Vector3(0f, 18f, 0f));
+            Box(lowTide, "MudTongueFar", M("WoodMid"), new Vector3(0.22f, 0.14f, 0.62f),
+                new Vector3(0.54f, 0.18f, 0.88f), new Vector3(0f, -16f, 0f));
+            Box(lowTide, "LowChannel", M("WaterDeep"), new Vector3(0f, 0.085f, 0f),
+                new Vector3(0.42f, 0.055f, 3.18f), new Vector3(0f, -3f, 0f));
+            for (var i = 0; i < 8; i++)
+                Box(lowTide, "TideGroove", i % 2 == 0 ? M("Earth") : M("WoodDark"),
+                    new Vector3(i % 2 == 0 ? -0.58f : 0.58f, 0.242f, -1.08f + i * 0.31f),
+                    new Vector3(0.42f, 0.014f, 0.035f), new Vector3(0f, i % 2 == 0 ? -12f : 12f, 0f));
 
-            // A channel of moving water between the two docks, drawn as
-            // chevrons so its direction is unmistakable before anything moves.
-            var current = Mover(t, "Current");
-            var flow = Living(current, "Flow", AmbientMode.Drift, 1.30f, 0.45f, Vector3.right, stagger: true);
-            for (var i = 0; i < 6; i++)
-            {
-                Box(flow, "Chevron", M("WaterBright"),
-                    new Vector3(-0.62f + (i % 3) * 0.22f, 0.075f, -0.10f + (i / 3) * 0.42f),
-                    new Vector3(0.20f, 0.012f, 0.05f), new Vector3(0f, 26f, 0f));
-            }
+            // AFTER: a higher plane covers the full low-tide delta and moves
+            // upward during the surge. Broad crests make the new water level
+            // legible without relying on transparency or particles.
+            var highTide = Hidden(Mover(t, "HighTideWorld"));
+            Box(highTide, "HighSea", M("Water"), new Vector3(0f, 0.10f, 0f),
+                new Vector3(2.22f, 0.18f, 3.55f));
+            for (var i = 0; i < 7; i++)
+                Box(highTide, "TideCrest", i % 2 == 0 ? M("WaterLight") : M("WaterBright"),
+                    new Vector3(-0.76f + (i % 4) * 0.50f, 0.198f, -1.22f + (i / 4) * 1.75f + (i % 2) * 0.30f),
+                    new Vector3(0.42f, 0.016f, 0.055f), new Vector3(0f, i * 8f - 20f, 0f));
 
-            var post = Mover(t, "MooringPost");
-            Rod(post, "Post", M("WoodDark"), new Vector3(-0.30f, 0.22f, -0.70f), new Vector3(0.08f, 0.22f, 0.08f));
-            Rod(post, "Cap", M("Wood"), new Vector3(-0.30f, 0.34f, -0.70f), new Vector3(0.11f, 0.02f, 0.11f));
+            // A barrage across the horizon gives the tide a visible source.
+            Box(t, "GateTowerLeft", M("WoodDark"), new Vector3(-0.92f, 0.46f, 1.28f),
+                new Vector3(0.20f, 0.82f, 0.24f));
+            Box(t, "GateTowerRight", M("WoodDark"), new Vector3(0.92f, 0.46f, 1.28f),
+                new Vector3(0.20f, 0.82f, 0.24f));
+            Box(t, "HarborBeam", M("Accent"), new Vector3(0f, 0.86f, 1.28f),
+                new Vector3(2.02f, 0.12f, 0.20f));
 
-            var swing = Hidden(Mover(t, "Swing"));
-            Box(swing, "Line", M("Cream"), new Vector3(-0.02f, 0.24f, -0.28f),
-                new Vector3(0.90f, 0.012f, 0.012f), new Vector3(0f, 42f, -8f));
+            var gate = Mover(t, "TideGate");
+            gate.parent.localPosition = new Vector3(0f, 0.10f, 1.27f);
+            Box(gate, "GateSlab", M("Wood"), new Vector3(0f, 0.31f, 0f),
+                new Vector3(1.64f, 0.62f, 0.14f));
+            foreach (var x in new[] { -0.58f, -0.20f, 0.20f, 0.58f })
+                Box(gate, "GateRib", M("WoodDark"), new Vector3(x, 0.31f, -0.08f),
+                    new Vector3(0.07f, 0.58f, 0.05f));
 
-            Worlds.Peps(t, new Vector3(-0.58f, 0.29f, 0.10f), new Vector3(0.60f, 0.29f, 0.40f),
-                new Vector3(0.34f, 0.29f, 0.34f));
+            var wheel = Mover(t, "TideWheel");
+            wheel.parent.localPosition = new Vector3(0.76f, 0.68f, 1.10f);
+            Cog(wheel, "ReleaseWheel", M("Accent"), M("AccentLight"), Vector3.zero, 0.25f, 10, 0.08f);
+            Rod(wheel, "FloatLatch", M("Cream"), new Vector3(0f, -0.30f, 0f),
+                new Vector3(0.055f, 0.28f, 0.055f));
+
+            var chains = Mover(t, "GateChains");
+            Beam(chains, "ChainLeft", M("Cream"), new Vector3(-0.70f, 0.78f, 1.18f),
+                new Vector3(-0.55f, 0.37f, 1.20f), 0.018f);
+            Beam(chains, "ChainRight", M("Cream"), new Vector3(0.70f, 0.78f, 1.18f),
+                new Vector3(0.55f, 0.37f, 1.20f), 0.018f);
+
+            var surge = Hidden(Mover(t, "SurgeFront"));
+            Box(surge, "WaveWall", M("WaterBright"), new Vector3(0f, 0.34f, 1.02f),
+                new Vector3(2.16f, 0.26f, 0.14f), new Vector3(0f, 0f, -4f));
+            for (var i = 0; i < 7; i++)
+                Ball(surge, "Breaker", M("WaterLight"), new Vector3(-0.90f + i * 0.30f, 0.49f, 1.00f),
+                    new Vector3(0.24f, 0.14f, 0.14f));
+
+            var current = Hidden(Mover(t, "CurrentField"));
+            var flow = Living(current, "WholeHarborCurrent", AmbientMode.Drift, 1.60f, 0.52f,
+                new Vector3(0.55f, 0f, -1f), stagger: true, controlId: "HarborCurrent");
+            for (var i = 0; i < 12; i++)
+                Box(flow, "CurrentStripe", M("WaterLight"),
+                    new Vector3(-0.82f + (i % 4) * 0.55f, 0.225f, -1.18f + (i / 4) * 0.88f),
+                    new Vector3(0.34f, 0.015f, 0.055f), new Vector3(0f, -28f, 0f));
+
+            // Three harbor structures each have an unmistakable stranded and
+            // floating state. Their different rise/drift vectors make the
+            // water causal across the screen instead of one swapped backdrop.
+            var strandedLeft = Mover(t, "StrandedBoatLeft");
+            Box(strandedLeft, "Hull", M("WoodDark"), new Vector3(-0.67f, 0.27f, 0.34f),
+                new Vector3(0.42f, 0.14f, 0.72f), new Vector3(0f, -18f, -15f));
+            Box(strandedLeft, "Trim", M("Cream"), new Vector3(-0.67f, 0.34f, 0.34f),
+                new Vector3(0.38f, 0.04f, 0.68f), new Vector3(0f, -18f, -15f));
+            var afloatLeft = Hidden(Mover(t, "FloatingBoatLeft"));
+            Box(afloatLeft, "Hull", M("WoodDark"), new Vector3(-0.64f, 0.19f, 0.32f),
+                new Vector3(0.42f, 0.14f, 0.72f), new Vector3(0f, -8f, 0f));
+            Box(afloatLeft, "Trim", M("Cream"), new Vector3(-0.64f, 0.27f, 0.32f),
+                new Vector3(0.38f, 0.04f, 0.68f), new Vector3(0f, -8f, 0f));
+
+            var strandedRight = Mover(t, "StrandedBoatRight");
+            Box(strandedRight, "Hull", M("Wood"), new Vector3(0.62f, 0.25f, -0.18f),
+                new Vector3(0.40f, 0.13f, 0.66f), new Vector3(0f, 22f, 13f));
+            Box(strandedRight, "Mast", M("WoodDark"), new Vector3(0.67f, 0.54f, -0.20f),
+                new Vector3(0.045f, 0.54f, 0.045f), new Vector3(0f, 0f, 13f));
+            var afloatRight = Hidden(Mover(t, "FloatingBoatRight"));
+            Box(afloatRight, "Hull", M("Wood"), new Vector3(0.60f, 0.18f, -0.18f),
+                new Vector3(0.40f, 0.13f, 0.66f), new Vector3(0f, 10f, 0f));
+            Box(afloatRight, "Mast", M("WoodDark"), new Vector3(0.60f, 0.48f, -0.18f),
+                new Vector3(0.045f, 0.54f, 0.045f));
+
+            var collapsed = Mover(t, "CollapsedDock");
+            Box(collapsed, "RootDeck", M("Wood"), new Vector3(-0.64f, 0.29f, -0.88f),
+                new Vector3(0.58f, 0.10f, 0.62f), new Vector3(0f, -8f, 0f));
+            Box(collapsed, "BrokenRun", M("WoodMid"), new Vector3(-0.40f, 0.19f, -0.43f),
+                new Vector3(0.48f, 0.09f, 0.66f), new Vector3(20f, -16f, 10f));
+            Box(collapsed, "BrokenTip", M("WoodDark"), new Vector3(-0.12f, 0.10f, -0.04f),
+                new Vector3(0.42f, 0.08f, 0.46f), new Vector3(28f, 18f, -8f));
+
+            var tideRaft = Hidden(Mover(t, "TideRaft"));
+            tideRaft.parent.localPosition = new Vector3(-0.62f, 0.10f, -0.84f);
+            var raftBob = Idle(tideRaft, AmbientMode.Bob, 0.018f, 0.38f, Vector3.up);
+            for (var i = -3; i <= 3; i++)
+                Box(raftBob, "PontoonLog", i % 2 == 0 ? M("Wood") : M("WoodMid"),
+                    new Vector3(i * 0.09f, 0.04f, 0f), new Vector3(0.085f, 0.08f, 0.82f));
+            Box(raftBob, "Deck", M("Sand"), new Vector3(0f, 0.105f, 0f),
+                new Vector3(0.58f, 0.055f, 0.74f));
+            foreach (var x in new[] { -0.32f, 0.32f })
+                Rod(raftBob, "RailPost", M("WoodDark"), new Vector3(x, 0.21f, 0.20f),
+                    new Vector3(0.035f, 0.14f, 0.035f));
+
+            // The far harbor remains fixed: it is the only visual reference
+            // that lets the player read how much every floating part moved.
+            Box(t, "FarHarbor", M("Wood"), new Vector3(0.62f, 0.34f, 1.03f),
+                new Vector3(0.74f, 0.10f, 0.68f));
+            foreach (var x in new[] { 0.32f, 0.92f })
+                Rod(t, "FarPiling", M("WoodDark"), new Vector3(x, 0.22f, 1.18f),
+                    new Vector3(0.075f, 0.34f, 0.075f));
+
+            Worlds.Peps(t, new Vector3(-0.66f, 0.35f, -0.92f), new Vector3(0.62f, 0.40f, 1.02f),
+                new Vector3(0.52f, 0.40f, 0.92f));
             Worlds.Slots(t, new Vector3(-0.52f, 0.095f, -1.46f), new Vector3(0.02f, 0.095f, -1.68f),
                 new Vector3(0.54f, 0.095f, -1.46f));
             Worlds.Finish(root, Worlds.Tide, _dir);
@@ -1027,38 +1658,110 @@ namespace SavePeps.EditorTools
             Worlds.Finish(root, Worlds.Storm, _dir);
         }
 
-        /// <summary>Movers: Mast, Arc (hidden), Strike (hidden), Scorch.</summary>
+        /// <summary>
+        /// Movers: Mast, Arc/Strike, LiveGrid/SafeGrid, GroundPulseNear/Mid/Far,
+        /// Relay, ServiceBridgeLocked/Open, SignalBeacons and Scorch.
+        /// </summary>
         private static void StormMast()
         {
             var root = Worlds.Begin(Worlds.Storm, "Mast");
             var t = root.transform;
 
-            Box(t, "Walkway", M("StoneLight"), new Vector3(0.02f, 0.075f, 0.24f), new Vector3(0.46f, 0.02f, 1.80f));
-            foreach (var z in new[] { -0.40f, 0.30f, 1.00f })
+            // Three roof zones and one live service trench make this a system
+            // problem rather than a second local object placement.
+            Box(t, "NearDeck", M("Violet"), new Vector3(-0.36f, 0.10f, -0.78f),
+                new Vector3(0.68f, 0.09f, 0.78f));
+            Box(t, "FarDeck", M("Stone"), new Vector3(0.34f, 0.12f, 0.90f),
+                new Vector3(0.72f, 0.12f, 0.84f));
+            Box(t, "ServiceSpine", M("StoneLight"), new Vector3(0.02f, 0.085f, 0.10f),
+                new Vector3(0.50f, 0.03f, 2.14f));
+            foreach (var z in new[] { -0.62f, -0.12f, 0.38f, 0.88f })
             {
-                Box(t, "Tread", M("Stone"), new Vector3(0.02f, 0.088f, z), new Vector3(0.44f, 0.012f, 0.07f));
+                Box(t, "Tread", M("Stone"), new Vector3(0.02f, 0.106f, z),
+                    new Vector3(0.48f, 0.018f, 0.07f));
             }
 
             var mast = Mover(t, "Mast");
-            Box(mast, "Pole", M("Stone"), new Vector3(0.44f, 0.66f, 0.86f), new Vector3(0.05f, 1.18f, 0.05f));
+            Box(mast, "Pole", M("Stone"), new Vector3(0.48f, 0.70f, 0.88f),
+                new Vector3(0.06f, 1.28f, 0.06f));
             foreach (var y in new[] { 0.86f, 1.06f })
             {
-                Box(mast, "Crossarm", M("StoneLight"), new Vector3(0.44f, y, 0.86f),
+                Box(mast, "Crossarm", M("StoneLight"), new Vector3(0.48f, y, 0.88f),
                     new Vector3(0.34f, 0.025f, 0.025f));
             }
+            Ball(mast, "Finial", M("Stone"), new Vector3(0.48f, 1.34f, 0.88f), Vector3.one * 0.07f);
 
-            Ball(mast, "Finial", M("Stone"), new Vector3(0.44f, 1.26f, 0.86f), Vector3.one * 0.06f);
+            var liveGrid = Mover(t, "LiveGrid");
+            Box(liveGrid, "LiveTrench", M("Abyss"), new Vector3(0.02f, 0.115f, 0.10f),
+                new Vector3(0.44f, 0.035f, 1.02f));
+            foreach (var (x, z, tilt) in new[]
+                     {
+                         (-0.14f, -0.22f, 18f), (0.12f, 0.02f, -20f), (-0.10f, 0.32f, 14f),
+                     })
+            {
+                Box(liveGrid, "LiveArc", M("Candle"), new Vector3(x, 0.16f, z),
+                    new Vector3(0.035f, 0.035f, 0.24f), new Vector3(0f, tilt, 0f));
+            }
+
+            var safeGrid = Hidden(Mover(t, "SafeGrid"));
+            Box(safeGrid, "GroundedDeck", M("StoneLight"), new Vector3(0.02f, 0.13f, 0.10f),
+                new Vector3(0.56f, 0.055f, 1.12f));
+            for (var i = 0; i < 5; i++)
+                Box(safeGrid, "GroundedTread", i % 2 == 0 ? M("WaterBright") : M("Stone"),
+                    new Vector3(0.02f, 0.162f, -0.34f + i * 0.22f), new Vector3(0.50f, 0.014f, 0.055f));
+
+            var lockedBridge = Mover(t, "ServiceBridgeLocked");
+            foreach (var x in new[] { -0.22f, 0.24f })
+                Box(lockedBridge, "Barrier", M("Accent"), new Vector3(x, 0.35f, 0.08f),
+                    new Vector3(0.055f, 0.42f, 0.055f));
+            Box(lockedBridge, "BarrierTop", M("AccentLight"), new Vector3(0.01f, 0.55f, 0.08f),
+                new Vector3(0.52f, 0.055f, 0.055f));
+
+            var openBridge = Hidden(Mover(t, "ServiceBridgeOpen"));
+            Box(openBridge, "BridgeDeck", M("StoneLight"), new Vector3(0.01f, 0.15f, 0.08f),
+                new Vector3(0.62f, 0.07f, 0.58f));
+            foreach (var x in new[] { -0.29f, 0.31f })
+                Box(openBridge, "LowRail", M("AccentLight"), new Vector3(x, 0.25f, 0.08f),
+                    new Vector3(0.035f, 0.20f, 0.56f));
+
+            var relay = Mover(t, "Relay");
+            relay.parent.localPosition = new Vector3(-0.46f, 0.30f, 0.58f);
+            Box(relay, "RelayBox", M("Violet"), Vector3.zero, new Vector3(0.30f, 0.24f, 0.28f));
+            Cog(relay, "RelayWheel", M("Accent"), M("AccentLight"), new Vector3(0f, 0.15f, -0.16f),
+                0.17f, 8, 0.055f);
+
+            var pulseNear = Hidden(Mover(t, "GroundPulseNear"));
+            Beam(pulseNear, "Conduit", M("WaterBright"), new Vector3(0.44f, 1.10f, 0.88f),
+                new Vector3(0.24f, 0.44f, 0.42f), 0.025f);
+            var pulseMid = Hidden(Mover(t, "GroundPulseMid"));
+            Beam(pulseMid, "Conduit", M("Candle"), new Vector3(0.24f, 0.44f, 0.42f),
+                new Vector3(-0.18f, 0.18f, 0.08f), 0.028f);
+            var pulseFar = Hidden(Mover(t, "GroundPulseFar"));
+            Beam(pulseFar, "Conduit", M("WaterBright"), new Vector3(-0.18f, 0.18f, 0.08f),
+                new Vector3(-0.46f, 0.30f, 0.58f), 0.025f);
+
+            var beacons = Hidden(Mover(t, "SignalBeacons"));
+            foreach (var (x, z) in new[] { (-0.50f, -0.78f), (0.48f, 0.88f), (0.50f, -0.72f) })
+            {
+                Rod(beacons, "BeaconPost", M("StoneLight"), new Vector3(x, 0.31f, z),
+                    new Vector3(0.035f, 0.20f, 0.035f));
+                Ball(beacons, "BeaconLamp", M("AccentLight"), new Vector3(x, 0.53f, z), Vector3.one * 0.075f);
+            }
 
             // The bolt and its afterglow are hidden until the rod earns them.
             var arc = Hidden(Mover(t, "Arc"));
-            foreach (var (x, y, tilt) in new[] { (0.30f, 1.62f, 14f), (0.40f, 1.30f, -18f), (0.44f, 1.04f, 10f) })
+            foreach (var (x, y, tilt) in new[] { (0.28f, 1.78f, 14f), (0.42f, 1.46f, -18f), (0.48f, 1.14f, 10f) })
             {
-                Box(arc, "Bolt", M("Candle"), new Vector3(x, y, 0.86f), new Vector3(0.05f, 0.34f, 0.05f),
+                Box(arc, "Bolt", M("Candle"), new Vector3(x, y, 0.88f), new Vector3(0.055f, 0.36f, 0.055f),
                     new Vector3(0f, 0f, tilt));
             }
 
             var strike = Hidden(Mover(t, "Strike"));
-            Ball(strike, "Flash", M("Candle"), new Vector3(0.20f, 0.60f, 0.60f), Vector3.one * 1.30f);
+            Ball(strike, "FlashCore", M("Candle"), new Vector3(0.48f, 1.32f, 0.88f),
+                new Vector3(0.26f, 0.22f, 0.24f));
+            foreach (var (x, y, tilt) in new[] { (0.16f, 1.36f, 34f), (0.78f, 1.28f, -30f), (0.48f, 0.94f, 8f) })
+                Box(strike, "FlashRay", M("Candle"), new Vector3(x, y, 0.87f),
+                    new Vector3(0.045f, 0.54f, 0.045f), new Vector3(0f, 0f, tilt));
 
             var scorch = Mover(t, "Scorch");
             foreach (var (x, z) in new[] { (-0.14f, 0.10f), (0.16f, 0.66f) })
@@ -1066,45 +1769,142 @@ namespace SavePeps.EditorTools
                 Ball(scorch, "Mark", M("Abyss"), new Vector3(x, 0.09f, z), new Vector3(0.16f, 0.008f, 0.12f));
             }
 
-            Worlds.Peps(t, new Vector3(-0.24f, 0.07f, -0.58f), new Vector3(0.22f, 0.07f, 1.14f),
-                new Vector3(-0.02f, 0.07f, 0.36f));
+            Worlds.Peps(t, new Vector3(-0.38f, 0.15f, -0.76f), new Vector3(0.34f, 0.19f, 0.90f),
+                new Vector3(0.22f, 0.18f, 0.50f));
             Worlds.Slots(t, new Vector3(-0.44f, 0.07f, -0.94f), new Vector3(0.44f, 0.07f, -0.86f),
                 new Vector3(0f, 0.07f, -1.18f));
             Worlds.Finish(root, Worlds.Storm, _dir);
         }
 
-        /// <summary>Movers: Gutter, Spray (hidden).</summary>
+        /// <summary>
+        /// Movers: LockedRoofWorld/SpillwayWorld, StormTank, DrainWheel,
+        /// SpillwayChains, FloodFront, TorrentField, StormDebris, WorldFlash,
+        /// SafetyLights and LandingSpray.
+        /// </summary>
         private static void StormGutter()
         {
             var root = Worlds.Begin(Worlds.Storm, "Gutter");
             var t = root.transform;
 
-            // A lower annex roof beyond the parapet, and a steep tiled gutter
-            // running down to it. Everything here is about the drop.
-            Box(t, "Annex", M("Ink"), new Vector3(0.08f, -0.72f, 1.92f), new Vector3(1.16f, 1.30f, 0.98f));
-            Box(t, "AnnexRoof", M("Violet"), new Vector3(0.08f, -0.06f, 1.92f), new Vector3(1.22f, 0.10f, 1.04f));
-            Box(t, "AnnexLip", M("Stone"), new Vector3(0.08f, 0.02f, 1.46f), new Vector3(1.22f, 0.07f, 0.06f));
+            // BEFORE: the upper cistern is locked behind tall folded storm
+            // shutters. Three disconnected roof islands leave no downhill
+            // route; the skyline is vertical and broken.
+            var locked = Mover(t, "LockedRoofWorld");
+            Box(locked, "UpperRoof", M("Violet"), new Vector3(-0.42f, 0.86f, 1.12f),
+                new Vector3(0.82f, 0.18f, 0.78f));
+            Box(locked, "MiddleRoof", M("Stone"), new Vector3(0.18f, 0.46f, 0.16f),
+                new Vector3(0.72f, 0.14f, 0.66f));
+            Box(locked, "LandingRoof", M("Violet"), new Vector3(0.40f, 0.14f, -0.90f),
+                new Vector3(0.76f, 0.12f, 0.70f));
+            Box(locked, "VoidFar", M("Abyss"), new Vector3(-0.12f, 0.13f, 0.66f),
+                new Vector3(0.76f, 0.08f, 0.46f), new Vector3(0f, -10f, 0f));
+            Box(locked, "VoidNear", M("Abyss"), new Vector3(0.22f, 0.12f, -0.38f),
+                new Vector3(0.84f, 0.08f, 0.48f), new Vector3(0f, 12f, 0f));
+            Box(locked, "FoldedFlumeFar", M("StoneLight"), new Vector3(-0.63f, 0.92f, 0.50f),
+                new Vector3(0.16f, 1.06f, 0.66f), new Vector3(0f, 0f, -8f));
+            Box(locked, "FoldedFlumeMid", M("Stone"), new Vector3(0.54f, 0.68f, -0.02f),
+                new Vector3(0.18f, 0.86f, 0.72f), new Vector3(0f, 0f, 9f));
+            Box(locked, "StormShutter", M("AccentDeep"), new Vector3(-0.12f, 1.20f, 1.34f),
+                new Vector3(0.54f, 0.74f, 0.09f), new Vector3(0f, 0f, -12f));
 
-            var gutter = Mover(t, "Gutter");
-            Box(gutter, "Trough", M("Stone"), new Vector3(0.08f, 0.06f, 1.16f),
-                new Vector3(0.34f, 0.05f, 0.88f), new Vector3(28f, 0f, 0f));
-            foreach (var x in new[] { -0.09f, 0.25f })
-            {
-                Box(gutter, "TroughWall", M("StoneLight"), new Vector3(x, 0.11f, 1.16f),
-                    new Vector3(0.04f, 0.10f, 0.88f), new Vector3(28f, 0f, 0f));
-            }
+            // AFTER: the locked vertical pieces become one broad diagonal
+            // spillway spanning the entire roof. Opaque state twins make the
+            // transformation atomic on mobile.
+            var spillway = Hidden(Mover(t, "SpillwayWorld"));
+            Box(spillway, "UpperFlume", M("WaterDeep"), new Vector3(-0.38f, 0.78f, 0.92f),
+                new Vector3(0.66f, 0.10f, 0.94f), new Vector3(-24f, -10f, 0f));
+            Box(spillway, "MiddleFlume", M("Water"), new Vector3(-0.04f, 0.47f, 0.12f),
+                new Vector3(0.74f, 0.10f, 0.96f), new Vector3(-20f, -12f, 0f));
+            Box(spillway, "LowerFlume", M("WaterDeep"), new Vector3(0.30f, 0.22f, -0.68f),
+                new Vector3(0.84f, 0.10f, 0.98f), new Vector3(-14f, -12f, 0f));
+            foreach (var (x, y, z, yaw) in new[]
+                     {
+                         (-0.69f, 0.88f, 0.91f, -10f), (-0.08f, 0.68f, 0.91f, -10f),
+                         (-0.42f, 0.58f, 0.10f, -12f), (0.35f, 0.38f, 0.10f, -12f),
+                         (-0.12f, 0.28f, -0.69f, -12f), (0.74f, 0.16f, -0.69f, -12f),
+                     })
+                Box(spillway, "FlumeRail", M("StoneLight"), new Vector3(x, y, z),
+                    new Vector3(0.055f, 0.16f, 0.90f), new Vector3(-18f, yaw, 0f));
+            Box(spillway, "LandingBasin", M("Water"), new Vector3(0.42f, 0.13f, -1.13f),
+                new Vector3(1.00f, 0.12f, 0.54f));
+            Box(spillway, "LandingLip", M("StoneLight"), new Vector3(0.42f, 0.23f, -1.36f),
+                new Vector3(1.04f, 0.08f, 0.08f));
 
-            var spray = Hidden(Mover(t, "Spray"));
+            var tank = Mover(t, "StormTank");
+            tank.parent.localPosition = new Vector3(0.42f, 1.12f, 1.10f);
+            Rod(tank, "Cistern", M("Stone"), Vector3.zero, new Vector3(0.36f, 0.44f, 0.36f),
+                new Vector3(90f, 0f, 0f));
+            Box(tank, "WaterGauge", M("WaterBright"), new Vector3(0f, 0.02f, -0.38f),
+                new Vector3(0.46f, 0.10f, 0.035f));
+            foreach (var x in new[] { -0.24f, 0.24f })
+                Box(tank, "TankLeg", M("StoneLight"), new Vector3(x, -0.43f, 0f),
+                    new Vector3(0.07f, 0.48f, 0.07f));
+
+            var wheel = Mover(t, "DrainWheel");
+            wheel.parent.localPosition = new Vector3(-0.16f, 0.42f, 0.74f);
+            Cog(wheel, "Release", M("Accent"), M("AccentLight"), Vector3.zero, 0.22f, 9, 0.07f);
+
+            var chains = Mover(t, "SpillwayChains");
+            Beam(chains, "ChainLeft", M("Cream"), new Vector3(-0.40f, 0.68f, 0.70f),
+                new Vector3(-0.62f, 1.20f, 0.52f), 0.018f);
+            Beam(chains, "ChainRight", M("Cream"), new Vector3(0.28f, 0.56f, 0.05f),
+                new Vector3(0.54f, 1.02f, -0.02f), 0.018f);
+
+            var flood = Hidden(Mover(t, "FloodFront"));
+            Box(flood, "WaterWall", M("WaterBright"), new Vector3(-0.18f, 0.78f, 0.82f),
+                new Vector3(1.56f, 0.24f, 0.14f), new Vector3(0f, 0f, -7f));
+            for (var i = 0; i < 6; i++)
+                Ball(flood, "Breaker", M("WaterLight"), new Vector3(-0.76f + i * 0.30f, 0.94f, 0.80f),
+                    new Vector3(0.24f, 0.13f, 0.15f));
+
+            var torrent = Hidden(Mover(t, "TorrentField"));
+            var runoff = Living(torrent, "Runoff", AmbientMode.Drift, -2.30f, 1.45f,
+                new Vector3(0.36f, -0.35f, -1f), stagger: true, controlId: "RoofTorrent");
+            for (var i = 0; i < 12; i++)
+                Box(runoff, "TorrentStripe", i % 2 == 0 ? M("WaterLight") : M("WaterBright"),
+                    new Vector3(-0.70f + (i % 4) * 0.45f, 0.22f + (i % 3) * 0.25f,
+                        -1.10f + (i / 4) * 0.82f),
+                    new Vector3(0.30f, 0.018f, 0.055f), new Vector3(-12f, -24f, 0f));
+
+            var debris = Mover(t, "StormDebris");
             foreach (var (x, y, z, s) in new[]
                      {
-                         (-0.06f, 0.10f, 0.90f, 0.14f), (0.14f, 0.02f, 1.24f, 0.18f), (0.06f, -0.06f, 1.52f, 0.16f),
+                         (-0.62f, 1.42f, 0.48f, 0.13f), (0.54f, 1.14f, -0.02f, 0.10f),
+                         (-0.08f, 1.52f, 1.32f, 0.12f),
                      })
-            {
-                Ball(spray, "Splash", M("WaterBright"), new Vector3(x, y, z), new Vector3(s, s * 0.5f, s * 0.7f));
-            }
+                Box(debris, "LoosePanel", M("WoodMid"), new Vector3(x, y, z),
+                    new Vector3(s * 1.8f, 0.035f, s), new Vector3(0f, y * 18f, 12f));
 
-            Worlds.Peps(t, new Vector3(-0.24f, 0.07f, -0.42f), new Vector3(0.14f, -0.01f, 1.96f),
-                new Vector3(0.02f, -0.01f, 1.82f));
+            var flash = Hidden(Mover(t, "WorldFlash"));
+            foreach (var (x, y, z, tilt) in new[]
+                     {
+                         (-0.78f, 1.64f, 1.54f, 18f), (-0.58f, 1.22f, 1.50f, -22f),
+                         (0.36f, 1.72f, 1.58f, -16f), (0.22f, 1.30f, 1.54f, 24f),
+                     })
+                Box(flash, "SkyBolt", M("Candle"), new Vector3(x, y, z),
+                    new Vector3(0.055f, 0.52f, 0.055f), new Vector3(0f, 0f, tilt));
+            Ball(flash, "ElectricCore", M("Candle"), new Vector3(-0.10f, 1.44f, 1.56f),
+                new Vector3(0.30f, 0.22f, 0.16f));
+
+            var lights = Hidden(Mover(t, "SafetyLights"));
+            foreach (var (x, y, z) in new[]
+                     {
+                         (-0.58f, 0.98f, 1.00f), (-0.22f, 0.68f, 0.28f),
+                         (0.18f, 0.40f, -0.38f), (0.58f, 0.25f, -1.02f),
+                     })
+                Ball(lights, "RouteLamp", M("AccentLight"), new Vector3(x, y, z), Vector3.one * 0.075f);
+
+            var spray = Hidden(Mover(t, "LandingSpray"));
+            foreach (var (x, y, z, s) in new[]
+                     {
+                         (0.05f, 0.24f, -1.02f, 0.26f), (0.38f, 0.34f, -1.16f, 0.34f),
+                         (0.70f, 0.22f, -1.08f, 0.24f),
+                     })
+                Ball(spray, "Splash", M("WaterLight"), new Vector3(x, y, z),
+                    new Vector3(s, s * 0.65f, s * 0.72f));
+
+            Worlds.Peps(t, new Vector3(-0.43f, 1.02f, 1.08f), new Vector3(0.42f, 0.22f, -1.10f),
+                new Vector3(0.34f, 0.22f, -1.02f));
             Worlds.Slots(t, new Vector3(-0.44f, 0.07f, -0.88f), new Vector3(0.44f, 0.07f, -0.96f),
                 new Vector3(0f, 0.07f, -1.20f));
             Worlds.Finish(root, Worlds.Storm, _dir);

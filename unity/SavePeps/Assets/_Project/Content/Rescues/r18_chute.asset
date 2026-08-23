@@ -17,8 +17,9 @@ MonoBehaviour:
   Reasoning: 10
   Goal: Slide down safely.
   Difficulty: 1
-  SceneDescription: A steep empty gutter runs from this roof down to a lower annex
-    where the other Pep shelters.
+  SceneDescription: A locked storm cistern towers over three disconnected roof islands.
+    Folded spillway panels stand upright while the other Pep waits at the lowest
+    landing basin.
   Environment: {fileID: 2257472071016192572, guid: c394826da4ab34f788ab938461772c07, type: 3}
   PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
   PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
@@ -98,7 +99,7 @@ MonoBehaviour:
     AnchorId: Slot_2
     Label: The wooden plank
     Quip: 
-    Duration: 3.5
+    Duration: 3.6
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -111,26 +112,26 @@ MonoBehaviour:
       Ease: 0
       Param: slide
     - At: 0
-      Duration: 0.66
+      Duration: 0.54
       Kind: 1
       Target: $self
-      Delta: {x: -0.36, y: 0.07, z: 2.12}
+      Delta: {x: -0.87, y: 0.75, z: 2.06}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.6
+      Amplitude: 0.92
       Ease: 5
       Param: 
-    - At: 0.6
-      Duration: 0.34
+    - At: 0.42
+      Duration: 0.24
       Kind: 0
       Target: $self
       Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 28, y: 0, z: 0}
+      EulerDelta: {x: -18, y: -8, z: 0}
       Scale: 1
       Amplitude: 0
-      Ease: 2
+      Ease: 4
       Param: 
-    - At: 0.68
+    - At: 0.56
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -140,27 +141,37 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: thud
-    - At: 0.8
+    - At: 0.58
       Duration: 0.5
-      Kind: 100
-      Target: $pepA
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.46
+      Ease: 0
+      Param: 
+    - At: 0.58
+      Duration: 0.5
+      Kind: 102
+      Target: $self
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: Hopeful
-    - At: 0.9
-      Duration: 0.6
-      Kind: 2
-      Target: $pepA
-      Delta: {x: 0.32, y: 0.05, z: 1.22}
+      Param: medium
+    - At: 0.58
+      Duration: 0.54
+      Kind: 5
+      Target: DrainWheel
+      Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.16
-      Ease: 5
+      Amplitude: 620
+      Ease: 2
       Param: 
-    - At: 1.52
+    - At: 0.66
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -169,28 +180,228 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: glide_hiss
-    - At: 1.52
-      Duration: 0.62
+      Param: ratchet
+    - At: 0.66
+      Duration: 0.5
       Kind: 0
-      Target: $pepA
-      Delta: {x: 0.06, y: -0.13, z: 1.1}
+      Target: SpillwayChains
+      Delta: {x: 0, y: 0.32, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 1
       Param: 
-    - At: 2.1
-      Duration: 0.2
+    - At: 0.72
+      Duration: 0.58
+      Kind: 0
+      Target: StormTank
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: -48}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 0.72
+      Duration: 0.58
+      Kind: 0
+      Target: StormTank
+      Delta: {x: -0.16, y: -0.18, z: -0.1}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 0.78
+      Duration: 0.12
       Kind: 6
-      Target: Spray
+      Target: WorldFlash
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.12
+    - At: 0.8
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: zap
+    - At: 0.82
+      Duration: 0.12
+      Kind: 6
+      Target: FloodFront
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.82
+      Duration: 0.66
+      Kind: 0
+      Target: FloodFront
+      Delta: {x: 0.62, y: -0.54, z: -2.44}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 0.86
+      Duration: 0.46
+      Kind: 4
+      Target: LockedRoofWorld
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 5
+      Ease: 2
+      Param: 
+    - At: 0.88
+      Duration: 0.58
+      Kind: 8
+      Target: StormDebris
+      Delta: {x: 1.72, y: 0.74, z: -0.72}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.04
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: rumble
+    - At: 1.06
+      Duration: 0.14
+      Kind: 7
+      Target: WorldFlash
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.26
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: heavy
+    - At: 1.26
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 1.38
+      Ease: 0
+      Param: 
+    - At: 1.26
+      Duration: 0.72
+      Kind: 106
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: stormflow
+    - At: 1.26
+      Duration: 0.62
+      Kind: 107
+      Target: StormRain
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 0.38
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.26
+      Duration: 0.58
+      Kind: 107
+      Target: StormLightning
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 0.05
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.26
+      Duration: 0.5
+      Kind: 104
+      Target: LockedRoofWorld
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: SpillwayWorld
+    - At: 1.28
+      Duration: 0.16
+      Kind: 6
+      Target: TorrentField
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.34
+      Duration: 0.18
+      Kind: 6
+      Target: SafetyLights
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.34
+      Duration: 0.34
+      Kind: 0
+      Target: SafetyLights
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.18
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.3
+      Duration: 0.34
+      Kind: 4
+      Target: SpillwayWorld
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 2.5
+      Ease: 2
+      Param: 
+    - At: 1.5
+      Duration: 0.12
+      Kind: 7
+      Target: FloodFront
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.34
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -200,7 +411,177 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: splash
-    - At: 2.14
+    - At: 1.38
+      Duration: 0.5
+      Kind: 100
+      Target: $pepA
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Happy
+    - At: 1.38
+      Duration: 0.5
+      Kind: 100
+      Target: $pepB
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: Hopeful
+    - At: 1.56
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: glide_hiss
+    - At: 1.56
+      Duration: 0.34
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0.26, y: -0.22, z: -0.68}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.56
+      Duration: 0.34
+      Kind: 0
+      Target: $self
+      Delta: {x: 0.26, y: -0.22, z: -0.68}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.9
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: splash
+    - At: 1.9
+      Duration: 0.34
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0.3, y: -0.25, z: -0.7}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.9
+      Duration: 0.34
+      Kind: 0
+      Target: $self
+      Delta: {x: 0.3, y: -0.25, z: -0.7}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 2.24
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: glide_hiss
+    - At: 2.24
+      Duration: 0.32
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0.25, y: -0.18, z: -0.56}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 2.24
+      Duration: 0.32
+      Kind: 0
+      Target: $self
+      Delta: {x: 0.25, y: -0.18, z: -0.56}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 2.54
+      Duration: 0.3
+      Kind: 1
+      Target: $pepA
+      Delta: {x: 0.12, y: -0.08, z: -0.22}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.34
+      Ease: 5
+      Param: 
+    - At: 2.54
+      Duration: 0.3
+      Kind: 1
+      Target: $self
+      Delta: {x: 0.12, y: -0.08, z: -0.22}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.28
+      Ease: 5
+      Param: 
+    - At: 2.66
+      Duration: 0.14
+      Kind: 6
+      Target: LandingSpray
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.66
+      Duration: 0.38
+      Kind: 0
+      Target: LandingSpray
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.45
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 2.84
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: splash
+    - At: 2.84
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.62
+      Ease: 0
+      Param: 
+    - At: 2.84
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -209,19 +590,19 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: light
-    - At: 2.34
-      Duration: 0.34
+      Param: success
+    - At: 3.1
+      Duration: 0.16
       Kind: 7
-      Target: Spray
+      Target: LandingSpray
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.7
-      Duration: 0.74
+    - At: 3.02
+      Duration: 0.5
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -230,7 +611,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.76
+    - At: 3.08
       Duration: 0.5
       Kind: 101
       Target: $self

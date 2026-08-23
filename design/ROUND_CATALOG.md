@@ -50,11 +50,11 @@ hand:
 | 01 | **Garden** | Simple things do simple jobs. | Grass plinth, no horizon line; brook, path, trellis | Crossing · Activation · Cutting | Pale blue, warm sun 1.15 | `amb_garden` | r01 |
 | 02 | **Clockwork courtyard** | Nothing moves until a linkage moves it. | Chequer floor under an overhead brass gantry | Counterweight · Activation · Reflection | Cream, flat sun 1.05, almost no fog | `amb_clock` | r05 |
 | 03 | **Weather terrace** | Change the state of the air, not the Peps. | Three stacked terraces at 0.15 / 0.42 / 0.70 | Temperature · Growth · Shelter | **Three skies** — frost, full sun, downpour | `amb_weather` | r09 |
-| 04 | **Windrock canyon** | The far rim is higher, and the air is going somewhere. | Two mesas with a visible drop between them | Airflow · Counterweight · Momentum | Cold blue sky, hard sun 1.34 on warm rock | `amb_canyon` | r12 |
-| 05 | **Tidewater docks** | Everything floats or sinks, and the water is going somewhere. | Open water 2.30 × 4.10, beach at the *front* | Buoyancy · Momentum · Crossing | Bright cyan, sun 1.16, near-zero fog | `amb_tide` | r15 |
+| 04 | **Windrock canyon** | The far rim is higher, and the air is going somewhere. | Local thermal, diagonal cableway, fractured monolith over a deep chasm | Airflow · Counterweight · Momentum | Cold blue sky, hard sun 1.34 on warm rock | `amb_canyon` | r12 |
+| 05 | **Tidewater docks** | Everything floats or sinks, and the water is going somewhere. | Local punt, two-gate lock, low-tide harbor and barrage | Buoyancy · Momentum · Crossing | Bright cyan, sun 1.16, near-zero fog | `amb_tide` | r15 |
 | 06 | **Storm rooftop** | The wind has a direction and it is taking things. | Narrow roof on a tower shaft that leaves frame | Airflow · Signal · Momentum | Near-black, sun 0.58, heavy fog | `amb_storm` | r17 |
 | 07 | **Crystal cave** | You cannot see and you cannot reach. | The only enclosed world: walls, back wall, stalactites | Reflection · Resonance · Momentum | Ink sky, cold key + lantern-warm fill 0.66 | `amb_cave` | r20 |
-| 08 | **Snowpeak slopes** | Everything rolls downhill. | A 7-step diagonal wedge with a cornice | Airflow · Momentum · Crossing | White-blue, sun 1.06, thin fog | `amb_peak` | r22 |
+| 08 | **Snowpeak slopes** | Everything rolls downhill. | Local drift, gated banked run, fractured summit / avalanche fan | Airflow · Momentum · Crossing | White-blue, sun 0.82, thin fog | `amb_peak` | r22 |
 | 09 | **Deep ocean trench** | Down is slow, up is free, sound goes nowhere. | Trench walls and rising bubble columns | Buoyancy · Luring · Crossing | Deep teal, sun 0.62, fog 0.165 (the densest) | `amb_abyss` | r25 |
 | 10 | **Orbital station** | Nothing falls and nothing stops. | **No ground** — three modules in a starfield | Momentum · Magnetism · Airflow | Black, hard white key 1.62, fill 0.10 | `amb_orbit` | r28 |
 | 11 | **Foundry floor** | The machine is already running and will not wait. | Riveted deck, molten trough, overhead gantry | Activation · Temperature · Momentum | Smoke violet, **lit from below** (molten ground bounce) | `amb_forge` | r32 |
@@ -64,7 +64,8 @@ Every world has its own camera. Framing is authored on `DioramaAtmosphere`
 (`CameraPitch` / `CameraDistance` / `CameraHeight` / `CameraFov`) and pushed
 through `GameFeel.SetFraming` by `AtmosphereDirector`; there is no global
 camera constant left. The spread runs from Orbit's detached
-30° / 7.2 m to the canyon's 45° look-down into its own chasm, and the cave
+30° / 7.2 m to the canyon's 46.5° local look-down, with its climax backing out
+to 37.5° / 7.35 m to hold the geological silhouette. The cave
 takes the widest lens in the game at 34° because it is the only stage with a
 ceiling to fit in.
 
@@ -86,11 +87,11 @@ Bold is the correct object. `Stage` is the environment prefab, one per rescue.
 | r08 | Reach the ledge. | sprout | Growth | Medium | Weather_Bloom | scissors / **watering_can** / balloon |
 | r09 | Stay out of rain. | shelter | Shelter | Medium | Weather_Downpour | **umbrella** / fan / leaf |
 | r10 | Cross the chasm. | glide | Airflow | Medium | Canyon_Updraft | fan / **umbrella** / stone |
-| r11 | Stop the swinging. | plumb | Counterweight | Medium | Canyon_Cablecar | feather / rope / **weight** |
-| r12 | Bring down the spire. | topple | Momentum | Surprising | Canyon_Spire | **grapple** / scissors / fan |
+| r11 | Stabilise the cableway. | plumb | Counterweight | Medium | Canyon_Cablecar | feather / rope / **weight** |
+| r12 | Reshape the canyon. | topple | Momentum | Surprising | Canyon_Spire | **grapple** / scissors / fan |
 | r13 | Lift the punt. | bail | Buoyancy | Easy | Tide_Punt | **bucket** / stone / balloon |
-| r14 | Row across the bay. | paddle | Momentum | Medium | Tide_Channel | weight / **oar** / balloon |
-| r15 | Ride the current. | drift | Crossing | Surprising | Tide_Current | plank / net / **buoy** |
+| r14 | Navigate the lock. | paddle | Momentum | Medium | Tide_Channel | weight / **oar** / balloon |
+| r15 | Release the tide. | drift | Crossing | Surprising | Tide_Current | plank / net / **buoy** |
 | r16 | Tame the tarp. | pin | Airflow | Medium | Storm_Tarp | umbrella / rope / **sandbag** |
 | r17 | Stop the lightning. | ground | Signal | Surprising | Storm_Mast | **lightning_rod** / lantern / plank |
 | r18 | Slide down safely. | chute | Momentum | Medium | Storm_Gutter | pillow / **plank** / stone |
@@ -163,126 +164,126 @@ Every round is built as a three-act miniature adventure following a strict progr
 ### Round 03 — Weather terrace
 
 * **World rule.** You never touch a Pep or an obstacle. You change the state of the air over them, and the world changes back.
-* **Geometry.** One hillside split across three distinct elevations (0.15, 0.42, 0.70).
+* **Geometry.** Three deliberately different compositions on a three-elevation hillside: a tight frozen top shelf, an empty diagonal climb from a dry basin to a remote ledge, and a full-frame storm channel splitting all three terraces.
 * **Interaction vocabulary.** Temperature, Growth, Shelter. Every answer is a *field* applied to a region.
 * **Props.** hair dryer, watering can, umbrella, leaf, fan, scissors, bell, pillow, balloon.
-* **Choreography.** Organic state changes: ice melting to water, stems growing under rain, clouds swept by gusts.
+* **Choreography.** Causal state changes at three scales: a shell melts, a living causeway grows, then wind drives drainage machinery that reshapes the whole hillside.
 * **Atmosphere.** **Three distinct skies:** `frost` (pale cold), `sun` (golden warmth), `rain` (grey mist).
-* **Environmental animation.** `Drift` snowfall/rain, `Sway` on meadow flora, `Pulse` sunbeams.
-* **Sound.** `amb_weather` under `poof`, `splash`, `pop`.
+* **Environmental animation.** `Drift` snowfall, flood current, rain and full-width gusts; `Sway` storm trees; `Spin` drainage wheel and weather vane; controlled shutdowns during the climax.
+* **Sound.** `amb_weather` under `splash`, `crunch`, `rumble`, `ratchet`, `wind`, `chime` and `reunion`.
 * **Escalation Arc:**
-  * **Rescue 1 (Introduction) — r07: Frost (`thaw` / Temperature):** Localized cold hazard. Applying heat shrinks the ice shell encasing Pep B into a melt puddle, teaching the rule that the atmosphere dictates physical state.
-  * **Rescue 2 (Expansion) — r08: Bloom (`sprout` / Growth):** Multi-tiered vertical problem. Watering the seedling causes its stem to surge upward in organic stages, unfolding a broad leaf platform that lifts Pep B up the steep terrace wall.
-  * **Rescue 3 (Climax) — r09: Downpour (`shelter` / Shelter):** Full-scale environmental storm. Deploying the umbrella shelters Pep A and generates a rising draft that sweeps the dark storm cloud completely off the mountain frame; rain clears, radiant sunbeams illuminate the hillside, and wildflowers pop open across the terrace as the storm breaks.
-* **Player Escalation Experience:** Thawing a small ice block → Cultivating an organic elevator → Banishing an entire thunderstorm to bathe the mountain in sunshine.
+  * **Rescue 1 (Introduction) — r07: Frost (`thaw` / Temperature): LOCAL EVENT.** Applying heat shrinks only Pep B's ice shell into a puddle. One nearby Pep makes one short hop; the terrain, silhouette and wider weather remain unchanged.
+  * **Rescue 2 (Expansion) — r08: Bloom (`sprout` / Growth): LANDSCAPE EVENT.** Watering the dry root heaves the basin, grows a three-run vine spine across every elevation, raises three leaf steps and a crown on the opposite ledge, then sends Pep B over the new landscape in four distinct hops.
+  * **Rescue 3 (Climax) — r09: Downpour (`shelter` / Shelter): WORLD EVENT.** The opened umbrella catches the gale beside an oversized drainage wheel. The wheel turns, the sluice gate rises, flood motion dies, debris and the awning wash off-screen, rain/gust/tree motion settles, and the storm cloud leaves the frame. Both muddy banks are replaced by raised green terrain, the full-height torrent narrows to a stream, four causeway stones emerge, and sunbeams, meadow growth and a rainbow recompose the scene before Pep B makes the longest four-part crossing of the round.
+* **Player Escalation Experience:** Melting one local shell → Growing a route across the landscape → Mechanically draining and rebuilding an entire storm world into a new traversable state.
 
 ---
 
 ### Round 04 — Windrock canyon
 
 * **World rule.** The gap is vertical as well as horizontal, the far rim is higher than the near one, and the air is going somewhere.
-* **Geometry.** Two fluted red-rock mesas separated by a deep chasm. Steep 45° look-down camera.
+* **Geometry.** Two fluted red-rock mesas separated by a deep chasm, reframed per rescue: a tight thermal pocket, a broad diagonal cableway, then an asymmetrical three-part rock skyline.
 * **Interaction vocabulary.** Airflow, Counterweight, Momentum. Planks are not offered; gravity and air rule the void.
 * **Props.** umbrella, weight, grapple, feather, rope, fan, stone, scissors.
 * **Choreography.** High-airtime trajectories and heavy kinetic impacts.
 * **Atmosphere.** Cold blue sky against warm sandstone, hard 1.34 sun, cool shadows.
-* **Environmental animation.** `Drift` canyon dust devils, `Spin` soaring hawk, `Sway` suspension cables.
+* **Environmental animation.** `Drift` canyon dust and directional wind ribbons, `Spin` soaring hawk, controlled `Sway` on the suspended car.
 * **Sound.** `amb_canyon` under `wind`, `rumble`, `creak`, `ratchet`.
 * **Escalation Arc:**
-  * **Rescue 1 (Introduction) — r10: Updraft (`glide` / Airflow):** Direct canyon crossing. Catching the thermal updraft with the umbrella carries Pep A smoothly across the chasm to the elevated mesa.
-  * **Rescue 2 (Expansion) — r11: Cablecar (`plumb` / Counterweight):** Dynamic spatial oscillation. A cable car hangs in turbulent crosswinds; dropping the heavy ballast weight into the stabilization cradle pulls the lower guy wire taut, killing the pendulum sway and aligning the passenger gate.
-  * **Rescue 3 (Climax) — r12: Spire (`topple` / Momentum):** Colossal geological transformation. Grappling the pinnacle of the towering central rock spire applies massive leverage; the monolith fractures with a deep screen-shaking rumble, toppling in a sweeping arc to crash across the abyss as a permanent stone bridge between the cliffs.
-* **Player Escalation Experience:** Riding a single thermal current → Taming a swinging aerial gondola → Bringing down a massive natural stone monolith to conquer the canyon.
+  * **Rescue 1 (Introduction) — r10: Updraft (`glide` / Airflow): LOCAL EVENT.** One compact thermal pocket pulses as the umbrella lifts Pep A in one clean arc. Neither rim nor the wider canyon changes.
+  * **Rescue 2 (Expansion) — r11: Cablecar (`plumb` / Counterweight): LANDSCAPE / SYSTEM EVENT.** Ballast drops into the cradle, both towers flex under load, the lower rig descends, broad crosswind ribbons settle, two sagging cable runs pull taut and the unsafe swinging car becomes stable. Pep A boards and rides the full diagonal span from low near rim to high far rim.
+  * **Rescue 3 (Climax) — r12: Spire (`topple` / Momentum): WORLD EVENT.** A grapple pulls the leaning monolith through a full-screen fall. Faults light across both rims, both hoodoo crowns break, boulders drop into the chasm and the three-piece vertical skyline disappears in one geological impact. It is replaced by fractured near/far shelves and a wide, rust-coloured diagonal mass of rock facets; Pep A makes the round's longest four-part climb over the transformed canyon.
+* **Player Escalation Experience:** Riding one pocket of rising air → Loading and traversing a canyon-wide suspended system → Collapsing the canyon skyline into a new landform and route.
 
 ---
 
 ### Round 05 — Tidewater docks
 
 * **World rule.** Everything floats or sinks, and the water is going somewhere whether you like it or not.
-* **Geometry.** Expansive open water plane (2.30 × 4.10) with the shoreline and docks in the foreground.
+* **Geometry.** Three different water compositions: a tight two-jetty punt, a long two-gate lock, and an exposed low-tide bay sealed by a full-width barrage.
 * **Interaction vocabulary.** Buoyancy, Momentum, Crossing.
 * **Props.** bucket, oar, buoy, net, plank, weight, stone, balloon.
-* **Choreography.** Layered floating physics: all vessels maintain an ambient `Bob` which combines with directed propulsion.
+* **Choreography.** Layered floating physics: local displacement, a gate/level/navigation chain, then an atomic low-tide/high-tide world state with independently refloating harbor structures.
 * **Atmosphere.** Bright cyan sky, crisp 1.16 sun, near-zero fog over sparkling water.
-* **Environmental animation.** `Bob` on surface craft and ocean swell, `Drift` tidal currents, `Spin` seagull.
-* **Sound.** `amb_tide` under `splash`, `creak`, `boing`.
+* **Environmental animation.** `Bob` on surface craft and ocean swell, controlled full-harbor `Drift` after the barrage opens, `Spin` seagull.
+* **Sound.** `amb_tide` under `splash`, `creak`, `boing`, `ratchet` and `rumble`.
 * **Escalation Arc:**
-  * **Rescue 1 (Introduction) — r13: Punt (`bail` / Buoyancy):** Local buoyancy state. Bailing the waterlogged hull floats the punt back up to pier level so Pep B can board safely.
-  * **Rescue 2 (Expansion) — r14: Channel (`paddle` / Momentum):** Guided hydrodynamic propulsion. Slotting the oar and executing synchronized rowing strokes generates wake ripples, driving the punt across the open channel to dock at the pier.
-  * **Rescue 3 (Climax) — r15: Current (`drift` / Crossing):** Wide-bay tidal hydrodynamic surge. Casting the heavy mooring buoy into the turbulent tidal run catches the surging white water; the buoy swings on its long mooring tether in a wide sweeping arc through crashing swells, towing Pep A across the entire harbor into Pep B's arms.
-* **Player Escalation Experience:** Raising a sunken skiff → Rowing across a quiet slip → Harnessing an open-ocean tidal surge across the full bay.
+  * **Rescue 1 (Introduction) — r13: Punt (`bail` / Buoyancy): LOCAL EVENT.** Bailing one waterlogged hull removes only its bilge and raises only the punt. One short boarding hop follows; the sea and docks remain unchanged.
+  * **Rescue 2 (Expansion) — r14: Channel (`paddle` / Momentum): LANDSCAPE / SYSTEM EVENT.** The oar drives a dockside capstan. The lower gates open, mooring releases, the whole lock chamber swaps from low to high water, its gauge and raft rise, then the upper gates open and Pep A navigates the raft through two long legs of the waterway.
+  * **Rescue 3 (Climax) — r15: Current (`drift` / Crossing): WORLD EVENT.** The buoy floats into the barrage latch instead of carrying a Pep. The wheel turns, chains lift and the gate folds open; a full-width surge crosses the bay. Exposed mudflats and their narrow channel are replaced by high water, two stranded boats refloat in different directions, the broken dock becomes a large floating pontoon and a current begins across the entire harbor. The tide then carries that piece of the environment through the round's longest three-leg water traversal.
+* **Player Escalation Experience:** Raising one swamped hull → Operating and navigating a lock system → Releasing a tide that replaces the entire harbor state and turns stranded infrastructure into the route.
 
 ---
 
 ### Round 06 — Storm rooftop
 
 * **World rule.** The wind has a direction and it is taking things. Anything loose is already leaving, and there is nothing underneath.
-* **Geometry.** Narrow rooftop walkway perched atop a dizzying skyscraper tower with drop-offs on all sides.
+* **Geometry.** Three rooftop scales: a local tarp gap, a mast/grid landscape, and a storm-locked roof that can become a full spillway.
 * **Interaction vocabulary.** Airflow, Signal, Momentum.
 * **Props.** sandbag, lightning rod, plank, lantern, rope, umbrella, pillow, stone.
-* **Choreography.** High-velocity lateral motion; failed objects are instantly swept off-screen by the gale.
+* **Choreography.** Wind-driven lateral motion grows from one pinned surface through a causal electrical grid to a roof-wide hydraulic route change.
 * **Atmosphere.** Dark storm sky, low sun 0.58, dense driving fog, 31° camera emphasizing vertical plunge.
 * **Environmental animation.** `Drift` driving rain curtain, `Sway` communications mast, deterministic `Flicker` lightning flashes.
 * **Sound.** `amb_storm` under `wind`, `zap`, `clank`, `glide_hiss`.
 * **Escalation Arc:**
-  * **Rescue 1 (Introduction) — r16: Tarp (`pin` / Airflow):** Ground-level wind pinning. Dropping a heavy sandbag secures the whipping tarp against the roof deck, creating a walkable footway.
-  * **Rescue 2 (Expansion) — r17: Mast (`ground` / Signal):** High-voltage electrical hazard deflection. Mounting the lightning rod on the radio mast intercepts the next lethal storm strike, channeling the energy down the grounding conduit and extinguishing the arcing sparks on the walkway.
-  * **Rescue 3 (Climax) — r18: Gutter (`chute` / Momentum):** High-speed aerodynamic flume ride over the abyss. Laying the plank creates a rain-slicked flume track along the roof gutter; Pep B launches down the multi-stage chute at breakneck velocity, catching air off the lip to land safely in Pep A's arms as lightning illuminates the skyline.
-* **Player Escalation Experience:** Weighting down a flapping canvas → Redirecting a bolt of lightning → Launching a high-speed rooftop flume slide over the city drop.
+  * **Rescue 1 (Introduction) — r16: Tarp (`pin` / Airflow): LOCAL EVENT.** The sandbag atomically pins one whipping tarp into a short walkable patch; the surrounding storm remains unchanged.
+  * **Rescue 2 (Expansion) — r17: Mast (`ground` / Signal): LANDSCAPE / SYSTEM EVENT.** The rod intercepts a strike, sends charge through a staged relay/grid chain, grounds the roof and opens a broad bridge route before the Pep crosses it.
+  * **Rescue 3 (Climax) — r18: Gutter (`chute` / Momentum): WORLD EVENT.** The plank releases the storm cistern. The locked roof, rain and gutter network give way to a full-width spillway state, multiple rooftop structures react, and the Peps take the round's longest multi-leg storm traversal.
+* **Player Escalation Experience:** Pinning one patch of canvas → Grounding and opening a rooftop grid → Releasing the storm water so the entire roof becomes the route.
 
 ---
 
 ### Round 07 — Crystal cave
 
 * **World rule.** You cannot see and you cannot reach. Make light, make the right sound, or move the rock — and the cave answers back.
-* **Geometry.** Fully enclosed subterranean cavern: stalactite canopy, mineral seams, stone ledges, and deep chasm floor.
+* **Geometry.** A compact dark pocket, a sealed resonant chamber, then a rail-bound cavern whose rock shell can open into a geode cathedral.
 * **Interaction vocabulary.** Reflection, Resonance, Momentum.
 * **Props.** lantern, chime crystal, pickaxe, mirror, bell, rope, pillow, stone.
-* **Choreography.** Propagating energy: light blooms across dark voids, acoustic waves ring through crystal veins, ore carts rumble on rails.
+* **Choreography.** Propagating energy grows from one atomic light reveal through a three-part roof resonance chain to a cart-triggered whole-cavern opening.
 * **Atmosphere.** Ink sky, cold rim lighting + lantern-warm 0.66 fill, wide 34° lens capturing cavernous depth.
 * **Environmental animation.** `Drift` dripping stalactites, `Pulse` bioluminescent crystal seam.
 * **Sound.** `amb_cave` under `crystal`, `drip`, `chip`, `rumble`.
 * **Escalation Arc:**
-  * **Rescue 1 (Introduction) — r19: Dark (`kindle` / Reflection):** Illumination discovery. Hanging the cage lantern on the wall hook illuminates the pitch-black void, revealing a calm pool with submerged stepping stones.
-  * **Rescue 2 (Expansion) — r20: Vein (`ring` / Resonance):** Ceiling-wide acoustic wave propagation. Striking the chime crystal against the resonant seam sends a shimmering sonic pulse down the roof crystals, shattering the brittle rock curtain into dust to open the upper tunnel.
-  * **Rescue 3 (Climax) — r21: Cart (`hew` / Momentum):** Kinetic heavy-machinery runaway. Striking the wheel chock with the pickaxe releases the loaded ore cart; the cart hurtles down the subterranean incline rails with sparks flying, smashing through the lower crystal barrier and slamming into the terminal bumper to bridge the cavern chasm.
-* **Player Escalation Experience:** Lighting a dark room → Resonating a crystalline ceiling seam → Sending an ore cart roaring down mine tracks to smash a path across the abyss.
+  * **Rescue 1 (Introduction) — r19: Dark (`kindle` / Reflection): LOCAL EVENT.** Hanging the lantern replaces one compact black floor pocket with a warm pool and stepping stones for a short crossing.
+  * **Rescue 2 (Expansion) — r20: Vein (`ring` / Resonance): LANDSCAPE / SYSTEM EVENT.** The tuned note travels through three roof sections, shakes open the broad rock shutter and unfolds a stage-spanning crystal stair route.
+  * **Rescue 3 (Climax) — r21: Cart (`hew` / Momentum): WORLD EVENT.** The released cart strikes a resonant gate; both cavern seals split away, the rail becomes a crystal causeway and the whole room opens into a luminous geode cathedral before the longest traversal.
+* **Player Escalation Experience:** Lighting one dark pocket → Ringing open a crystal stair system → Using the ore cart to reveal an entirely different cavern state.
 
 ---
 
 ### Round 08 — Snowpeak slopes
 
 * **World rule.** Everything rolls downhill. Your job is to aim it, ride it, or hold on.
-* **Geometry.** Seven-tiered diagonal alpine slope running from high mountain cornice to lower snow terrace.
+* **Geometry.** A seven-tier diagonal slope staged as one powder pocket, a blocked gate course, and a fractured summit that can settle into an avalanche fan.
 * **Interaction vocabulary.** Airflow, Momentum, Crossing.
 * **Props.** fan, sled, rope, pickaxe, hair dryer, watering can, umbrella, stone.
-* **Choreography.** Rapid alpine descent velocities; fast, crisp slope dynamics.
-* **Atmosphere.** White-blue alpine sky, bright 1.06 sun with warm snow reflections, crisp mountain air.
-* **Environmental animation.** `Drift` spindrift blowing across ridges, `Sway` alpine marker flags.
-* **Sound.** `amb_peak` under `crunch`, `glide_hiss`, `chip`, `wind`.
+* **Choreography.** Downhill motion grows from one short crossing through a four-leg banked run to a cornice release, screen-wide avalanche and two-Pep runout.
+* **Atmosphere.** White-blue alpine sky, restrained 0.82 sun and cool fill, with controlled clear/warm outcome states that preserve snow detail.
+* **Environmental animation.** Controlled `Drift` spindrift and `Sway` marker flags react to the course opening and avalanche release.
+* **Sound.** `amb_peak` under `crunch`, `glide_hiss`, `crack`, `rumble`, `wind`.
 * **Escalation Arc:**
-  * **Rescue 1 (Introduction) — r22: Powder (`crust` / Airflow):** Snow physics subversion. Directing high-velocity fan air over the loose powder packs it into a firm, glistening wind-crust bridge that holds Pep A's weight.
-  * **Rescue 2 (Expansion) — r23: Chute (`sled` / Momentum):** Banked alpine downhill run. Placing the wooden sled in the mountain bobsled run allows Pep B to carve down the frosted curves at speed, coasting onto the middle terrace.
-  * **Rescue 3 (Climax) — r24: Traverse (`traverse` / Crossing):** Summit ridge zip-line across the glacial crevasse. Anchoring the climbing rope between summit pylons strings a taut high-tension traverse across the yawning crevasse; Pep A hooks on and zips across the open mountain drop as summit flags whip and snow cascades down the backdrop.
-* **Player Escalation Experience:** Packing a snowdrift with wind → Sledding down a mountain chute → High-wire zipline traverse across an alpine precipice.
+  * **Rescue 1 (Introduction) — r22: Powder (`crust` / Airflow): LOCAL EVENT.** The fan clears and atomically packs one compact drift pocket into a wind slab for a single short crossing.
+  * **Rescue 2 (Expansion) — r23: Chute (`sled` / Momentum): LANDSCAPE / SYSTEM EVENT.** The sled releases the start mechanism and three gates in sequence. Seven blocked sections become a continuous low-bank S-course, then Pep and sled carve four visible turns down the whole stage.
+  * **Rescue 3 (Climax) — r24: Traverse (`traverse` / Crossing): WORLD EVENT.** Tensioning the safety line carries one Pep to the release arm, fractures the cornice and sends an avalanche across the frame. The broken shelves and crevasses are replaced by a broad settled fan; both Peps then ride the new mountain state to the runout.
+* **Player Escalation Experience:** Packing one snow pocket → Configuring and riding the mountain's route system → Releasing the summit so the mountain rebuilds itself as the final route.
 
 ---
 
 ### Round 09 — Deep ocean trench
 
-* **World rule.** Down is slow and up is free. Nothing falls, everything drifts, and sound goes nowhere.
-* **Geometry.** Vertical underwater abyss trench bounded by rocky ledges, rising bubble columns, and kelp beds.
+* **World rule.** Down is slow and up is free. Nothing falls, everything drifts, and sound travels as deep resonance.
+* **Geometry.** Vertical underwater abyss trench bounded by basalt ledges, rising bubble columns, sunken galleon wreck, and hydrothermal vent canyon.
 * **Interaction vocabulary.** Buoyancy, Luring, Crossing.
 * **Props.** bubble shell, glow jelly, weight, net, leaf, bell, scissors, stone, balloon.
 * **Choreography.** Weightless underwater easing: long gentle ascents, fluid drift, and suppressed impact damping.
-* **Atmosphere.** Deep teal ocean depths, top-down 0.62 sun shaft, thick 0.165 benthic fog.
-* **Environmental animation.** `Drift` rising bubble streams and trench currents, `Sway` deep-sea kelp, `Spin` schools of fish, `Pulse` vent glow.
-* **Sound.** `amb_abyss` under `bubble`, `sonar`, `clunk`.
+* **Atmosphere.** Deep teal ocean depths, top-down 0.62 sun shaft, thick 0.165 benthic fog, blooming to luminous cyan/aquamarine 0.95 sun shaft with radiant benthic glow on climax.
+* **Environmental animation.** `Drift` rising bubble streams and trench currents, `Sway` deep-sea kelp, `Bob` angler predator and benthic flora, `Pulse` vent glow.
+* **Sound.** `amb_abyss` under `bubble`, `sonar`, `clunk`, `whoosh`, `thud`, `clank`, `hiss`, `reunion`.
 * **Escalation Arc:**
-  * **Rescue 1 (Introduction) — r25: Floor (`rise` / Buoyancy):** Pure gentle buoyant ascent. Trapping Pep B in the air-filled bubble shell lifts them from the benthic silt up to the mid-water shelf in a peaceful 4-second float.
-  * **Rescue 2 (Expansion) — r26: Wreck (`beckon` / Luring):** Biological deep-sea distraction. Releasing the bioluminescent glow jelly pulses hypnotic light into the water column, drawing the predatory angler fish away from the sunken ship's hull portal.
-  * **Rescue 3 (Climax) — r27: Current (`moor` / Crossing):** Hydrothermal trench current stabilization. Dropping the heavy ballast weight directly into the turbulent trench vent caps the chaotic updraft into calm laminar bubble streams; bioluminescence flares across the seabed as both Peps glide smoothly across the abyss fissure for a serene reunion.
-* **Player Escalation Experience:** Floating up inside a bubble → Luring a deep-sea angler away from a wreck → Taming a hydrothermal seafloor vent to unite in weightless serenity.
+  * **Rescue 1 (Introduction) — r25: Floor (`rise` / Buoyancy): LOCAL EVENT.** Trapped in soft benthic sediment, a released air bubble column creates a localized vertical elevator lift up to the high shelf for a single gentle crossing.
+  * **Rescue 2 (Expansion) — r26: Wreck (`beckon` / Luring): LANDSCAPE / ECOSYSTEM EVENT.** A sunken galleon wreck is guarded by a predatory deep-sea anglerfish. Releasing the bioluminescent glow jelly draws the creature in a sweeping arc away into the deep abyss, which awakens the dormant coral reef, illuminates the interior hull passage, and enables a dual traversal through the ship's illuminated ribcage.
+  * **Rescue 3 (Climax) — r27: Current (`moor` / Crossing): WORLD EVENT.** A roaring hydrothermal vent chimney blasts violent updraft plumes and torrential cross-currents across a massive abyss chasm. Plunging an iron mooring ballast directly into the vent spire triggers a massive hydraulic back-pressure reaction and seismic tremor. The abyss undergoes a radical physical reorganization: the erupting chimney collapses and submerged volcanic basalt monoliths heave upward out of the abyss pit, locking together into an interlocking monumental stepped causeway spanning the chasm.
+* **Player Escalation Experience:** Floating up inside an elevator bubble → Luring a deep-sea angler away to awaken an illuminated sunken wreck → Triggering a seismic hydrothermal reaction that raises a massive stepped basalt causeway across the chasm.
 
 ---
 

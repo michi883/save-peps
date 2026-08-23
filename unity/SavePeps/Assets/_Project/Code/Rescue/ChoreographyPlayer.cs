@@ -16,13 +16,15 @@ namespace SavePeps.Rescue
         private readonly float _start;
         private readonly float _duration;
         private readonly EaseKind _ease;
+        private readonly StepKind _kind;
 
-        public MoveInstance(Frame[] frames, float start, float duration, EaseKind ease)
+        public MoveInstance(Frame[] frames, float start, float duration, EaseKind ease, StepKind kind)
         {
             _frames = frames;
             _start = start;
             _duration = Mathf.Max(0.0001f, duration);
             _ease = ease;
+            _kind = kind;
         }
 
         public Frame Evaluate(float now)
@@ -40,7 +42,13 @@ namespace SavePeps.Rescue
 
             var from = index == 0 ? RestFrame : _frames[index - 1];
             var to = _frames[index];
-            return Lerp(from, to, local);
+            var frame = Lerp(from, to, local);
+
+            // Palette toys are opaque. Show/Hide are therefore intentional
+            // instant state changes, while FlyOff must stay drawn for the
+            // flight and disappear only when it reaches its destination.
+            if (_kind == StepKind.FlyOff && t < 1f) frame.Alpha = -1f;
+            return frame;
         }
 
         private static readonly Frame RestFrame = new();
@@ -108,7 +116,7 @@ namespace SavePeps.Rescue
                     _live[target] = list;
                 }
 
-                list.Add(new MoveInstance(Expand(step), step.At, step.Duration, step.Ease));
+                list.Add(new MoveInstance(Expand(step), step.At, step.Duration, step.Ease, step.Kind));
             }
 
             _pendingEvents.Sort((a, b) => a.at.CompareTo(b.at));

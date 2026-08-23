@@ -78,26 +78,30 @@ namespace SavePeps.EditorTools
                 {
                     Id = "umbrella", Prop = Author.Prop("umbrella"), AnchorId = "Slot_2",
                     Label = "The orange umbrella",
-                    Duration = 3.2f,
+                    Duration = 2.5f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "slide"),
-                        Move(0f, 0.52f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.46f, 0.37f, 0.78f), amplitude: 0.32f, ease: EaseKind.Hop),
-                        Sfx(0.52f, "pop"),
-                        Move(0.52f, 0.30f, StepKind.Spin, SceneRef.Self, Vector3.zero, amplitude: 180f),
-                        Resize(0.52f, 0.30f, SceneRef.Self, 1.22f, EaseKind.Back),
-                        Sfx(0.85f, "wind"),
-                        Move(0.85f, 1.15f, StepKind.Arc, SceneRef.PepA,
-                            new Vector3(0f, 0.24f, 1.28f), amplitude: 0.50f, ease: EaseKind.InOut),
-                        Move(0.85f, 1.15f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0f, 0.24f, 1.28f), amplitude: 0.50f, ease: EaseKind.InOut),
-                        Move(0.85f, 1.00f, StepKind.Fly, "Thermal", new Vector3(0f, 0.10f, 0f)),
-                        Face(0.90f, SceneRef.PepA, PepFace.Happy),
-                        Face(0.90f, SceneRef.PepB, PepFace.Hopeful),
-                        Haptic(1.95f, "light"),
-                        Meet(2.20f, 0.75f),
-                        Sfx(2.26f, "reunion"),
+                        Move(0f, 0.42f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.56f, 0.35f, 0.78f), amplitude: 0.30f, ease: EaseKind.Hop),
+                        Sfx(0.42f, "pop"),
+                        Move(0.42f, 0.24f, StepKind.Spin, SceneRef.Self, Vector3.zero, amplitude: 160f),
+                        Resize(0.42f, 0.24f, SceneRef.Self, 1.12f, EaseKind.Back),
+                        // Only the compact thermal pocket answers. Nothing on
+                        // either rim changes: this is the local baseline.
+                        Resize(0.58f, 0.34f, "Thermal", 1.22f, EaseKind.Back),
+                        Move(0.58f, 0.34f, StepKind.Shake, "Thermal", Vector3.zero,
+                            amplitude: 2.5f, ease: EaseKind.InOut),
+                        Sfx(0.66f, "wind"),
+                        Move(0.66f, 0.78f, StepKind.Arc, SceneRef.PepA,
+                            new Vector3(0.20f, 0.24f, 1.40f), amplitude: 0.46f, ease: EaseKind.InOut),
+                        Move(0.66f, 0.78f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.20f, 0.24f, 1.40f), amplitude: 0.46f, ease: EaseKind.InOut),
+                        Face(0.82f, SceneRef.PepA, PepFace.Happy),
+                        Face(0.82f, SceneRef.PepB, PepFace.Hopeful),
+                        Haptic(1.42f, "light"),
+                        Meet(1.66f, 0.68f),
+                        Sfx(1.72f, "reunion"),
                     },
                 },
                 new RescueObject
@@ -132,10 +136,10 @@ namespace SavePeps.EditorTools
                 return rescue;
             }
 
-            Author.Stage(rescue, "r11", "plumb", "Stop the swinging.", Difficulty.Medium,
+            Author.Stage(rescue, "r11", "plumb", "Stabilise the cableway.", Difficulty.Medium,
                 ReasoningKind.Counterweight, "Diorama_Canyon_Cablecar",
-                "A wooden car hangs from a cable over the chasm and swings too wildly in the wind to " +
-                "step into.");
+                "A diagonal cableway spans both height and chasm. Its cables sag, both towers flex and " +
+                "the suspended car swings sideways in a broad crosswind.");
 
             rescue.Objects = new[]
             {
@@ -177,37 +181,46 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "weight", Prop = Author.Prop("weight"), AnchorId = "Slot_3", Label = "The iron weight",
-                    Duration = 3.5f,
+                    Duration = 3.45f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "slide"),
-                        Move(0f, 0.58f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0f, 0.24f, 1.09f), amplitude: 0.44f, ease: EaseKind.Hop),
-                        Sfx(0.58f, "clank"),
-                        Haptic(0.60f, "medium"),
-                        // The heavy counterweight dampens the wild swinging into a steady car.
-                        Move(0.60f, 0.25f, StepKind.Shake, "Basket", Vector3.zero,
-                            amplitude: 8f, ease: EaseKind.InOut),
-                        Move(0.85f, 0.12f, StepKind.Hide, "Basket", Vector3.zero),
-                        Move(0.85f, 0.12f, StepKind.Show, "SteadyCar", Vector3.zero),
-                        Face(0.95f, SceneRef.PepA, PepFace.Hopeful),
-                        // Pep steps into the stabilized car
-                        Move(1.00f, 0.52f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(-0.02f, 0.39f, 0.75f), amplitude: 0.22f, ease: EaseKind.Hop),
-                        // Pulley and cable mechanism engages to transport car across canyon
-                        Sfx(1.55f, "ratchet"),
-                        Sfx(1.85f, "slide"),
-                        Move(1.55f, 0.90f, StepKind.Fly, "SteadyCar",
-                            new Vector3(0f, 0.14f, 0.62f), ease: EaseKind.InOut),
-                        Move(1.55f, 0.90f, StepKind.Fly, SceneRef.PepA,
-                            new Vector3(0f, 0.14f, 0.62f), ease: EaseKind.InOut),
-                        Move(1.55f, 0.90f, StepKind.Fly, SceneRef.Self,
-                            new Vector3(0f, 0.14f, 0.62f), ease: EaseKind.InOut),
-                        // Pep hops off onto the far rim
-                        Move(2.48f, 0.45f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(-0.02f, -0.29f, 0.13f), amplitude: 0.12f, ease: EaseKind.Hop),
-                        Meet(2.70f, 0.72f),
-                        Sfx(2.76f, "reunion"),
+                        Move(0f, 0.50f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.76f, 0.18f, 0.54f), amplitude: 0.48f, ease: EaseKind.Hop),
+                        Sfx(0.52f, "clank"),
+                        Haptic(0.54f, "medium"),
+                        Impact(0.54f, 0.45f),
+                        // One mass changes an entire suspended system: cradle
+                        // drops, both towers take load, slack cables pull taut,
+                        // and the crosswind and car settle together.
+                        Move(0.54f, 0.42f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(0f, -0.22f, 0f), ease: EaseKind.In),
+                        Move(0.54f, 0.42f, StepKind.Fly, "CounterweightRig",
+                            new Vector3(0f, -0.16f, 0f), ease: EaseKind.In),
+                        Rotate(0.56f, 0.38f, "NearTower", new Vector3(0f, 0f, -3.5f), EaseKind.InOut),
+                        Rotate(0.60f, 0.38f, "FarTower", new Vector3(0f, 0f, 3.5f), EaseKind.InOut),
+                        Move(0.62f, 0.34f, StepKind.Shake, "SlackCable", Vector3.zero,
+                            amplitude: 4.5f, ease: EaseKind.InOut),
+                        Ambient(0.56f, 0.62f, "BasketSwing", 0f),
+                        Ambient(0.56f, 0.62f, "CableWind", 0.12f),
+                        VisibilitySwap(1.00f, "SlackCable", "TautCable"),
+                        VisibilitySwap(1.04f, "Basket", "SteadyCar"),
+                        Sfx(1.04f, "ratchet"),
+                        Move(1.04f, 0.24f, StepKind.Shake, "TautCable", Vector3.zero,
+                            amplitude: 2.2f, ease: EaseKind.InOut),
+                        Face(1.06f, SceneRef.PepA, PepFace.Hopeful),
+                        Move(1.10f, 0.44f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.16f, 0.39f, 0.40f), amplitude: 0.22f, ease: EaseKind.Hop),
+                        Face(1.32f, SceneRef.PepB, PepFace.Hopeful),
+                        Sfx(1.56f, "slide"),
+                        Move(1.56f, 0.98f, StepKind.Fly, "SteadyCar",
+                            new Vector3(0.92f, 0.18f, 1.05f), ease: EaseKind.InOut),
+                        Move(1.56f, 0.98f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(0.92f, 0.18f, 1.05f), ease: EaseKind.InOut),
+                        Move(2.56f, 0.34f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(-0.02f, -0.33f, 0.12f), amplitude: 0.14f, ease: EaseKind.Hop),
+                        Meet(2.94f, 0.46f),
+                        Sfx(3.00f, "reunion"),
                     },
                 },
             };
@@ -225,10 +238,10 @@ namespace SavePeps.EditorTools
                 return rescue;
             }
 
-            Author.Stage(rescue, "r12", "topple", "Bring down the spire.", Difficulty.Surprising,
+            Author.Stage(rescue, "r12", "topple", "Reshape the canyon.", Difficulty.Surprising,
                 ReasoningKind.Momentum, "Diorama_Canyon_Spire",
-                "A thin finger of rock stands in the chasm, taller than either rim, with the Peps on " +
-                "opposite sides of it.");
+                "A leaning monolith and two tall hoodoos break the canyon skyline. Faults run from " +
+                "both rims into the rock mass, with the Peps stranded at opposite diagonal corners.");
 
             rescue.Objects = new[]
             {
@@ -239,34 +252,52 @@ namespace SavePeps.EditorTools
                     Steps = new[]
                     {
                         Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.58f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.46f, 0.74f, 1.36f), amplitude: 0.72f, ease: EaseKind.Hop),
-                        Sfx(0.58f, "clank"),
-                        Haptic(0.60f, "light"),
-                        // Tension builds on the rope attached to the spire cap
-                        Move(0.60f, 0.22f, StepKind.Shake, SceneRef.Self, Vector3.zero,
+                        Move(0f, 0.52f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.52f, 1.37f, 1.49f), amplitude: 0.78f, ease: EaseKind.Hop),
+                        Move(0.46f, 0.16f, StepKind.Show, "GrappleLine", Vector3.zero),
+                        Sfx(0.52f, "clank"),
+                        Haptic(0.54f, "light"),
+                        Impact(0.54f, 0.45f),
+                        Move(0.54f, 0.22f, StepKind.Shake, SceneRef.Self, Vector3.zero,
                             amplitude: 8f, ease: EaseKind.InOut),
-                        Sfx(0.78f, "creak"),
-                        Face(0.80f, SceneRef.PepA, PepFace.Hopeful),
-                        // Spire fractures and topples forward in an accelerating rotational arc
-                        Rotate(0.80f, 0.54f, "Spire", new Vector3(70f, 0f, 0f), EaseKind.In),
-                        // Spire slams into the far mesa rim: huge earthquake impact!
-                        Sfx(1.34f, "rumble"),
-                        Haptic(1.34f, "heavy"),
-                        Move(1.34f, 0.08f, StepKind.Hide, "Spire", Vector3.zero),
-                        Move(1.34f, 0.08f, StepKind.Show, "FallenSpan", Vector3.zero),
-                        Move(1.34f, 0.08f, StepKind.Show, "SpireDust", Vector3.zero),
-                        Resize(1.34f, 0.65f, "SpireDust", 2.20f, EaseKind.Out),
-                        Move(1.34f, 0.24f, StepKind.Shake, "FallenSpan", Vector3.zero,
-                            amplitude: 4f, ease: EaseKind.InOut),
-                        // Dust clears as Pep A bounds triumphantly across the newly created stone bridge
-                        Move(1.95f, 0.35f, StepKind.Hide, "SpireDust", Vector3.zero),
-                        Move(1.65f, 0.55f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0.20f, 0.10f, 0.75f), amplitude: 0.16f, ease: EaseKind.Hop),
-                        Move(2.20f, 0.55f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0.22f, 0.14f, 0.73f), amplitude: 0.16f, ease: EaseKind.Hop),
-                        Meet(2.78f, 0.72f),
-                        Sfx(2.84f, "reunion"),
+                        Sfx(0.68f, "creak"),
+                        Face(0.70f, SceneRef.PepA, PepFace.Hopeful),
+                        Move(0.68f, 0.24f, StepKind.Shake, "Spire", Vector3.zero,
+                            amplitude: 5f, ease: EaseKind.InOut),
+                        Move(0.72f, 0.18f, StepKind.Show, "FaultCracks", Vector3.zero),
+                        Rotate(0.74f, 0.64f, "Spire", new Vector3(58f, 0f, 52f), EaseKind.In),
+                        Rotate(0.82f, 0.44f, "RimCrownNear", new Vector3(0f, 0f, -24f), EaseKind.In),
+                        Rotate(0.88f, 0.42f, "RimCrownFar", new Vector3(0f, 0f, 22f), EaseKind.In),
+                        Move(0.92f, 0.52f, StepKind.FlyOff, "RockfallNear",
+                            new Vector3(0.28f, -1.34f, 0.34f), ease: EaseKind.In),
+                        Move(0.98f, 0.48f, StepKind.FlyOff, "RockfallFar",
+                            new Vector3(-0.32f, -1.52f, -0.20f), ease: EaseKind.In),
+                        Sfx(1.12f, "crunch"),
+                        Sfx(1.36f, "rumble"),
+                        Haptic(1.36f, "heavy"),
+                        Impact(1.36f, 1.45f),
+                        VisibilitySwap(1.36f, "Spire", "FallenSpan"),
+                        VisibilitySwap(1.38f, "RimCrownNear", "AfterRimNear"),
+                        VisibilitySwap(1.40f, "RimCrownFar", "AfterRimFar"),
+                        Move(1.36f, 0.08f, StepKind.Show, "SpireDust", Vector3.zero),
+                        Resize(1.36f, 0.66f, "SpireDust", 2.15f, EaseKind.Out),
+                        Move(1.38f, 0.30f, StepKind.Shake, "FallenSpan", Vector3.zero,
+                            amplitude: 5f, ease: EaseKind.InOut),
+                        Move(1.42f, 0.18f, StepKind.Show, "RockStepNear", Vector3.zero),
+                        Move(1.50f, 0.18f, StepKind.Show, "RockStepMid", Vector3.zero),
+                        Move(1.58f, 0.18f, StepKind.Show, "RockStepFar", Vector3.zero),
+                        Face(1.44f, SceneRef.PepB, PepFace.Happy),
+                        Move(1.72f, 0.35f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.25f, 0.04f, 0.38f), amplitude: 0.18f, ease: EaseKind.Hop),
+                        Move(2.05f, 0.34f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.24f, 0.06f, 0.37f), amplitude: 0.19f, ease: EaseKind.Hop),
+                        Move(2.36f, 0.34f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.23f, 0.07f, 0.36f), amplitude: 0.18f, ease: EaseKind.Hop),
+                        Move(2.66f, 0.32f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.20f, 0.07f, 0.31f), amplitude: 0.16f, ease: EaseKind.Hop),
+                        Move(2.10f, 0.18f, StepKind.Hide, "SpireDust", Vector3.zero),
+                        Meet(3.00f, 0.55f),
+                        Sfx(3.04f, "reunion"),
                     },
                 },
                 new RescueObject

@@ -9,17 +9,21 @@ namespace SavePeps.EditorTools
 {
     /// <summary>
     /// **Round 9 — Deep ocean trench.** *World rule: down is slow and up is
-    /// free. Nothing falls, everything drifts, and sound goes nowhere.*
+    /// free. Nothing falls, everything drifts, and sound travels as deep resonance.*
     ///
-    /// The first premium world, and the one where the choreography itself
-    /// changes: every movement here is longer, eased in and out rather than
-    /// snapped, and arcs are shallow because nothing is being thrown — it is
-    /// being released. The bell that solved round one lands as a dull knock,
-    /// which is the round teaching its own physics in a wrong answer.
-    ///
-    /// Only-here rescue: **r25**, the slow buoyant rise out of the silt. The
-    /// answer is a shell of trapped air, and the whole beat is four seconds of
-    /// something going gently upward.
+    /// Escalation arc:
+    /// - **R9.1 (Local Event):** Trapped in soft sediment, a released air bubble
+    ///   column creates a localized vertical elevator lift up to the high shelf.
+    /// - **R9.2 (Landscape/Ecosystem Event):** A sunken galleon wreck guarded by a
+    ///   predatory deep-sea anglerfish. A drifting bioluminescent jelly lures the
+    ///   creature away in a wide sweeping arc, awakening the dormant coral reef and
+    ///   illuminating the interior deck passage for a dual traversal through the hull.
+    /// - **R9.3 (World Event):** A roaring hydrothermal vent chimney blasts violent
+    ///   updraft plumes and torrential cross-currents across a massive abyss chasm.
+    ///   Plunging an iron mooring ballast directly into the vent throat caps the
+    ///   hydraulic pressure, transforming the turbulent trench into a glowing,
+    ///   calm laminar thermal highway with blossoming vent flora and an epic
+    ///   weightless oceanic reunion crossing.
     /// </summary>
     public static class RoundNineRescues
     {
@@ -105,8 +109,7 @@ namespace SavePeps.EditorTools
                         Haptic(1.06f, "light"),
                         Face(1.10f, SceneRef.PepB, PepFace.Hopeful),
                         Face(1.10f, SceneRef.PepA, PepFace.Hopeful),
-                        // Slow, even, and eased at both ends: the one movement
-                        // in the game with no gravity anywhere in it.
+                        // Slow, even, buoyant ascent with no terrestrial gravity.
                         Move(1.14f, 1.10f, StepKind.Fly, SceneRef.PepB,
                             new Vector3(0f, 0.70f, 0f), ease: EaseKind.InOut),
                         Move(1.14f, 1.10f, StepKind.Fly, "Lift",
@@ -148,26 +151,36 @@ namespace SavePeps.EditorTools
                     Steps = new[]
                     {
                         Sfx(0.03f, "bubble"),
-                        Move(0f, 0.90f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.20f, 0.55f, 0.90f), amplitude: 0.24f, ease: EaseKind.InOut),
-                        Face(0.96f, SceneRef.PepA, PepFace.Hopeful),
-                        Sfx(1.00f, "sonar"),
-                        Move(1.02f, 1.00f, StepKind.Fly, SceneRef.Self,
-                            new Vector3(-0.44f, 0.16f, -0.62f), ease: EaseKind.InOut),
-                        Move(1.10f, 0.96f, StepKind.Fly, "Angler",
-                            new Vector3(-0.70f, 0.30f, -0.50f), ease: EaseKind.InOut),
-                        Move(1.10f, 0.96f, StepKind.Fly, "AnglerLure",
-                            new Vector3(-0.70f, 0.30f, -0.50f), ease: EaseKind.InOut),
-                        Move(2.06f, 0.60f, StepKind.FlyOff, "Angler",
-                            new Vector3(-0.60f, 0.20f, -0.40f), ease: EaseKind.In),
-                        Move(2.06f, 0.60f, StepKind.FlyOff, "AnglerLure",
-                            new Vector3(-0.60f, 0.20f, -0.40f), ease: EaseKind.In),
-                        Move(1.86f, 0.84f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0.32f, 0f, 0.60f), amplitude: 0.10f, ease: EaseKind.InOut),
-                        Move(1.86f, 0.84f, StepKind.Hop, SceneRef.PepB,
-                            new Vector3(-0.22f, 0f, -1.32f), amplitude: 0.10f, ease: EaseKind.InOut),
-                        Meet(2.76f, 0.70f),
-                        Sfx(2.82f, "reunion"),
+                        Move(0f, 0.86f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.18f, 0.54f, 0.90f), amplitude: 0.24f, ease: EaseKind.InOut),
+                        Face(0.88f, SceneRef.PepA, PepFace.Hopeful),
+                        Sfx(0.88f, "sonar"),
+                        Move(0.88f, 0.50f, StepKind.Shake, SceneRef.Self, Vector3.zero, amplitude: 5f, ease: EaseKind.InOut),
+                        Move(0.92f, 0.42f, StepKind.Fly, "AnglerLure",
+                            new Vector3(-0.16f, 0.08f, 0.16f), ease: EaseKind.InOut),
+                        Move(1.05f, 1.10f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(-0.95f, 0.25f, -0.65f), ease: EaseKind.InOut),
+                        Move(1.10f, 1.10f, StepKind.Fly, "Angler",
+                            new Vector3(-0.85f, 0.30f, -0.55f), ease: EaseKind.InOut),
+                        Move(1.10f, 1.10f, StepKind.Fly, "AnglerLure",
+                            new Vector3(-0.85f, 0.30f, -0.55f), ease: EaseKind.InOut),
+                        Move(2.20f, 0.55f, StepKind.FlyOff, "Angler",
+                            new Vector3(-0.70f, 0.20f, -0.40f), ease: EaseKind.In),
+                        Move(2.20f, 0.55f, StepKind.FlyOff, "AnglerLure",
+                            new Vector3(-0.70f, 0.20f, -0.40f), ease: EaseKind.In),
+                        // Ecosystem response: as the angler leaves, the lit passage awakens.
+                        Move(1.55f, 0.01f, StepKind.Show, "LitWreckPassage", Vector3.zero),
+                        Sfx(1.58f, "bubble"),
+                        Haptic(1.58f, "light"),
+                        Face(1.62f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(1.62f, SceneRef.PepB, PepFace.Hopeful),
+                        // Dual traversal through the illuminated galleon ribcage.
+                        Move(1.72f, 0.96f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(0.32f, 0f, 0.60f), ease: EaseKind.InOut),
+                        Move(1.72f, 0.96f, StepKind.Fly, SceneRef.PepB,
+                            new Vector3(-0.22f, 0f, -1.32f), ease: EaseKind.InOut),
+                        Meet(2.72f, 0.72f),
+                        Sfx(2.78f, "reunion"),
                     },
                 },
                 new RescueObject
@@ -181,7 +194,7 @@ namespace SavePeps.EditorTools
                             new Vector3(-0.38f, 0.45f, 1.60f), amplitude: 0.26f, ease: EaseKind.InOut),
                         Sfx(0.88f, "whoosh"),
                         Move(0.90f, 0.70f, StepKind.Shake, "Angler", Vector3.zero,
-                            amplitude: 8f, ease: EaseKind.InOut),
+                            amplitude: 10f, ease: EaseKind.InOut),
                         Move(1.62f, 0.50f, StepKind.Hide, SceneRef.Self, Vector3.zero),
                         Face(0.98f, SceneRef.PepA, PepFace.Worried),
                     },
@@ -198,7 +211,7 @@ namespace SavePeps.EditorTools
                             new Vector3(0.06f, 0.45f, 1.36f), amplitude: 0.24f, ease: EaseKind.InOut),
                         Sfx(0.86f, "snip"),
                         Move(0.88f, 0.60f, StepKind.Shake, "Angler", Vector3.zero,
-                            amplitude: 11f, ease: EaseKind.InOut),
+                            amplitude: 12f, ease: EaseKind.InOut),
                         Sfx(1.44f, "clunk"),
                         Move(1.46f, 0.90f, StepKind.FlyOff, SceneRef.Self,
                             new Vector3(0.10f, 0.20f, 0.44f), ease: EaseKind.InOut),
@@ -234,37 +247,70 @@ namespace SavePeps.EditorTools
                     Duration = 2.4f,
                     Steps = new[]
                     {
-                        Move(0f, 0.60f, StepKind.Arc, SceneRef.Self,
+                        Move(0f, 0.58f, StepKind.Arc, SceneRef.Self,
                             new Vector3(0.34f, 0.20f, 1.20f), amplitude: 0.22f, ease: EaseKind.InOut),
-                        Face(0.64f, SceneRef.PepA, PepFace.Hopeful),
-                        Sfx(0.70f, "whoosh"),
-                        Move(0.70f, 0.70f, StepKind.FlyOff, SceneRef.Self,
-                            new Vector3(1.60f, 0.28f, 0.18f), ease: EaseKind.In),
-                        Face(1.46f, SceneRef.PepA, PepFace.Worried),
+                        Face(0.60f, SceneRef.PepA, PepFace.Hopeful),
+                        Sfx(0.68f, "whoosh"),
+                        Move(0.68f, 0.72f, StepKind.FlyOff, SceneRef.Self,
+                            new Vector3(1.60f, 0.35f, 0.18f), ease: EaseKind.In),
+                        Face(1.44f, SceneRef.PepA, PepFace.Worried),
                     },
                 },
                 new RescueObject
                 {
                     Id = "weight", Prop = Author.Prop("weight"), AnchorId = "Slot_2", Label = "The iron weight",
-                    Duration = 3.4f,
+                    Duration = 3.55f,
                     Steps = new[]
                     {
-                        Move(0f, 0.82f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.40f, 0.05f, 1.42f), amplitude: 0.24f, ease: EaseKind.InOut),
-                        Sfx(0.84f, "thud"),
-                        Haptic(0.86f, "medium"),
-                        Move(1.00f, 0.26f, StepKind.Show, "HaulLine", Vector3.zero),
-                        Sfx(1.02f, "creak"),
-                        Face(1.10f, SceneRef.PepA, PepFace.Hopeful),
-                        Face(1.10f, SceneRef.PepB, PepFace.Hopeful),
-                        // Hand over hand against the flow: eased at both ends
-                        // and slower than any land crossing in the game.
-                        Move(1.16f, 1.24f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0.80f, 0f, 0.20f), amplitude: 0.07f, ease: EaseKind.InOut),
-                        Move(1.20f, 1.10f, StepKind.Shake, "Race", Vector3.zero,
-                            amplitude: 1.6f, ease: EaseKind.InOut),
-                        Meet(2.60f, 0.74f),
-                        Sfx(2.66f, "reunion"),
+                        // 1. Plunge: The heavy iron ballast arcs high across the trench toward the roaring vent spire.
+                        Move(0f, 0.70f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-0.40f, 0.32f, 1.42f), amplitude: 0.38f, ease: EaseKind.Hop),
+                        // 2. Hydraulic Impact: Capping the vent throat under massive back-pressure.
+                        Sfx(0.72f, "thud"),
+                        Sfx(0.73f, "clank"),
+                        Impact(0.72f, 1.50f),
+                        Haptic(0.72f, "heavy"),
+                        Move(0.74f, 0.22f, StepKind.Shake, "VentChimney", Vector3.zero,
+                            amplitude: 6.0f, ease: EaseKind.InOut),
+                        Sfx(0.76f, "hiss"),
+                        Resize(0.76f, 0.20f, "TurbulentPlume", 0.05f, EaseKind.Out),
+                        Move(0.76f, 0.20f, StepKind.Shake, "CrossCurrentRace", Vector3.zero,
+                            amplitude: 4.0f, ease: EaseKind.InOut),
+                        // 3. WORLD EVENT TRANSFORMATION: Seismic pressure wave forces submerged basalt monoliths
+                        // to heave upward out of the abyss pit, locking together into a monumental stepped causeway!
+                        VisibilitySwap(0.98f, "LockedChasmWorld", "TransformedChasmWorld"),
+                        Move(0.98f, 0.01f, StepKind.Hide, "TurbulentPlume", Vector3.zero),
+                        Move(0.98f, 0.01f, StepKind.Hide, "CrossCurrentRace", Vector3.zero),
+                        Move(0.98f, 0.01f, StepKind.Hide, "VentChimney", Vector3.zero),
+                        Move(0.98f, 0.01f, StepKind.Hide, SceneRef.Self, Vector3.zero),
+                        Atmosphere(0.98f, 0.70f, "abyss_bloom"),
+                        Sfx(0.98f, "quake"),
+                        Sfx(1.02f, "sonar"),
+                        Impact(0.98f, 1.00f),
+                        Haptic(0.98f, "heavy"),
+                        Face(1.30f, SceneRef.PepA, PepFace.Happy),
+                        Face(1.30f, SceneRef.PepB, PepFace.Happy),
+                        Sfx(1.38f, "water_rise"),
+                        // 4. Stepped traversal across the newly elevated basalt monolith causeway.
+                        // Pep A hops across left monoliths toward the central keystone:
+                        Move(1.45f, 0.32f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.17f, 0.00f, 0.04f), ease: EaseKind.Hop),
+                        Move(1.80f, 0.34f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.36f, 0.04f, 0.08f), ease: EaseKind.Hop),
+                        Move(2.16f, 0.36f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.56f, 0.06f, 0.12f), ease: EaseKind.Hop),
+                        // Pep B hops across right monoliths toward the central keystone:
+                        Move(1.45f, 0.32f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.11f, 0.00f, -0.04f), ease: EaseKind.Hop),
+                        Move(1.80f, 0.34f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.30f, 0.04f, -0.08f), ease: EaseKind.Hop),
+                        Move(2.16f, 0.36f, StepKind.Hop, SceneRef.PepB,
+                            new Vector3(-0.50f, 0.06f, -0.12f), ease: EaseKind.Hop),
+                        // 5. Climax reunion at the central volcanic keystone.
+                        Meet(2.60f, 0.85f),
+                        Sfx(2.65f, "reunion"),
+                        Impact(2.62f, 0.80f),
+                        Haptic(2.65f, "success"),
                     },
                 },
                 new RescueObject
@@ -280,7 +326,7 @@ namespace SavePeps.EditorTools
                         Sfx(0.62f, "bubble"),
                         Face(0.68f, SceneRef.PepB, PepFace.Hopeful),
                         Move(0.74f, 0.90f, StepKind.FlyOff, SceneRef.Self,
-                            new Vector3(1.20f, 0.98f, 0f), ease: EaseKind.In),
+                            new Vector3(0.15f, 1.40f, 0f), ease: EaseKind.In),
                         Face(1.68f, SceneRef.PepB, PepFace.Worried),
                     },
                 },

@@ -187,6 +187,61 @@ namespace SavePeps.EditorTools
         }
 
         /// <summary>
+        /// Applies only the approved escalation pilot: six environments and
+        /// the six authored rescue assets. No other round or art asset is
+        /// regenerated.
+        /// </summary>
+        [MenuItem("Tools/Save Peps/Escalation/Apply R3-R4 Pilot")]
+        public static void ApplyRoundsThreeAndFourPilot()
+        {
+            PrototypeArt.GenerateRoundsThreeAndFour();
+            var three = ReseedRound(3);
+            var four = ReseedRound(4);
+            if (three && four) Debug.Log("[SavePeps] R3-R4 escalation pilot applied.");
+        }
+
+        /// <summary>
+        /// Applies the second pilot without regenerating the R3 benchmark or
+        /// touching any content in R6-R12.
+        /// </summary>
+        [MenuItem("Tools/Save Peps/Escalation/Apply R4-R5 Pilot")]
+        public static void ApplyRoundsFourAndFivePilot()
+        {
+            PrototypeArt.GenerateRoundsFourAndFive();
+            var four = ReseedRound(4);
+            var five = ReseedRound(5);
+            if (four && five) Debug.Log("[SavePeps] R4-R5 escalation pilot applied.");
+        }
+
+        [MenuItem("Tools/Save Peps/Escalation/Apply Round 3 Pilot")]
+        public static void ApplyRoundThreePilot()
+        {
+            PrototypeArt.GenerateRoundThree();
+            if (ReseedRound(3)) Debug.Log("[SavePeps] Round 3 escalation pilot applied.");
+        }
+
+        [MenuItem("Tools/Save Peps/Escalation/Apply Round 6 Standard")]
+        public static void ApplyRoundSixStandard()
+        {
+            PrototypeArt.GenerateRoundSix();
+            if (ReseedRound(6)) Debug.Log("[SavePeps] Round 6 escalation standard applied.");
+        }
+
+        [MenuItem("Tools/Save Peps/Escalation/Apply Round 7 Standard")]
+        public static void ApplyRoundSevenStandard()
+        {
+            PrototypeArt.GenerateRoundSeven();
+            if (ReseedRound(7)) Debug.Log("[SavePeps] Round 7 escalation standard applied.");
+        }
+
+        [MenuItem("Tools/Save Peps/Escalation/Apply Round 8 Standard")]
+        public static void ApplyRoundEightStandard()
+        {
+            PrototypeArt.GenerateRoundEight();
+            if (ReseedRound(8)) Debug.Log("[SavePeps] Round 8 escalation standard applied.");
+        }
+
+        /// <summary>
         /// Renders stage PNGs for the 3 rescues in Round N.
         /// </summary>
         public static void CaptureRoundStages(int roundNumber, string outputDir)

@@ -17,8 +17,8 @@ MonoBehaviour:
   Reasoning: 7
   Goal: Reach the ledge.
   Difficulty: 1
-  SceneDescription: Full sun on the middle terrace. One Pep stands on a tiny potted
-    flower, far below the snow shelf where their partner waits.
+  SceneDescription: A dry basin lies at the near foot of the hill. One Pep stands
+    on its tiny potted flower while their partner waits on the opposite high ledge.
   Environment: {fileID: 4975662008077301685, guid: 50a8cdcd87cdf4ffb97317954b7f4cea, type: 3}
   PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
   PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
@@ -47,7 +47,7 @@ MonoBehaviour:
       Duration: 0.66
       Kind: 1
       Target: $self
-      Delta: {x: 0.78, y: 0.47, z: 1.74}
+      Delta: {x: 0.82, y: 0.38, z: 1.08}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0.55
@@ -98,7 +98,7 @@ MonoBehaviour:
     AnchorId: Slot_2
     Label: The blue watering can
     Quip: 
-    Duration: 3
+    Duration: 3.45
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -111,17 +111,17 @@ MonoBehaviour:
       Ease: 0
       Param: slide
     - At: 0
-      Duration: 0.58
+      Duration: 0.52
       Kind: 1
       Target: $self
-      Delta: {x: -0.12, y: 0.65, z: 1.74}
+      Delta: {x: -0.08, y: 0.55, z: 1.08}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.55
+      Amplitude: 0.52
       Ease: 5
       Param: 
-    - At: 0.55
-      Duration: 0.35
+    - At: 0.5
+      Duration: 0.32
       Kind: 0
       Target: $self
       Delta: {x: 0, y: 0, z: 0}
@@ -130,7 +130,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 0.6
+    - At: 0.56
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -140,47 +140,107 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: splash
-    - At: 0.75
+    - At: 0.66
       Duration: 0.3
+      Kind: 4
+      Target: RootHeave
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 5.5
+      Ease: 2
+      Param: 
+    - At: 0.7
+      Duration: 0.34
       Kind: 4
       Target: Plant
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 5
-      Ease: 0
+      Amplitude: 6
+      Ease: 2
       Param: 
-    - At: 0.88
-      Duration: 0.82
+    - At: 0.84
+      Duration: 0.36
       Kind: 0
       Target: Plant
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 2.35
+      Scale: 1.55
       Amplitude: 0
       Ease: 4
       Param: 
-    - At: 0.88
-      Duration: 0.82
+    - At: 0.84
+      Duration: 0.36
       Kind: 0
       Target: Plant
-      Delta: {x: 0, y: 0.16, z: 0}
+      Delta: {x: 0, y: 0.06, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 4
       Param: 
-    - At: 0.88
-      Duration: 0.82
+    - At: 0.84
+      Duration: 0.36
       Kind: 0
       Target: $pepB
-      Delta: {x: 0, y: 0.24, z: 0}
+      Delta: {x: 0, y: 0.09, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 4
       Param: 
-    - At: 1.1
+    - At: 0.92
+      Duration: 0.44
+      Kind: 8
+      Target: $self
+      Delta: {x: 1.18, y: 0.28, z: -0.34}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 0.92
+      Duration: 0.44
+      Kind: 0
+      Target: RootHeave
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.24
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 0.92
+      Duration: 0.44
+      Kind: 0
+      Target: RootHeave
+      Delta: {x: 0, y: 0.055, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.02
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: crunch
+    - At: 1.04
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.68
+      Ease: 0
+      Param: 
+    - At: 1.06
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -190,7 +250,87 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: medium
-    - At: 1.15
+    - At: 1
+      Duration: 0.46
+      Kind: 6
+      Target: VineSpine
+      Delta: {x: 0, y: 0.14, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.14
+      Duration: 0.34
+      Kind: 6
+      Target: VineStep1
+      Delta: {x: 0, y: 0.14, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.2
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: boing
+    - At: 1.28
+      Duration: 0.34
+      Kind: 6
+      Target: VineStep2
+      Delta: {x: 0, y: 0.14, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.42
+      Duration: 0.34
+      Kind: 6
+      Target: VineStep3
+      Delta: {x: 0, y: 0.14, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.56
+      Duration: 0.4
+      Kind: 6
+      Target: VineCrown
+      Delta: {x: 0, y: 0.14, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.56
+      Duration: 0.4
+      Kind: 0
+      Target: VineCrown
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.15
+      Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.72
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: medium
+    - At: 1.72
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -200,7 +340,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.15
+    - At: 1.72
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -210,18 +350,48 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.78
-      Duration: 0.56
+    - At: 1.82
+      Duration: 0.27
       Kind: 2
       Target: $pepB
-      Delta: {x: -0.4, y: -0.12, z: 0.44}
+      Delta: {x: -0.1, y: 0, z: 0.33}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.16
+      Amplitude: 0.13
       Ease: 5
       Param: 
-    - At: 2.35
-      Duration: 0.65
+    - At: 2.07
+      Duration: 0.29
+      Kind: 2
+      Target: $pepB
+      Delta: {x: -0.21, y: 0.13, z: 0.38}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.14
+      Ease: 5
+      Param: 
+    - At: 2.34
+      Duration: 0.29
+      Kind: 2
+      Target: $pepB
+      Delta: {x: -0.23, y: 0.14, z: 0.37}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.15
+      Ease: 5
+      Param: 
+    - At: 2.61
+      Duration: 0.31
+      Kind: 2
+      Target: $pepB
+      Delta: {x: -0.18, y: 0.03, z: 0.3}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.15
+      Ease: 5
+      Param: 
+    - At: 2.96
+      Duration: 0.4
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -230,7 +400,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.4
+    - At: 3.02
       Duration: 0.5
       Kind: 101
       Target: $self

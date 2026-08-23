@@ -21,7 +21,7 @@ namespace SavePeps.Core
         /// Long enough to read as weather changing rather than a cut, short
         /// enough to finish inside the 0.42s diorama entrance.
         /// </summary>
-        private const float BlendDuration = 0.38f;
+        private const float DefaultBlendDuration = 0.38f;
 
         [SerializeField] private Camera _camera;
         [SerializeField] private Light _sun;
@@ -66,6 +66,7 @@ namespace SavePeps.Core
         private Mood _from;
         private Mood _to;
         private float _clock = 1f;
+        private float _blendDuration = DefaultBlendDuration;
         private string _ambience = "";
         private bool _captured;
 
@@ -105,7 +106,7 @@ namespace SavePeps.Core
 
             _from = _default;
             _to = _default;
-            _clock = BlendDuration;
+            _clock = DefaultBlendDuration;
         }
 
         /// <summary>Blends towards a staged world. Null returns to the scene default.</summary>
@@ -146,6 +147,7 @@ namespace SavePeps.Core
             _from = Current();
             _to = target;
             _clock = 0f;
+            _blendDuration = DefaultBlendDuration;
 
             if (_ambience != ambience)
             {
@@ -158,18 +160,53 @@ namespace SavePeps.Core
         public void Restore() => Apply(null);
 
         /// <summary>
+        /// Blends to a named state carried by the staged environment. This is
+        /// intentionally data-driven: the director does not learn that a cue
+        /// means sunshine, blackout, calm water, or any particular rescue.
+        /// </summary>
+        public bool Transition(DioramaAtmosphere atmosphere, string cueId, float duration)
+        {
+            Capture();
+            if (atmosphere == null || !atmosphere.TryGetOutcome(cueId, out var cue))
+            {
+                Debug.LogWarning($"[SavePeps] Atmosphere cue '{cueId}' is not on the staged environment.");
+                return false;
+            }
+
+            var current = Current();
+            _from = current;
+            _to = current;
+            _to.Sky = cue.Sky;
+            _to.AmbientSky = cue.AmbientSky;
+            _to.AmbientEquator = cue.AmbientEquator;
+            _to.AmbientGround = cue.AmbientGround;
+            _to.Fog = cue.Fog;
+            _to.FogDensity = cue.FogDensity;
+            _to.UseFog = cue.UseFog;
+            _to.SunColor = cue.SunColor;
+            _to.SunIntensity = cue.SunIntensity;
+            _to.SunAngles = cue.SunAngles;
+            _to.FillColor = cue.FillColor;
+            _to.FillIntensity = cue.FillIntensity;
+            _to.FillAngles = cue.FillAngles;
+            _clock = 0f;
+            _blendDuration = Mathf.Max(0.01f, duration);
+            return true;
+        }
+
+        /// <summary>
         /// Where the blend actually is, so an interrupted transition continues
         /// from what the player can see rather than from where the last one
         /// started. Rounds can be swapped faster than 0.38s from the picker.
         /// </summary>
         private Mood Current() =>
-            _clock >= BlendDuration ? _to : Mood.Lerp(_from, _to, Ease(_clock / BlendDuration));
+            _clock >= _blendDuration ? _to : Mood.Lerp(_from, _to, Ease(_clock / _blendDuration));
 
         private static float Ease(float t) => Easing.Evaluate(EaseKind.InOut, Mathf.Clamp01(t));
 
         private void LateUpdate()
         {
-            if (_clock >= BlendDuration) return;
+            if (_clock >= _blendDuration) return;
 
             _clock += Time.deltaTime;
             Write(Current());

@@ -17,8 +17,8 @@ MonoBehaviour:
   Reasoning: 13
   Goal: Pull them back.
   Difficulty: 2
-  SceneDescription: One Pep is tumbling away above the station, wearing a steel-backed
-    pack, already too far to reach from the handrail.
+  SceneDescription: One Pep is tumbling away in open space above the station, wearing
+    a steel-backed pack, already drifting beyond reach of the station handrail.
   Environment: {fileID: 6015067989867678390, guid: 20757b3125e5845b5a31b45ba362fc05, type: 3}
   PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
   PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
@@ -44,14 +44,44 @@ MonoBehaviour:
       Ease: 0
       Param: servo
     - At: 0
-      Duration: 0.88
+      Duration: 0.86
       Kind: 0
       Target: $self
-      Delta: {x: 0.45, y: 0.25, z: 1.3}
+      Delta: {x: 0.36, y: 0.57, z: 1.69}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 3
+      Param: 
+    - At: 0.88
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: snap_on
+    - At: 0.9
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: heavy
+    - At: 0.9
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.85
+      Ease: 0
       Param: 
     - At: 0.92
       Duration: 0.5
@@ -63,17 +93,27 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 0.96
-      Duration: 0.28
+    - At: 0.92
+      Duration: 0.38
+      Kind: 5
+      Target: Gantry
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 18
+      Ease: 0
+      Param: 
+    - At: 0.95
+      Duration: 0.25
       Kind: 6
-      Target: PullArc
+      Target: MagneticFlux
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 1
+    - At: 0.96
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -82,32 +122,32 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: snap_on
-    - At: 1.02
-      Duration: 0.5
-      Kind: 102
-      Target: $self
-      Delta: {x: 0, y: 0, z: 0}
+      Param: zap
+    - At: 1
+      Duration: 0.9
+      Kind: 0
+      Target: DebrisField
+      Delta: {x: 0.2, y: 0.1, z: -0.22}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: medium
-    - At: 1.06
-      Duration: 1.1
+      Param: 
+    - At: 1.02
+      Duration: 1.18
       Kind: 0
       Target: Backpack
-      Delta: {x: -0.35, y: -0.55, z: -0.85}
+      Delta: {x: -1, y: -0.97, z: -1.29}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 2
       Param: 
-    - At: 1.06
-      Duration: 1.1
+    - At: 1.02
+      Duration: 1.18
       Kind: 0
       Target: $pepB
-      Delta: {x: -0.35, y: -0.55, z: -0.85}
+      Delta: {x: -1, y: -0.97, z: -1.29}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
@@ -123,38 +163,18 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Happy
-    - At: 2.16
-      Duration: 0.5
+    - At: 2.2
+      Duration: 0.28
       Kind: 7
-      Target: PullArc
+      Target: MagneticFlux
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.16
-      Duration: 0.5
-      Kind: 0
-      Target: $pepB
-      Delta: {x: -0.15, y: -0.27, z: -0.2}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 2.16
-      Duration: 0.5
-      Kind: 0
-      Target: Backpack
-      Delta: {x: -0.15, y: -0.27, z: -0.2}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 2.7
-      Duration: 0.72
+    - At: 2.65
+      Duration: 0.74
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -163,7 +183,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.76
+    - At: 2.7
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -173,6 +193,16 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: reunion
+    - At: 2.7
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: success
   - Id: bell
     Prop: {fileID: 7881338109127064626, guid: 60ebe3d049b024b569ca49e33d584c13, type: 3}
     AnchorId: Slot_2

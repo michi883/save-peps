@@ -12,9 +12,9 @@ namespace SavePeps.EditorTools
     /// Your job is to aim it, ride it, or hold on.*
     ///
     /// One steep wedge running corner to corner, the only diagonal ground in
-    /// the game, with spindrift blowing across it. This is the last free round
-    /// and it climaxes with the game's fastest single movement: a Pep on a
-    /// sled from the cornice to the valley in nine tenths of a second.
+    /// the game, with spindrift blowing across it. Its escalation grows from
+    /// one packed drift, through a slope-wide banked course, to an avalanche
+    /// that replaces the broken peak with a new route to the runout.
     ///
     /// Only-here rescue: **r22**, packing loose powder into a walkable wind
     /// slab. Heat makes it worse and water makes it worse; only moving air
@@ -49,8 +49,8 @@ namespace SavePeps.EditorTools
 
             Author.Stage(rescue, "r22", "crust", "Firm up the snow.", Difficulty.Surprising,
                 ReasoningKind.Airflow, "Diorama_Peak_Powder",
-                "Loose powder lies in soft mounds across the slope, with a Pep-shaped hole where " +
-                "someone has already tried to walk on it.");
+                "One compact pocket of loose powder lies between two nearby Peps, with a small " +
+                "sinkhole where someone has already tried to cross it.");
 
             rescue.Objects = new[]
             {
@@ -97,30 +97,30 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "fan", Prop = Author.Prop("fan"), AnchorId = "Slot_3", Label = "The caged electric fan",
-                    Duration = 3.4f,
+                    Duration = 2.8f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "slide"),
-                        Move(0f, 0.56f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0f, 0.165f, 0.66f), amplitude: 0.30f, ease: EaseKind.Hop),
-                        Sfx(0.58f, "wind"),
-                        Move(0.58f, 1.10f, StepKind.Shake, SceneRef.Self, Vector3.zero,
-                            amplitude: 6f, ease: EaseKind.InOut),
-                        // Wind slab: the powder blows away sideways and what it
-                        // leaves behind is hard enough to stand on.
-                        Move(0.66f, 0.80f, StepKind.Fly, "Powder", new Vector3(-0.34f, -0.04f, 0f),
+                        Move(0f, 0.48f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.02f, 0.42f, 1.08f), amplitude: 0.28f, ease: EaseKind.Hop),
+                        Sfx(0.50f, "wind"),
+                        Move(0.50f, 0.72f, StepKind.Shake, SceneRef.Self, Vector3.zero,
+                            amplitude: 5f, ease: EaseKind.InOut),
+
+                        // LOCAL EVENT: one drift pocket is blown aside and
+                        // atomically becomes a walkable wind slab.
+                        Move(0.58f, 0.52f, StepKind.Fly, "Powder", new Vector3(-0.28f, 0.02f, 0f),
                             ease: EaseKind.Out),
-                        Move(1.46f, 0.24f, StepKind.Hide, "Powder", Vector3.zero),
-                        Move(1.46f, 0.26f, StepKind.Show, "Crust", Vector3.zero),
-                        Move(1.46f, 0.26f, StepKind.Hide, "Sinkhole", Vector3.zero),
-                        Sfx(1.50f, "crunch"),
-                        Haptic(1.52f, "light"),
-                        Face(1.56f, SceneRef.PepA, PepFace.Hopeful),
-                        Face(1.56f, SceneRef.PepB, PepFace.Hopeful),
-                        Move(1.66f, 0.90f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0.36f, 0.31f, 0.96f), amplitude: 0.19f, ease: EaseKind.Hop),
-                        Meet(2.62f, 0.74f),
-                        Sfx(2.68f, "reunion"),
+                        VisibilitySwap(1.08f, "Powder", "Crust"),
+                        Move(1.08f, 0.01f, StepKind.Hide, "Sinkhole", Vector3.zero),
+                        Sfx(1.10f, "crunch"),
+                        Haptic(1.12f, "light"),
+                        Face(1.18f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(1.18f, SceneRef.PepB, PepFace.Hopeful),
+                        Move(1.26f, 0.70f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.36f, 0.25f, 0.72f), amplitude: 0.15f, ease: EaseKind.Hop),
+                        Meet(2.04f, 0.56f),
+                        Sfx(2.10f, "reunion"),
                     },
                 },
             };
@@ -140,36 +140,74 @@ namespace SavePeps.EditorTools
 
             Author.Stage(rescue, "r23", "sled", "Get down the slope.", Difficulty.Medium,
                 ReasoningKind.Momentum, "Diorama_Peak_Chute",
-                "A carved chute runs from the cornice at the top of the slope all the way down to a " +
-                "deep drift where the other Pep waits.");
+                "Seven blocked sections and three course gates interrupt the full mountain run. " +
+                "The sled can configure them into one continuous banked route.");
 
             rescue.Objects = new[]
             {
                 new RescueObject
                 {
                     Id = "sled", Prop = Author.Prop("sled"), AnchorId = "Slot_1", Label = "The little sled",
-                    Duration = 3.5f,
+                    Duration = 3.6f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.78f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.66f, 0.96f, 2.88f), amplitude: 1.05f, ease: EaseKind.Hop),
-                        Sfx(0.80f, "crunch"),
-                        Face(0.88f, SceneRef.PepA, PepFace.Hopeful),
-                        Move(0.92f, 0.36f, StepKind.Fly, SceneRef.PepA, new Vector3(0f, 0.03f, 0f)),
-                        Sfx(1.32f, "glide_hiss"),
-                        Haptic(1.34f, "light"),
-                        Move(1.32f, 0.92f, StepKind.Fly, SceneRef.PepA,
-                            new Vector3(-0.16f, -0.80f, -2.16f), ease: EaseKind.In),
-                        Move(1.32f, 0.92f, StepKind.Fly, SceneRef.Self,
-                            new Vector3(-0.16f, -0.80f, -2.16f), ease: EaseKind.In),
-                        Face(1.40f, SceneRef.PepA, PepFace.Happy),
-                        Move(2.24f, 0.20f, StepKind.Show, "Poof", Vector3.zero),
-                        Sfx(2.26f, "poof"),
-                        Resize(2.26f, 0.50f, "Poof", 1.90f, EaseKind.Out),
-                        Move(2.42f, 0.34f, StepKind.Hide, "Poof", Vector3.zero),
-                        Meet(2.76f, 0.72f),
-                        Sfx(2.82f, "reunion"),
+                        Move(0f, 0.52f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.38f, 1.03f, 2.86f), amplitude: 0.84f, ease: EaseKind.Hop),
+                        Sfx(0.54f, "crunch"),
+                        Move(0.54f, 0.22f, StepKind.Fly, SceneRef.PepA, new Vector3(0f, 0.02f, 0f)),
+                        Face(0.60f, SceneRef.PepA, PepFace.Hopeful),
+
+                        // SYSTEM EVENT: the start mechanism releases three
+                        // gates in sequence before the blocked landscape can
+                        // become a continuous banked course.
+                        Move(0.62f, 0.24f, StepKind.FlyOff, "StartGate",
+                            new Vector3(0f, 0.20f, 0f), ease: EaseKind.In),
+                        Sfx(0.64f, "click"),
+                        Move(0.76f, 0.24f, StepKind.FlyOff, "CourseGateHigh",
+                            new Vector3(0.28f, 0.04f, 0f), ease: EaseKind.In),
+                        Move(0.88f, 0.24f, StepKind.FlyOff, "CourseGateMid",
+                            new Vector3(-0.28f, 0.04f, 0f), ease: EaseKind.In),
+                        Move(1.00f, 0.24f, StepKind.FlyOff, "CourseGateLow",
+                            new Vector3(0.28f, 0.04f, 0f), ease: EaseKind.In),
+                        Move(0.78f, 0.42f, StepKind.Shake, "ClosedRun", Vector3.zero,
+                            amplitude: 3.2f, ease: EaseKind.InOut),
+                        Sfx(1.04f, "rumble"),
+                        VisibilitySwap(1.16f, "ClosedRun", "BankedRun"),
+                        Move(1.16f, 0.01f, StepKind.Show, "TrailFlags", Vector3.zero),
+                        Move(1.16f, 0.50f, StepKind.FlyOff, "Drift",
+                            new Vector3(0.42f, 0.16f, -0.20f), ease: EaseKind.In),
+                        Atmosphere(1.16f, 0.60f, "banked"),
+                        Ambient(1.16f, 0.48f, "PeakSpindrift", 0.54f),
+                        Impact(1.16f, 0.62f),
+                        Haptic(1.18f, "medium"),
+
+                        // A four-leg S-turn proves that the landscape, not
+                        // just the prop, has changed how the Pep travels.
+                        Sfx(1.30f, "glide_hiss"),
+                        Move(1.30f, 0.38f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(-0.38f, -0.24f, -0.62f), ease: EaseKind.InOut),
+                        Move(1.30f, 0.38f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(-0.38f, -0.24f, -0.62f), ease: EaseKind.InOut),
+                        Move(1.62f, 0.38f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(0.62f, -0.22f, -0.64f), ease: EaseKind.InOut),
+                        Move(1.62f, 0.38f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(0.62f, -0.22f, -0.64f), ease: EaseKind.InOut),
+                        Move(1.94f, 0.38f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(-0.58f, -0.22f, -0.62f), ease: EaseKind.InOut),
+                        Move(1.94f, 0.38f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(-0.58f, -0.22f, -0.62f), ease: EaseKind.InOut),
+                        Move(2.26f, 0.38f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(0.24f, -0.14f, -0.50f), ease: EaseKind.InOut),
+                        Move(2.26f, 0.38f, StepKind.Fly, SceneRef.Self,
+                            new Vector3(0.24f, -0.14f, -0.50f), ease: EaseKind.InOut),
+                        Face(1.38f, SceneRef.PepA, PepFace.Happy),
+                        Move(2.50f, 0.10f, StepKind.Show, "RunSpray", Vector3.zero),
+                        Sfx(2.52f, "poof"),
+                        Resize(2.52f, 0.34f, "RunSpray", 1.34f, EaseKind.Out),
+                        Move(2.84f, 0.16f, StepKind.Hide, "RunSpray", Vector3.zero),
+                        Meet(2.94f, 0.58f),
+                        Sfx(3.00f, "reunion"),
                     },
                 },
                 new RescueObject
@@ -227,8 +265,8 @@ namespace SavePeps.EditorTools
 
             Author.Stage(rescue, "r24", "traverse", "Follow the rope.", Difficulty.Medium,
                 ReasoningKind.Crossing, "Diorama_Peak_Traverse",
-                "A band of bare ice cuts across the slope between the Peps, with a rock bollard " +
-                "standing at each end of it.");
+                "A slack safety line spans two isolated summit shelves above a fractured cornice. " +
+                "Tensioning it can release the whole loaded mountainside.");
 
             rescue.Objects = new[]
             {
@@ -256,25 +294,80 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "rope", Prop = Author.Prop("rope"), AnchorId = "Slot_2", Label = "The coil of rope",
-                    Duration = 3.3f,
+                    Duration = 3.6f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "slide"),
-                        Move(0f, 0.64f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(-0.46f, 0.62f, 1.42f), amplitude: 0.56f, ease: EaseKind.Hop),
-                        Sfx(0.68f, "creak"),
-                        Move(0.82f, 0.16f, StepKind.Hide, "RopeLine", Vector3.zero),
-                        Move(0.82f, 0.18f, StepKind.Show, "TautLine", Vector3.zero),
-                        Move(0.84f, 0.40f, StepKind.Shake, "Bollard", Vector3.zero,
-                            amplitude: 2.5f, ease: EaseKind.InOut),
-                        Haptic(0.86f, "light"),
-                        Face(0.96f, SceneRef.PepA, PepFace.Hopeful),
-                        Face(0.96f, SceneRef.PepB, PepFace.Hopeful),
-                        Move(1.10f, 1.00f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0.54f, 0f, -0.02f), amplitude: 0.10f, ease: EaseKind.Hop),
-                        Sfx(1.20f, "crunch"),
-                        Meet(2.30f, 0.72f),
-                        Sfx(2.36f, "reunion"),
+                        Move(0f, 0.48f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(-1.08f, 0.94f, 2.08f), amplitude: 0.72f, ease: EaseKind.Hop),
+                        Sfx(0.50f, "creak"),
+                        VisibilitySwap(0.60f, "RopeLine", "TautLine"),
+                        Move(0.60f, 0.34f, StepKind.Shake, "Bollard", Vector3.zero,
+                            amplitude: 3.8f, ease: EaseKind.InOut),
+                        Haptic(0.62f, "medium"),
+                        Face(0.68f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(0.68f, SceneRef.PepB, PepFace.Hopeful),
+
+                        // The first Pep uses the taut line to reach the far
+                        // anchor. Its arrival loads the release arm.
+                        Sfx(0.72f, "glide_hiss"),
+                        Move(0.70f, 0.46f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(1.06f, 0.14f, 0.40f), ease: EaseKind.InOut),
+                        Move(0.98f, 0.30f, StepKind.Fly, "TensionArm",
+                            new Vector3(-0.18f, -0.20f, -0.04f), ease: EaseKind.Back),
+                        Move(1.02f, 0.01f, StepKind.Show, "FaultCracks", Vector3.zero),
+                        Sfx(1.04f, "crack"),
+                        Move(1.04f, 0.36f, StepKind.Shake, "CorniceSlab", Vector3.zero,
+                            amplitude: 5.5f, ease: EaseKind.InOut),
+
+                        // WORLD EVENT: the cornice shears, the avalanche runs
+                        // across the frame, and the broken summit is replaced
+                        // by a broad traversable fan from top to bottom.
+                        Move(1.22f, 0.58f, StepKind.Fly, "CorniceSlab",
+                            new Vector3(-0.12f, -0.68f, -1.20f), ease: EaseKind.In),
+                        Rotate(1.22f, 0.58f, "CorniceSlab", new Vector3(0f, 0f, 18f), EaseKind.In),
+                        Move(1.24f, 0.01f, StepKind.Show, "AvalancheFront", Vector3.zero),
+                        Move(1.24f, 0.58f, StepKind.Fly, "AvalancheFront",
+                            new Vector3(0f, -0.72f, -1.78f), ease: EaseKind.In),
+                        Move(1.28f, 0.54f, StepKind.Fly, "MountainDebris",
+                            new Vector3(0.08f, -0.42f, -1.14f), ease: EaseKind.In),
+                        Move(1.30f, 0.42f, StepKind.Spin, "MountainDebris", Vector3.zero,
+                            amplitude: 280f, ease: EaseKind.In),
+                        Sfx(1.26f, "rumble"),
+                        Ambient(1.28f, 0.50f, "PeakSpindrift", 0.18f),
+                        Ambient(1.28f, 0.50f, "PeakFlag", 1f),
+                        VisibilitySwap(1.80f, "LockedPeakWorld", "AvalancheWorld"),
+                        Move(1.80f, 0.01f, StepKind.Hide, "CorniceSlab", Vector3.zero),
+                        Move(1.80f, 0.01f, StepKind.Hide, "AvalancheFront", Vector3.zero),
+                        Move(1.80f, 0.01f, StepKind.Hide, "IceBand", Vector3.zero),
+                        Move(1.80f, 0.01f, StepKind.Hide, "TensionArm", Vector3.zero),
+                        Move(1.80f, 0.01f, StepKind.Hide, "FaultCracks", Vector3.zero),
+                        Move(1.80f, 0.01f, StepKind.Hide, "MountainDebris", Vector3.zero),
+                        Move(1.80f, 0.01f, StepKind.Show, "SummitBeacons", Vector3.zero),
+                        Atmosphere(1.80f, 0.72f, "avalanche"),
+                        Impact(1.80f, 1.48f),
+                        Haptic(1.82f, "heavy"),
+                        Sfx(1.84f, "crunch"),
+                        Face(1.88f, SceneRef.PepA, PepFace.Happy),
+                        Face(1.88f, SceneRef.PepB, PepFace.Happy),
+
+                        // Both Peps ride the route the mountain just made.
+                        Move(1.96f, 0.42f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(-0.42f, -0.35f, -0.82f), ease: EaseKind.InOut),
+                        Move(1.96f, 0.42f, StepKind.Fly, SceneRef.PepB,
+                            new Vector3(-0.42f, -0.35f, -0.82f), ease: EaseKind.InOut),
+                        Move(2.34f, 0.42f, StepKind.Fly, SceneRef.PepA,
+                            new Vector3(0.10f, -0.33f, -0.68f), ease: EaseKind.In),
+                        Move(2.34f, 0.42f, StepKind.Fly, SceneRef.PepB,
+                            new Vector3(0.10f, -0.33f, -0.68f), ease: EaseKind.In),
+                        Move(2.54f, 0.10f, StepKind.Show, "RunoutSpray", Vector3.zero),
+                        Resize(2.56f, 0.34f, "RunoutSpray", 1.42f, EaseKind.Out),
+                        Sfx(2.58f, "poof"),
+                        Move(2.92f, 0.14f, StepKind.Hide, "RunoutSpray", Vector3.zero),
+                        Meet(2.90f, 0.58f),
+                        Sfx(2.96f, "reunion"),
+                        Impact(2.94f, 0.56f),
+                        Haptic(2.96f, "success"),
                     },
                 },
                 new RescueObject

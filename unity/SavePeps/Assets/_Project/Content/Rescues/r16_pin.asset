@@ -185,7 +185,7 @@ MonoBehaviour:
     AnchorId: Slot_3
     Label: The sandbag
     Quip: 
-    Duration: 3.3
+    Duration: 2.8
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -198,7 +198,7 @@ MonoBehaviour:
       Ease: 0
       Param: whoosh
     - At: 0
-      Duration: 0.58
+      Duration: 0.54
       Kind: 1
       Target: $self
       Delta: {x: -0.34, y: 0.07, z: 0.72}
@@ -207,7 +207,7 @@ MonoBehaviour:
       Amplitude: 0.4
       Ease: 5
       Param: 
-    - At: 0.6
+    - At: 0.56
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -217,7 +217,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: thud
-    - At: 0.62
+    - At: 0.58
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -226,48 +226,28 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: medium
-    - At: 0.8
-      Duration: 0.14
-      Kind: 7
+      Param: light
+    - At: 0.72
+      Duration: 0.5
+      Kind: 104
       Target: Tarp
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: 
-    - At: 0.8
-      Duration: 0.14
-      Kind: 7
+      Param: TautTarp
+    - At: 0.74
+      Duration: 0.5
+      Kind: 104
       Target: TarpCorner
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: 
+      Param: PinnedCorner
     - At: 0.8
-      Duration: 0.16
-      Kind: 6
-      Target: TautTarp
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 0.8
-      Duration: 0.16
-      Kind: 6
-      Target: PinnedCorner
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 0.96
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -277,7 +257,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: creak
-    - At: 1.02
+    - At: 0.88
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -287,7 +267,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.02
+    - At: 0.88
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -297,8 +277,8 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 1.16
-      Duration: 1.02
+    - At: 1.02
+      Duration: 0.88
       Kind: 2
       Target: $pepA
       Delta: {x: 0.04, y: 0, z: 1.58}
@@ -307,8 +287,8 @@ MonoBehaviour:
       Amplitude: 0.15
       Ease: 5
       Param: 
-    - At: 2.36
-      Duration: 0.72
+    - At: 2.02
+      Duration: 0.54
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -317,7 +297,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.42
+    - At: 2.08
       Duration: 0.5
       Kind: 101
       Target: $self

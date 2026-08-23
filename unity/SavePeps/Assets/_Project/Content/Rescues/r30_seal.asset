@@ -17,8 +17,9 @@ MonoBehaviour:
   Reasoning: 12
   Goal: Shut the airlock.
   Difficulty: 1
-  SceneDescription: Air is streaming out of a vent beside the airlock and walking
-    the near Pep backwards down the corridor every time they advance.
+  SceneDescription: A catastrophic airlock breach is expelling atmosphere into the
+    vacuum, tearing loose station panels and preventing any crossing between the
+    disaligned modules.
   Environment: {fileID: 4358435757796013714, guid: 024077caead914d28b3f1421d1a131f9, type: 3}
   PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
   PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
@@ -37,7 +38,7 @@ MonoBehaviour:
       Duration: 0.76
       Kind: 0
       Target: $self
-      Delta: {x: 0.24, y: 0.15, z: 1.86}
+      Delta: {x: 0.22, y: 0.21, z: 1.61}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
@@ -94,7 +95,7 @@ MonoBehaviour:
       Duration: 0.8
       Kind: 0
       Target: $self
-      Delta: {x: -0.16, y: 0.15, z: 1.86}
+      Delta: {x: -0.58, y: 0.21, z: 1.61}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
@@ -123,7 +124,7 @@ MonoBehaviour:
     - At: 0.86
       Duration: 0.7
       Kind: 4
-      Target: Vent
+      Target: BreachCollar
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
@@ -158,16 +159,16 @@ MonoBehaviour:
       Ease: 0
       Param: servo
     - At: 0
-      Duration: 0.86
+      Duration: 0.78
       Kind: 0
       Target: $self
-      Delta: {x: 0.24, y: 0.15, z: 2.2}
+      Delta: {x: -0.18, y: 0.21, z: 1.95}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 3
       Param: 
-    - At: 0.88
+    - At: 0.8
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -177,27 +178,27 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: poof
-    - At: 0.9
-      Duration: 0.4
+    - At: 0.8
+      Duration: 0.22
       Kind: 0
       Target: $self
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 0.68
+      Scale: 0.65
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 0.96
-      Duration: 0.42
-      Kind: 7
-      Target: Blast
+    - At: 0.82
+      Duration: 0.5
+      Kind: 101
+      Target: $self
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: 
-    - At: 1
+      Param: thud
+    - At: 0.84
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -207,7 +208,17 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: hiss
-    - At: 1.02
+    - At: 0.84
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 1.5
+      Ease: 0
+      Param: 
+    - At: 0.84
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -216,8 +227,58 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: light
-    - At: 1.36
+      Param: heavy
+    - At: 0.82
+      Duration: 0.25
+      Kind: 4
+      Target: BreachCollar
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 14
+      Ease: 0
+      Param: 
+    - At: 0.84
+      Duration: 0.18
+      Kind: 7
+      Target: DecompressionVortex
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.96
+      Duration: 0.5
+      Kind: 104
+      Target: BreachedStationWorld
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: DockedStationWorld
+    - At: 0.96
+      Duration: 0.75
+      Kind: 106
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: orbit_docked
+    - At: 0.96
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: clank
+    - At: 1
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -227,17 +288,47 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: servo
-    - At: 1.38
-      Duration: 0.62
-      Kind: 0
-      Target: Hatch
-      Delta: {x: -0.32, y: 0, z: 0}
+    - At: 1.06
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
-      Ease: 2
+      Ease: 0
+      Param: snap_on
+    - At: 0.96
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 1.4
+      Ease: 0
       Param: 
-    - At: 1.46
+    - At: 0.96
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: heavy
+    - At: 0.96
+      Duration: 0.4
+      Kind: 0
+      Target: DockedStationWorld
+      Delta: {x: 0, y: 0.02, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.38
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -246,8 +337,8 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: Hopeful
-    - At: 1.46
+      Param: Happy
+    - At: 1.38
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -256,19 +347,29 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: Hopeful
-    - At: 1.62
-      Duration: 1.02
-      Kind: 2
+      Param: Happy
+    - At: 1.45
+      Duration: 1.1
+      Kind: 0
       Target: $pepA
-      Delta: {x: 0, y: 0, z: 2.1}
+      Delta: {x: 0.42, y: 0, z: 0.55}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.13
-      Ease: 5
+      Amplitude: 0
+      Ease: 2
       Param: 
-    - At: 2.7
-      Duration: 0.74
+    - At: 1.45
+      Duration: 1.1
+      Kind: 0
+      Target: $pepB
+      Delta: {x: -0.55, y: -0.14, z: -0.53}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 2.65
+      Duration: 0.8
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -277,7 +378,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.76
+    - At: 2.7
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -287,4 +388,24 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: reunion
+    - At: 2.7
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: success
+    - At: 2.7
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.6
+      Ease: 0
+      Param: 
   CorrectIndex: 2

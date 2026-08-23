@@ -26,9 +26,9 @@ namespace SavePeps.Rescue
         Shake = 4,
         /// <summary>Spin in place; Amplitude is degrees about Y.</summary>
         Spin = 5,
-        /// <summary>Fade in.</summary>
+        /// <summary>Reveal immediately, then apply Delta/rotation/scale over Duration.</summary>
         Show = 6,
-        /// <summary>Fade out.</summary>
+        /// <summary>Hide immediately.</summary>
         Hide = 7,
         /// <summary>Drift off and vanish — balloons, birds, dignity.</summary>
         FlyOff = 8,
@@ -39,10 +39,18 @@ namespace SavePeps.Rescue
         Face = 100,
         /// <summary>Play a sound. Param is the clip id.</summary>
         Sfx = 101,
-        /// <summary>Fire a haptic. Param is light|medium|success.</summary>
+        /// <summary>Fire a haptic. Param is light|medium|heavy|success.</summary>
         Haptic = 102,
         /// <summary>Hand both Peps to the shared reunion animation.</summary>
         Meet = 103,
+        /// <summary>Atomically hide Target and reveal the AnimTarget named by Param.</summary>
+        VisibilitySwap = 104,
+        /// <summary>Kick the camera. Amplitude is the impact strength.</summary>
+        Impact = 105,
+        /// <summary>Blend to the environment outcome mood named by Param.</summary>
+        Atmosphere = 106,
+        /// <summary>Blend the named ambient control to Scale activity over Duration.</summary>
+        Ambient = 107,
     }
 
     /// <summary>
@@ -96,7 +104,7 @@ namespace SavePeps.Rescue
 
         public EaseKind Ease = EaseKind.Out;
 
-        [Tooltip("Face name, sfx id, or haptic strength, depending on Kind.")]
+        [Tooltip("Face, sfx, haptic, atmosphere cue, or reveal target, depending on Kind.")]
         public string Param;
 
         public bool IsEvent => (int)Kind >= 100;

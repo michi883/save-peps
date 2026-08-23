@@ -207,6 +207,12 @@ namespace SavePeps.Core
             ["crunch"] = Make("crunch", 0.30f, (t, i) =>
                 Envelope(t, 0.30f, 0.004f, 2.4f) * (Noise(i / 2) * 0.30f + Noise(i) * 0.12f)),
 
+            /// A loaded snow or ice shelf splitting before it releases.
+            ["crack"] = Make("crack", 0.48f, (t, i) =>
+                Envelope(t, 0.48f, 0.001f, 2.8f) *
+                (Noise(i) * 0.28f + Noise(i / 5) * 0.18f +
+                 Tone(t, Mathf.Lerp(420f, 72f, t / 0.48f)) * 0.24f)),
+
             /// A runner on snow.
             ["glide_hiss"] = Make("glide_hiss", 0.90f, (t, i) =>
                 Mathf.Sin(Mathf.Clamp01(t / 0.90f) * Mathf.PI) * (Noise(i / 4) * 0.26f)),

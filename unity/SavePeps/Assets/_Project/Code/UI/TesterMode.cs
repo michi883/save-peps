@@ -38,6 +38,7 @@ namespace SavePeps.UI
         [SerializeField] private GameObject _root;
         [SerializeField] private CanvasGroup _group;
         [SerializeField] private Button _closeButton;
+        [SerializeField] private Button _exitModeButton;
 
         [Header("Go To")]
         [SerializeField] private Button[] _roundButtons = Array.Empty<Button>();
@@ -70,17 +71,22 @@ namespace SavePeps.UI
         private static readonly Color ConfirmDestructive = new(0.88f, 0.33f, 0.33f, 1f); // Alert Coral #E05353
         private static readonly Color Ink = new(0.24f, 0.20f, 0.33f, 1f); // #3D3354
 
+        private const int RequiredTapCount = 7;
+        private const float TapTimeoutSeconds = 3.5f;
+
         private int _selectedRound = 1;
         private int _selectedRescue = 0; // 0-indexed
         private int _secretIndex;
+        private int _tapCount;
+        private float _lastTapTime;
         private bool _active;
         private bool _busy;
         private bool _confirmingClear;
         private float _confirmExpiresTime;
         private float _nextPaint;
 
-        /// <summary>True only in the editor or a player built with Development Build enabled.</summary>
-        public static bool Available => Application.isEditor || Debug.isDebugBuild;
+        /// <summary>Available across environments so the secret 7-tap command works reliably.</summary>
+        public static bool Available => true;
 
         /// <summary>Session-only; deliberately false on every process start.</summary>
         public bool Active => Available && _active;
@@ -102,6 +108,8 @@ namespace SavePeps.UI
         {
             _active = false;
             _secretIndex = 0;
+            _tapCount = 0;
+            _lastTapTime = 0f;
             _confirmingClear = false;
             SetVisible(_root, false);
             SetVisible(_indicatorRoot, false);
@@ -115,6 +123,7 @@ namespace SavePeps.UI
 
             _indicatorButton?.onClick.AddListener(Open);
             _closeButton?.onClick.AddListener(RequestClose);
+            _exitModeButton?.onClick.AddListener(Deactivate);
             _playRescueButton?.onClick.AddListener(PlayRescue);
             _freeButton?.onClick.AddListener(() => SetSubscribed(false));
             _unlimitedButton?.onClick.AddListener(() => SetSubscribed(true));
@@ -165,18 +174,32 @@ namespace SavePeps.UI
         {
             if (!Available || _busy) return;
 
+            var now = Time.unscaledTime;
+            if (now - _lastTapTime > TapTimeoutSeconds)
+            {
+                _tapCount = 0;
+                _secretIndex = 0;
+            }
+            _lastTapTime = now;
+
+            _tapCount++;
+
             if (tap == SecretSequence[_secretIndex])
             {
                 _secretIndex++;
-                if (_secretIndex < SecretSequence.Length) return;
+            }
+            else
+            {
+                _secretIndex = tap == HomeSecretTap.Heart ? 1 : 0;
+            }
 
+            if (_tapCount >= RequiredTapCount || _secretIndex >= SecretSequence.Length)
+            {
+                _tapCount = 0;
                 _secretIndex = 0;
                 if (Active) Deactivate();
                 else Activate();
-                return;
             }
-
-            _secretIndex = tap == HomeSecretTap.Heart ? 1 : 0;
         }
 
         private void Activate()
@@ -189,6 +212,7 @@ namespace SavePeps.UI
             }
 
             SetVisible(_indicatorRoot, true);
+            Open();
             Debug.Log("[SavePeps] Tester Mode active. Restrictions removed.");
         }
 

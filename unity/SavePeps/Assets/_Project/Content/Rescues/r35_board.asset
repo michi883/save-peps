@@ -185,7 +185,7 @@ MonoBehaviour:
     AnchorId: Slot_3
     Label: The trolley grip
     Quip: 
-    Duration: 3.4
+    Duration: 3.5
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -207,7 +207,7 @@ MonoBehaviour:
       Amplitude: 0.3
       Ease: 5
       Param: 
-    - At: 0.56
+    - At: 0.54
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -217,27 +217,17 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 0.62
-      Duration: 0.62
-      Kind: 1
-      Target: $pepA
-      Delta: {x: 0.1, y: 0.66, z: 1.1}
+    - At: 0.56
+      Duration: 0.2
+      Kind: 6
+      Target: SignalLight
+      Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.34
-      Ease: 5
+      Amplitude: 0
+      Ease: 0
       Param: 
-    - At: 0.62
-      Duration: 0.62
-      Kind: 1
-      Target: $self
-      Delta: {x: 0.1, y: 0.66, z: 1.1}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0.34
-      Ease: 5
-      Param: 
-    - At: 1.24
+    - At: 0.58
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -246,8 +236,48 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: transit
-    - At: 1.26
+      Param: click
+    - At: 0.6
+      Duration: 0.48
+      Kind: 0
+      Target: TramCar
+      Delta: {x: 0.57, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.62
+      Duration: 0.46
+      Kind: 1
+      Target: $pepA
+      Delta: {x: 0, y: 0.62, z: 0.98}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.32
+      Ease: 5
+      Param: 
+    - At: 0.62
+      Duration: 0.46
+      Kind: 1
+      Target: $self
+      Delta: {x: 0, y: 0.62, z: 0.98}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.32
+      Ease: 5
+      Param: 
+    - At: 1.1
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: click
+    - At: 1.12
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -257,8 +287,38 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: medium
-    - At: 1.26
-      Duration: 0.2
+    - At: 1.14
+      Duration: 0.68
+      Kind: 0
+      Target: TramCar
+      Delta: {x: 0.68, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.14
+      Duration: 0.68
+      Kind: 0
+      Target: $pepA
+      Delta: {x: 0.62, y: 0, z: 0.36}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.14
+      Duration: 0.68
+      Kind: 0
+      Target: $self
+      Delta: {x: 0.62, y: 0, z: 0.36}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 2
+      Param: 
+    - At: 1.16
+      Duration: 0.55
       Kind: 6
       Target: RailSpark
       Delta: {x: 0, y: 0, z: 0}
@@ -267,37 +327,27 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 1.48
-      Duration: 0.3
-      Kind: 7
-      Target: RailSpark
+    - At: 1.18
+      Duration: 0.5
+      Kind: 101
+      Target: $self
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: 
-    - At: 1.28
-      Duration: 0.56
-      Kind: 0
-      Target: $pepA
-      Delta: {x: 0.4, y: -0.04, z: 0.2}
+      Param: transit
+    - At: 1.22
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0
-      Ease: 1
+      Amplitude: 0.75
+      Ease: 0
       Param: 
-    - At: 1.28
-      Duration: 0.56
-      Kind: 0
-      Target: $self
-      Delta: {x: 0.4, y: -0.04, z: 0.2}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 1
-      Param: 
-    - At: 1.32
+    - At: 1.24
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -307,8 +357,28 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Happy
-    - At: 1.88
-      Duration: 0.26
+    - At: 1.72
+      Duration: 0.2
+      Kind: 7
+      Target: RailSpark
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.82
+      Duration: 0.4
+      Kind: 1
+      Target: $pepA
+      Delta: {x: 0, y: -0.62, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.15
+      Ease: 5
+      Param: 
+    - At: 1.82
+      Duration: 0.2
       Kind: 7
       Target: $self
       Delta: {x: 0, y: 0, z: 0}
@@ -317,8 +387,18 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.6
-      Duration: 0.72
+    - At: 2.22
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: thud
+    - At: 2.55
+      Duration: 0.76
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}
@@ -327,7 +407,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.66
+    - At: 2.62
       Duration: 0.5
       Kind: 101
       Target: $self

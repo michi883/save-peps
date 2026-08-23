@@ -17,8 +17,8 @@ MonoBehaviour:
   Reasoning: 11
   Goal: Ring the crystal.
   Difficulty: 2
-  SceneDescription: A seam of crystal runs the length of the cave roof, and a curtain
-    of loose rock seals the tunnel where the other Pep waits.
+  SceneDescription: A three-part crystal seam runs the length of the cave roof, above
+    a broad rock shutter that has folded the only route shut.
   Environment: {fileID: 1793160090952690688, guid: 86d784aa28373497d9e0f150da0c6a6e, type: 3}
   PepAPrefab: {fileID: 9056677929247201300, guid: 49b91f45538e348f0885e323a8485a46, type: 3}
   PepBPrefab: {fileID: 6891804254447569875, guid: 60e89f1ac31e74e56ad1c9b6148a4353, type: 3}
@@ -185,7 +185,7 @@ MonoBehaviour:
     AnchorId: Slot_3
     Label: The tuned crystal
     Quip: 
-    Duration: 3.5
+    Duration: 3.6
     Steps:
     - At: 0.03
       Duration: 0.5
@@ -198,16 +198,16 @@ MonoBehaviour:
       Ease: 0
       Param: slide
     - At: 0
-      Duration: 0.66
+      Duration: 0.56
       Kind: 1
       Target: $self
-      Delta: {x: 0, y: 0.66, z: 1.54}
+      Delta: {x: 0, y: 0.78, z: 1.48}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0.58
       Ease: 5
       Param: 
-    - At: 0.7
+    - At: 0.58
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -217,7 +217,7 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: crystal
-    - At: 0.72
+    - At: 0.6
       Duration: 0.5
       Kind: 102
       Target: $self
@@ -226,58 +226,158 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: light
-    - At: 0.72
-      Duration: 0.9
+      Param: medium
+    - At: 0.6
+      Duration: 0.78
       Kind: 4
       Target: CrystalVein
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 3
+      Amplitude: 3.4
       Ease: 2
       Param: 
-    - At: 0.86
-      Duration: 0.16
+    - At: 0.66
+      Duration: 0.1
       Kind: 6
-      Target: VeinRing
+      Target: VeinPulseNear
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 0.88
-      Duration: 0.86
-      Kind: 0
-      Target: VeinRing
-      Delta: {x: 0, y: 0, z: 0.9}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 0.88
-      Duration: 0.86
-      Kind: 0
-      Target: VeinRing
-      Delta: {x: 0, y: 0, z: 0}
-      EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1.45
-      Amplitude: 0
-      Ease: 0
-      Param: 
-    - At: 1.76
+    - At: 0.66
       Duration: 0.3
-      Kind: 7
-      Target: VeinRing
+      Kind: 0
+      Target: VeinPulseNear
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.16
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.68
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: chime
+    - At: 0.86
+      Duration: 0.1
+      Kind: 6
+      Target: VeinPulseMid
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 1.74
+    - At: 0.86
+      Duration: 0.3
+      Kind: 0
+      Target: VeinPulseMid
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.18
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.88
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: chime
+    - At: 1.06
+      Duration: 0.1
+      Kind: 6
+      Target: VeinPulseFar
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.06
+      Duration: 0.3
+      Kind: 0
+      Target: VeinPulseFar
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1.2
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.08
+      Duration: 0.5
+      Kind: 101
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: crystal
+    - At: 0.82
+      Duration: 0.6
+      Kind: 107
+      Target: CaveDrips
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 0.34
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 0.92
+      Duration: 0.7
+      Kind: 106
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: resonant
+    - At: 1.14
+      Duration: 0.38
+      Kind: 4
+      Target: SealedPassage
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 7
+      Ease: 2
+      Param: 
+    - At: 1.24
+      Duration: 0.12
+      Kind: 6
+      Target: Dust
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.24
+      Duration: 0.46
+      Kind: 8
+      Target: Dust
+      Delta: {x: 0, y: 0.34, z: -0.12}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 1
+      Param: 
+    - At: 1.26
       Duration: 0.5
       Kind: 101
       Target: $self
@@ -287,57 +387,87 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: rumble
-    - At: 1.72
-      Duration: 0.36
-      Kind: 4
-      Target: RockCurtain
+    - At: 1.5
+      Duration: 0.5
+      Kind: 104
+      Target: SealedPassage
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 7
-      Ease: 2
-      Param: 
-    - At: 2.06
-      Duration: 0.26
+      Amplitude: 0
+      Ease: 0
+      Param: OpenPassage
+    - At: 1.52
+      Duration: 0.12
       Kind: 6
-      Target: Dust
+      Target: RouteLights
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.08
-      Duration: 0.6
+    - At: 1.52
+      Duration: 0.3
       Kind: 0
-      Target: Dust
+      Target: RouteLights
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
-      Scale: 1.8
+      Scale: 1.18
       Amplitude: 0
+      Ease: 4
+      Param: 
+    - At: 1.52
+      Duration: 0.5
+      Kind: 105
+      Target: $camera
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.68
       Ease: 0
       Param: 
-    - At: 2.08
-      Duration: 0.24
+    - At: 1.54
+      Duration: 0.5
+      Kind: 102
+      Target: $self
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: medium
+    - At: 1.58
+      Duration: 0.12
       Kind: 7
-      Target: RockCurtain
+      Target: VeinPulseNear
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.72
-      Duration: 0.34
+    - At: 1.62
+      Duration: 0.12
       Kind: 7
-      Target: Dust
+      Target: VeinPulseMid
       Delta: {x: 0, y: 0, z: 0}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
       Amplitude: 0
       Ease: 0
       Param: 
-    - At: 2.14
+    - At: 1.66
+      Duration: 0.12
+      Kind: 7
+      Target: VeinPulseFar
+      Delta: {x: 0, y: 0, z: 0}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0
+      Ease: 0
+      Param: 
+    - At: 1.58
       Duration: 0.5
       Kind: 100
       Target: $pepA
@@ -346,8 +476,8 @@ MonoBehaviour:
       Scale: 1
       Amplitude: 0
       Ease: 0
-      Param: Hopeful
-    - At: 2.14
+      Param: Happy
+    - At: 1.58
       Duration: 0.5
       Kind: 100
       Target: $pepB
@@ -357,18 +487,48 @@ MonoBehaviour:
       Amplitude: 0
       Ease: 0
       Param: Hopeful
-    - At: 2.24
-      Duration: 0.74
+    - At: 1.68
+      Duration: 0.32
       Kind: 2
-      Target: $pepB
-      Delta: {x: -0.31, y: -0.26, z: -1.08}
+      Target: $pepA
+      Delta: {x: 0.28, y: 0.04, z: 0.44}
       EulerDelta: {x: 0, y: 0, z: 0}
       Scale: 1
-      Amplitude: 0.14
+      Amplitude: 0.15
       Ease: 5
       Param: 
-    - At: 2.98
-      Duration: 0.5
+    - At: 1.98
+      Duration: 0.32
+      Kind: 2
+      Target: $pepA
+      Delta: {x: 0.24, y: 0.07, z: 0.44}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.16
+      Ease: 5
+      Param: 
+    - At: 2.28
+      Duration: 0.32
+      Kind: 2
+      Target: $pepA
+      Delta: {x: 0.2, y: 0.1, z: 0.42}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.17
+      Ease: 5
+      Param: 
+    - At: 2.58
+      Duration: 0.3
+      Kind: 2
+      Target: $pepA
+      Delta: {x: -0.02, y: 0.11, z: 0.38}
+      EulerDelta: {x: 0, y: 0, z: 0}
+      Scale: 1
+      Amplitude: 0.16
+      Ease: 5
+      Param: 
+    - At: 2.96
+      Duration: 0.54
       Kind: 103
       Target: $peps
       Delta: {x: 0, y: 0, z: 0}

@@ -225,8 +225,8 @@ namespace SavePeps.EditorTools
 
             Author.Stage(rescue, "r33", "jam", "Stop the piston.", Difficulty.Medium,
                 ReasoningKind.Momentum, "Diorama_Forge_Piston",
-                "A press hammers the walkway on a steady beat, with an open yoke on its linkage arm " +
-                "just within reach.");
+                "A massive press hammers the floor over a smelting abyss, blocking the route to the high " +
+                "tower. Jamming its linkage trips emergency brakes and swings down the gantry skywalk.");
 
             rescue.Objects = new[]
             {
@@ -271,31 +271,35 @@ namespace SavePeps.EditorTools
                 new RescueObject
                 {
                     Id = "wrench", Prop = Author.Prop("wrench"), AnchorId = "Slot_3", Label = "The steel spanner",
-                    Duration = 3.4f,
+                    Duration = 3.55f,
                     Steps = new[]
                     {
                         Sfx(0.03f, "whoosh"),
-                        Move(0f, 0.66f, StepKind.Arc, SceneRef.Self,
-                            new Vector3(0.36f, 0.745f, 1.12f), amplitude: 0.58f, ease: EaseKind.Hop),
-                        Sfx(0.68f, "clank"),
-                        Haptic(0.70f, "medium"),
-                        Move(0.72f, 0.36f, StepKind.Shake, "Linkage", Vector3.zero,
-                            amplitude: 9f, ease: EaseKind.InOut),
-                        Move(0.76f, 0.22f, StepKind.Show, "Sparks", Vector3.zero),
-                        Resize(0.78f, 0.44f, "Sparks", 1.80f, EaseKind.Out),
+                        Move(0f, 0.58f, StepKind.Arc, SceneRef.Self,
+                            new Vector3(0.40f, 0.765f, 1.18f), amplitude: 0.58f, ease: EaseKind.Hop),
+                        Sfx(0.58f, "clank"),
+                        Haptic(0.60f, "heavy"),
+                        Impact(0.60f, 1.8f),
+                        Move(0.60f, 0.36f, StepKind.Shake, "Linkage", Vector3.zero,
+                            amplitude: 14f, ease: EaseKind.InOut),
+                        Move(0.60f, 0.24f, StepKind.Show, "Sparks", Vector3.zero),
+                        Resize(0.62f, 0.44f, "Sparks", 2.20f, EaseKind.Out),
+                        VisibilitySwap(0.64f, "ActivePressComplex", "TransformedForgeWorld"),
+                        Sfx(0.66f, "hiss"),
+                        Move(0.66f, 0.30f, StepKind.Show, "SteamBurst", Vector3.zero),
+                        Resize(0.68f, 0.50f, "SteamBurst", 1.80f, EaseKind.Out),
+                        Sfx(1.10f, "thud"),
+                        Haptic(1.12f, "medium"),
+                        Impact(1.12f, 0.8f),
+                        Sfx(1.22f, "snap_on"),
                         Move(1.24f, 0.30f, StepKind.Hide, "Sparks", Vector3.zero),
-                        // The press stops: its beating twin is hidden and a
-                        // parked one takes its place, because an idle can be
-                        // added to but never cancelled.
-                        Move(0.94f, 0.16f, StepKind.Hide, "Piston", Vector3.zero),
-                        Move(0.94f, 0.18f, StepKind.Show, "PistonHeld", Vector3.zero),
-                        Sfx(1.30f, "hiss"),
-                        Face(1.36f, SceneRef.PepA, PepFace.Hopeful),
-                        Face(1.36f, SceneRef.PepB, PepFace.Hopeful),
-                        Move(1.50f, 1.00f, StepKind.Hop, SceneRef.PepA,
-                            new Vector3(0.34f, 0f, 1.86f), amplitude: 0.15f, ease: EaseKind.Hop),
-                        Meet(2.58f, 0.74f),
-                        Sfx(2.64f, "reunion"),
+                        Move(1.40f, 0.40f, StepKind.Hide, "SteamBurst", Vector3.zero),
+                        Face(1.26f, SceneRef.PepA, PepFace.Hopeful),
+                        Face(1.26f, SceneRef.PepB, PepFace.Hopeful),
+                        Move(1.42f, 1.14f, StepKind.Hop, SceneRef.PepA,
+                            new Vector3(0.62f, 0.34f, 2.12f), amplitude: 0.16f, ease: EaseKind.Hop),
+                        Meet(2.60f, 0.85f),
+                        Sfx(2.66f, "reunion"),
                     },
                 },
             };

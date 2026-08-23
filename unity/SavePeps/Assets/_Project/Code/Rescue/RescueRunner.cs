@@ -35,6 +35,7 @@ namespace SavePeps.Rescue
         [SerializeField] private AtmosphereDirector _atmosphere;
 
         private readonly Dictionary<string, AnimTarget> _targets = new();
+        private readonly Dictionary<string, List<AmbientMotion>> _ambientTargets = new();
         private readonly Dictionary<string, ChoicePresentation> _choices = new();
         private readonly Dictionary<string, ChoicePad> _choicePads = new();
         private GameObject _diorama;
@@ -211,6 +212,7 @@ namespace SavePeps.Rescue
             _diorama = null;
 
             _targets.Clear();
+            _ambientTargets.Clear();
             _choices.Clear();
             _choicePads.Clear();
             _rescue = null;
@@ -353,6 +355,21 @@ namespace SavePeps.Rescue
             foreach (var target in _diorama.GetComponentsInChildren<AnimTarget>(includeInactive: true))
             {
                 _targets.TryAdd(target.transform.parent != null ? target.transform.parent.name : target.name, target);
+            }
+
+            // Ambient controls use an explicit id (or the component object's
+            // name) and may deliberately address several loops as one weather
+            // system. They stay separate from AnimTarget because ambient
+            // motion must never write to choreography's identity rest node.
+            foreach (var motion in _diorama.GetComponentsInChildren<AmbientMotion>(includeInactive: true))
+            {
+                if (motion == null || string.IsNullOrWhiteSpace(motion.ControlId)) continue;
+                if (!_ambientTargets.TryGetValue(motion.ControlId, out var motions))
+                {
+                    motions = new List<AmbientMotion>();
+                    _ambientTargets[motion.ControlId] = motions;
+                }
+                motions.Add(motion);
             }
 
             // GameFlow hides the HUD while the home/picker shell is up. The
@@ -514,6 +531,17 @@ namespace SavePeps.Rescue
                 if (target != null) target.ResetToRest();
             }
 
+            foreach (var motions in _ambientTargets.Values)
+            foreach (var motion in motions)
+            {
+                motion?.ResetControl();
+            }
+
+            // Outcome atmosphere is presentation state just like a moved
+            // prop. A failed choice or tester restart must restore the stage's
+            // authored sky rather than carrying the outcome mood into retry.
+            _atmosphere?.Apply(_diorama != null ? _diorama.GetComponent<DioramaAtmosphere>() : null);
+
             _pepA?.ResetToRest();
             _pepB?.ResetToRest();
             foreach (var choice in _choices.Values) choice?.ResetPresentation();
@@ -576,6 +604,46 @@ namespace SavePeps.Rescue
 
                 case StepKind.Haptic:
                     _feedback?.Haptic(step.Param);
+                    break;
+
+                case StepKind.VisibilitySwap:
+                {
+                    var outgoing = Resolve(step.Target);
+                    var incoming = Resolve(step.Param);
+                    if (outgoing == null || incoming == null)
+                    {
+                        Debug.LogWarning(
+                            $"[SavePeps] Visibility swap '{step.Target}' -> '{step.Param}' could not resolve.");
+                        break;
+                    }
+
+                    // Both writes land in the same Update, before rendering;
+                    // opaque twins never coexist for a frame.
+                    outgoing.SetVisible(false);
+                    incoming.SetVisible(true);
+                    break;
+                }
+
+                case StepKind.Impact:
+                    _gameFeel?.Impact(step.Amplitude <= 0f ? 1f : step.Amplitude);
+                    break;
+
+                case StepKind.Atmosphere:
+                    _atmosphere?.Transition(
+                        _diorama != null ? _diorama.GetComponent<DioramaAtmosphere>() : null,
+                        step.Param,
+                        step.Duration);
+                    break;
+
+                case StepKind.Ambient:
+                    if (_ambientTargets.TryGetValue(step.Target, out var motions))
+                    {
+                        foreach (var motion in motions) motion?.SetActivity(step.Scale, step.Duration);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[SavePeps] Ambient control '{step.Target}' could not resolve.");
+                    }
                     break;
 
                 case StepKind.Meet:

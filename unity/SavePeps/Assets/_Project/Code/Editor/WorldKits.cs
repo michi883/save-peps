@@ -52,7 +52,7 @@ namespace SavePeps.EditorTools
         internal static GameObject Begin(string world, string stage)
         {
             var root = new GameObject($"Diorama_{Title(world)}_{stage}");
-            BuildBase(world, root.transform);
+            BuildBase(world, stage, root.transform);
             return root;
         }
 
@@ -111,7 +111,7 @@ namespace SavePeps.EditorTools
         // Base silhouettes — the thing you recognise before you read anything
         // -------------------------------------------------------------------
 
-        private static void BuildBase(string world, Transform root)
+        private static void BuildBase(string world, string stage, Transform root)
         {
             switch (world)
             {
@@ -119,13 +119,13 @@ namespace SavePeps.EditorTools
                 case Clock: ClockBase(root); break;
                 case Weather: WeatherBase(root); break;
                 case Canyon: CanyonBase(root); break;
-                case Tide: TideBase(root); break;
+                case Tide: TideBase(root, stage); break;
                 case Storm: StormBase(root); break;
                 case Cave: CaveBase(root); break;
                 case Peak: PeakBase(root); break;
                 case Abyss: AbyssBase(root); break;
-                case Orbit: OrbitBase(root); break;
-                case Forge: ForgeBase(root); break;
+                case Orbit: OrbitBase(root, stage); break;
+                case Forge: ForgeBase(root, stage); break;
                 case Neon: NeonBase(root); break;
             }
         }
@@ -319,7 +319,7 @@ namespace SavePeps.EditorTools
         /// deeper than any platform in the game, so the docks read as standing
         /// in a sea rather than as a pond painted on a table top.
         /// </summary>
-        private static void TideBase(Transform root)
+        private static void TideBase(Transform root, string stage)
         {
             Box(root, "SeaBed", Mat("WaterDeep"), new Vector3(0f, -0.20f, 0f), new Vector3(2.30f, 0.30f, 4.10f));
 
@@ -332,12 +332,19 @@ namespace SavePeps.EditorTools
                     new Vector3(0.46f + i * 0.05f, 0.012f, 0.05f), new Vector3(0f, i * 9f - 18f, 0f));
             }
 
-            Box(root, "SandBar", Mat("WoodMid"), new Vector3(0f, 0.04f, -1.50f), new Vector3(2.05f, 0.10f, 0.92f));
-            Box(root, "SandTop", Mat("Sand"), new Vector3(0f, 0.086f, -1.52f), new Vector3(1.98f, 0.02f, 0.86f));
-            Box(root, "TideLine", Mat("WoodDark"), new Vector3(0f, 0.098f, -1.06f), new Vector3(2.00f, 0.012f, 0.06f));
-            foreach (var (x, z, s2) in new[] { (-0.72f, -1.66f, 0.10f), (0.66f, -1.42f, 0.08f), (0.02f, -1.72f, 0.07f) })
+            // Current owns a low-tide delta that is replaced across the whole
+            // frame. Keeping the shared beach under it would leave a static
+            // foreground strip after the tide rose and weaken the state swap.
+            if (stage != "Current")
             {
-                Ball(root, "Pebble", Mat("Stone"), new Vector3(x, 0.10f, z), new Vector3(s2, s2 * 0.5f, s2 * 0.8f));
+                Box(root, "SandBar", Mat("WoodMid"), new Vector3(0f, 0.04f, -1.50f), new Vector3(2.05f, 0.10f, 0.92f));
+                Box(root, "SandTop", Mat("Sand"), new Vector3(0f, 0.086f, -1.52f), new Vector3(1.98f, 0.02f, 0.86f));
+                Box(root, "TideLine", Mat("WoodDark"), new Vector3(0f, 0.098f, -1.06f), new Vector3(2.00f, 0.012f, 0.06f));
+                foreach (var (x, z, s2) in new[] { (-0.72f, -1.66f, 0.10f), (0.66f, -1.42f, 0.08f), (0.02f, -1.72f, 0.07f) })
+                {
+                    Ball(root, "Pebble", Mat("Stone"), new Vector3(x, 0.10f, z),
+                        new Vector3(s2, s2 * 0.5f, s2 * 0.8f));
+                }
             }
             Box(root, "BaseFoot", Mat("Ink"), new Vector3(0f, -0.36f, 0.03f), new Vector3(2.06f, 0.055f, 3.72f));
         }
@@ -511,7 +518,7 @@ namespace SavePeps.EditorTools
         /// between them, and everything turns slowly. Take the platform away
         /// and the round is unmistakable from the silhouette alone.
         /// </summary>
-        private static void OrbitBase(Transform root)
+        private static void OrbitBase(Transform root, string stage)
         {
             var stars = Living(root, "Starfield", AmbientMode.Spin, 2.2f, 0.03f, Vector3.up);
             for (var i = 0; i < 26; i++)
@@ -523,39 +530,130 @@ namespace SavePeps.EditorTools
                     Vector3.one * (0.020f + (i % 3) * 0.008f));
             }
 
-            foreach (var (name, pos, size) in new[]
-                     {
-                         ("Module_Near", new Vector3(0f, -0.06f, -1.16f), new Vector3(1.15f, 0.22f, 1.05f)),
-                         ("Module_Mid", new Vector3(0.05f, -0.06f, 0.16f), new Vector3(0.62f, 0.20f, 0.62f)),
-                         ("Module_Far", new Vector3(0f, -0.06f, 1.28f), new Vector3(1.20f, 0.22f, 1.00f)),
-                     })
+            // Foreground console where choice pads always sit
+            var nearPos = new Vector3(0f, -0.06f, -1.16f);
+            var nearSize = new Vector3(1.15f, 0.22f, 1.05f);
+            var nearHull = Box(root, "Module_Near", Mat("StoneLight"), nearPos, nearSize);
+            Round(nearHull);
+            Box(root, "Module_Near_Skirt", Mat("Stone"), nearPos + Vector3.down * 0.14f,
+                new Vector3(nearSize.x * 0.86f, 0.10f, nearSize.z * 0.86f));
+            Box(root, "Module_Near_Stripe", Mat("Accent"), nearPos + Vector3.up * 0.115f,
+                new Vector3(nearSize.x * 0.94f, 0.012f, 0.06f));
+
+            foreach (var x in new[] { -0.46f, 0.46f })
             {
-                var hull = Box(root, name, Mat("StoneLight"), pos, size);
-                Round(hull);
-                Box(root, $"{name}_Skirt", Mat("Stone"), pos + Vector3.down * 0.14f,
-                    new Vector3(size.x * 0.86f, 0.10f, size.z * 0.86f));
-                Box(root, $"{name}_Stripe", Mat("Accent"), pos + Vector3.up * 0.115f,
-                    new Vector3(size.x * 0.94f, 0.012f, 0.06f));
+                Box(root, "Handrail_Near", Mat("Accent"), new Vector3(x, 0.16f, -1.16f), new Vector3(0.03f, 0.28f, 0.03f));
             }
 
-            foreach (var (x, z) in new[] { (-0.46f, -1.16f), (0.46f, -1.16f), (-0.48f, 1.28f), (0.48f, 1.28f) })
+            if (stage == "Drift")
             {
-                Box(root, "Handrail", Mat("Accent"), new Vector3(x, 0.16f, z), new Vector3(0.03f, 0.28f, 0.03f));
-            }
+                // R10.1: Local module event retains the standard 3-module crossing
+                foreach (var (name, pos, size) in new[]
+                         {
+                             ("Module_Mid", new Vector3(0.05f, -0.06f, 0.16f), new Vector3(0.62f, 0.20f, 0.62f)),
+                             ("Module_Far", new Vector3(0f, -0.06f, 1.28f), new Vector3(1.20f, 0.22f, 1.00f)),
+                         })
+                {
+                    var hull = Box(root, name, Mat("StoneLight"), pos, size);
+                    Round(hull);
+                    Box(root, $"{name}_Skirt", Mat("Stone"), pos + Vector3.down * 0.14f,
+                        new Vector3(size.x * 0.86f, 0.10f, size.z * 0.86f));
+                    Box(root, $"{name}_Stripe", Mat("Accent"), pos + Vector3.up * 0.115f,
+                        new Vector3(size.x * 0.94f, 0.012f, 0.06f));
+                }
 
-            var ring = Living(root, "StationRing", AmbientMode.Spin, 26f, 0.05f, Vector3.forward);
-            ring.localPosition = new Vector3(-1.32f, 1.05f, 1.90f);
-            BlockRing(ring, "Ring", Mat("Stone"), Vector3.zero, new Vector2(0.34f, 0.34f), 12, 0.07f, 0.09f);
+                foreach (var x in new[] { -0.48f, 0.48f })
+                {
+                    Box(root, "Handrail_Far", Mat("Accent"), new Vector3(x, 0.16f, 1.28f), new Vector3(0.03f, 0.28f, 0.03f));
+                }
+
+                var ring = Living(root, "StationRing", AmbientMode.Spin, 26f, 0.05f, Vector3.forward);
+                ring.localPosition = new Vector3(-1.32f, 1.05f, 1.90f);
+                BlockRing(ring, "Ring", Mat("Stone"), Vector3.zero, new Vector2(0.34f, 0.34f), 12, 0.07f, 0.09f);
+            }
+            else if (stage == "Tumble")
+            {
+                // R10.2: Open orbital space. Cantilevered station catwalk on left, open void on right with distant solar array.
+                Box(root, "TrussBoom", Mat("Stone"), new Vector3(-0.40f, -0.04f, 0.10f), new Vector3(0.48f, 0.16f, 0.92f));
+                Box(root, "TrussDeck", Mat("StoneLight"), new Vector3(-0.40f, 0.05f, 0.10f), new Vector3(0.42f, 0.02f, 0.86f));
+                Box(root, "TrussStripe", Mat("Accent"), new Vector3(-0.40f, 0.065f, 0.10f), new Vector3(0.04f, 0.01f, 0.80f));
+                foreach (var z in new[] { -0.22f, 0.10f, 0.42f })
+                {
+                    Box(root, "OutboardRail", Mat("Accent"), new Vector3(-0.58f, 0.16f, z), new Vector3(0.025f, 0.22f, 0.025f));
+                }
+
+                // Distant rotating solar array in open void
+                var solar = Living(root, "DistantSolarArray", AmbientMode.Spin, 14f, 0.04f, new Vector3(0.2f, 1f, 0.1f));
+                solar.localPosition = new Vector3(0.95f, 1.10f, 2.30f);
+                Rod(solar, "Mast", Mat("Stone"), Vector3.zero, new Vector3(0.04f, 0.80f, 0.04f));
+                Box(solar, "WingL", Mat("Ink"), new Vector3(-0.35f, 0f, 0f), new Vector3(0.60f, 0.35f, 0.03f));
+                Box(solar, "WingR", Mat("Ink"), new Vector3(0.35f, 0f, 0f), new Vector3(0.60f, 0.35f, 0.03f));
+                Box(solar, "CellsL", Mat("AccentLight"), new Vector3(-0.35f, 0f, 0.02f), new Vector3(0.52f, 0.28f, 0.01f));
+                Box(solar, "CellsR", Mat("AccentLight"), new Vector3(0.35f, 0f, 0.02f), new Vector3(0.52f, 0.28f, 0.01f));
+            }
+            // In stage == "Airlock" (R10.3), all middle/background station structures are dynamically managed
+            // in BreachedStationWorld (BEFORE) and DockedStationWorld (AFTER) for full silhouette control.
         }
 
         /// <summary>
         /// A heavy riveted deck with a glowing trough cut through it and a
         /// gantry overhead. It is lit from below, which no other world is.
         /// </summary>
-        private static void ForgeBase(Transform root)
+        private static void ForgeBase(Transform root, string stage = null)
         {
             Box(root, "Platform", Mat("EarthDark"), new Vector3(0f, -0.16f, 0f), new Vector3(1.66f, 0.32f, 3.40f));
             Box(root, "BaseFoot", Mat("Ink"), new Vector3(0f, -0.35f, 0.03f), new Vector3(1.50f, 0.055f, 3.12f));
+
+            if (stage == "Piston")
+            {
+                // R11.3 (World Event): Custom industrial foundry base tailored for the giant press & gantry complex.
+                // Front intake deck (low) where Pep A waits and tray sits.
+                Box(root, "FrontDeck", Mat("Ink"), new Vector3(0f, 0.09f, -1.10f), new Vector3(1.50f, 0.18f, 1.06f));
+                Box(root, "FrontDeckPlate", Mat("Stone"), new Vector3(0f, 0.185f, -1.10f), new Vector3(1.40f, 0.02f, 0.96f));
+                for (var i = 0; i < 5; i++)
+                {
+                    Rod(root, "RivetF", Mat("StoneLight"), new Vector3(-0.60f + i * 0.30f, 0.20f, -1.10f),
+                        new Vector3(0.045f, 0.012f, 0.045f));
+                }
+
+                // Deep central smelting furnace abyss pit with white-hot core.
+                Box(root, "SmeltingPit", Mat("Ink"), new Vector3(0f, -0.05f, 0.08f), new Vector3(1.54f, 0.28f, 1.28f));
+                var meltPit = Living(root, "Melt", AmbientMode.Pulse, 0.05f, 0.31f, Vector3.up);
+                Box(meltPit, "MoltenBed", Mat("AccentDeep"), new Vector3(0f, 0.02f, 0.08f), new Vector3(1.40f, 0.06f, 1.16f));
+                Box(meltPit, "MoltenCore", Mat("AccentLight"), new Vector3(0f, 0.055f, 0.08f), new Vector3(1.08f, 0.02f, 0.84f));
+                Box(meltPit, "WhiteHot", Mat("Candle"), new Vector3(0f, 0.068f, 0.08f), new Vector3(0.68f, 0.01f, 0.44f));
+
+                // Flanking industrial molten crucibles pouring glowing streams into the central pit
+                foreach (var (x, rotZ) in new[] { (-0.66f, 20f), (0.66f, -20f) })
+                {
+                    Box(root, "CrucibleVat", Mat("Ink"), new Vector3(x, 0.44f, 0.08f), new Vector3(0.22f, 0.46f, 0.34f), new Vector3(0f, 0f, rotZ));
+                    Box(root, "CrucibleBand", Mat("Accent"), new Vector3(x, 0.44f, 0.08f), new Vector3(0.24f, 0.06f, 0.36f), new Vector3(0f, 0f, rotZ));
+                    Box(root, "CrucibleMelt", Mat("AccentLight"), new Vector3(x * 0.90f, 0.52f, 0.08f), new Vector3(0.16f, 0.04f, 0.26f), new Vector3(0f, 0f, rotZ));
+                    Box(root, "PourStream", Mat("Candle"), new Vector3(x * 0.62f, 0.20f, 0.08f), new Vector3(0.04f, 0.30f, 0.06f), new Vector3(0f, 0f, rotZ * 0.5f));
+                }
+
+                // High elevated gantry observation deck in the back where Pep B waits.
+                Box(root, "BackTower", Mat("Ink"), new Vector3(0f, 0.26f, 1.26f), new Vector3(1.50f, 0.52f, 0.88f));
+                Box(root, "BackDeckPlate", Mat("Stone"), new Vector3(0f, 0.525f, 1.26f), new Vector3(1.40f, 0.02f, 0.78f));
+                Box(root, "BackSafetyRail", Mat("Accent"), new Vector3(0f, 0.64f, 1.60f), new Vector3(1.44f, 0.22f, 0.04f));
+                for (var i = 0; i < 5; i++)
+                {
+                    Rod(root, "RivetB", Mat("StoneLight"), new Vector3(-0.60f + i * 0.30f, 0.54f, 1.26f),
+                        new Vector3(0.045f, 0.012f, 0.045f));
+                }
+
+                // Heavy steel structural columns supporting high-bay crane tracks.
+                foreach (var x in new[] { -0.74f, 0.74f })
+                {
+                    Box(root, "CraneColumnF", Mat("Stone"), new Vector3(x, 0.82f, -0.56f), new Vector3(0.10f, 1.64f, 0.12f));
+                    Box(root, "CraneColumnB", Mat("Stone"), new Vector3(x, 0.94f, 1.24f), new Vector3(0.10f, 1.88f, 0.12f));
+                    Box(root, "RunwayGirder", Mat("Ink"), new Vector3(x, 1.62f, 0.34f), new Vector3(0.12f, 0.12f, 1.92f));
+                    Box(root, "RunwayRail", Mat("Accent"), new Vector3(x, 1.69f, 0.34f), new Vector3(0.04f, 0.03f, 1.88f));
+                    // High-bay industrial floodlight lamp
+                    Ball(root, "FloodLamp", Mat("Candle"), new Vector3(x * 0.88f, 1.54f, 0.34f), Vector3.one * 0.07f);
+                }
+                return;
+            }
 
             foreach (var z in new[] { -1.10f, 1.14f })
             {
@@ -709,10 +807,16 @@ namespace SavePeps.EditorTools
                     break;
 
                 case Weather:
-                    Flower(root, new Vector3(-0.56f, 0.38f, -0.20f), Mat("Accent"));
-                    Flower(root, new Vector3(0.58f, 0.38f, 0.05f), Mat("AccentLight"));
-                    Grass(root, new Vector3(-0.60f, 0.16f, -1.34f), 5, 1.2f);
-                    Pine(root, new Vector3(0.56f, 0.62f, 1.40f), 0.55f);
+                    if (WeatherTint == "sun")
+                    {
+                        Flower(root, new Vector3(-0.56f, 0.38f, -0.20f), Mat("Accent"));
+                        Flower(root, new Vector3(0.58f, 0.38f, 0.05f), Mat("AccentLight"));
+                        Grass(root, new Vector3(-0.60f, 0.16f, -1.34f), 5, 1.2f);
+                    }
+                    else if (WeatherTint == "frost")
+                    {
+                        Pine(root, new Vector3(0.56f, 0.62f, 1.40f), 0.55f);
+                    }
                     break;
 
                 case Canyon:
@@ -762,7 +866,7 @@ namespace SavePeps.EditorTools
                         // on a long duty cycle so a screenshot usually catches
                         // the dark and occasionally catches the strike.
                         var rain = Living(root, "Rain", AmbientMode.Drift, -1.70f, 0.75f,
-                            new Vector3(0.22f, -1f, 0f), stagger: true);
+                            new Vector3(0.22f, -1f, 0f), stagger: true, controlId: "StormRain");
                         for (var i = 0; i < 12; i++)
                         {
                             Box(rain, "Drop", Mat("WaterBright"),
@@ -770,7 +874,8 @@ namespace SavePeps.EditorTools
                                 new Vector3(0.014f, 0.16f, 0.014f), new Vector3(0f, 0f, -12f));
                         }
 
-                        var flash = Living(root, "SkyFlash", AmbientMode.Flicker, 0.965f, 0.14f, Vector3.up);
+                        var flash = Living(root, "SkyFlash", AmbientMode.Flicker, 0.965f, 0.14f, Vector3.up,
+                            controlId: "StormLightning");
                         Box(flash, "Bolt", Mat("Candle"), new Vector3(0.78f, 1.55f, 2.20f),
                             new Vector3(0.05f, 1.30f, 0.05f), new Vector3(0f, 0f, 12f));
                     }
@@ -779,7 +884,7 @@ namespace SavePeps.EditorTools
                 case Cave:
                     {
                         var drips = Living(root, "Drips", AmbientMode.Drift, -1.15f, 0.40f, Vector3.up,
-                            stagger: true);
+                            stagger: true, controlId: "CaveDrips");
                         for (var i = 0; i < 4; i++)
                         {
                             Ball(drips, "Drop", Mat("WaterBright"),
@@ -804,7 +909,7 @@ namespace SavePeps.EditorTools
                 case Peak:
                     {
                         var spindrift = Living(root, "Spindrift", AmbientMode.Drift, 1.35f, 0.55f,
-                            new Vector3(-1f, 0.18f, 0f), stagger: true);
+                            new Vector3(-1f, 0.18f, 0f), stagger: true, controlId: "PeakSpindrift");
                         for (var i = 0; i < 7; i++)
                         {
                             Ball(spindrift, "Flake", Mat("Cream"),
@@ -814,7 +919,8 @@ namespace SavePeps.EditorTools
 
                         Box(root, "MarkerPole", Mat("Ink"), new Vector3(-0.58f, 0.92f, 1.30f),
                             new Vector3(0.026f, 0.42f, 0.026f));
-                        var flag = Living(root, "Flag", AmbientMode.Sway, 22f, 1.6f, Vector3.up);
+                        var flag = Living(root, "Flag", AmbientMode.Sway, 22f, 1.6f, Vector3.up,
+                            controlId: "PeakFlag");
                         flag.localPosition = new Vector3(-0.58f, 1.08f, 1.30f);
                         Box(flag, "Cloth", Mat("Accent"), new Vector3(0.09f, 0f, 0f),
                             new Vector3(0.17f, 0.10f, 0.014f));
@@ -1011,14 +1117,35 @@ namespace SavePeps.EditorTools
                 case Weather:
                     // Filled in by the stage through WeatherTint, then reset,
                     // so a stage can never accidentally inherit the last one.
-                    ApplyWeather(a, WeatherTint);
+                    var weatherTint = WeatherTint;
+                    ApplyWeather(a, weatherTint);
                     WeatherTint = null;
-                    a.CameraPitch = 42f;
-                    a.CameraDistance = 6.5f;
-                    a.CameraHeight = 0.30f;
-                    a.CameraFov = 30f;
+                    // The three rescues share a world rule, not a shot. Frost
+                    // stays intimate, Bloom exposes a steep diagonal route,
+                    // and Downpour backs out to hold a whole-world change.
+                    switch (weatherTint)
+                    {
+                        case "frost":
+                            a.CameraPitch = 44f;
+                            a.CameraDistance = 6.25f;
+                            a.CameraHeight = 0.36f;
+                            a.CameraFov = 29.5f;
+                            break;
+                        case "sun":
+                            a.CameraPitch = 47f;
+                            a.CameraDistance = 6.75f;
+                            a.CameraHeight = 0.27f;
+                            a.CameraFov = 31f;
+                            break;
+                        default:
+                            a.CameraPitch = 38f;
+                            a.CameraDistance = 7.05f;
+                            a.CameraHeight = 0.38f;
+                            a.CameraFov = 32f;
+                            break;
+                    }
                     a.Ambience = "amb_weather";
-                    a.AmbienceVolume = 0.30f;
+                    a.AmbienceVolume = weatherTint == "rain" ? 0.38f : 0.30f;
                     break;
 
                 case Canyon:
@@ -1038,14 +1165,31 @@ namespace SavePeps.EditorTools
                     a.UseFog = true;
                     a.Fog = Hex("8FD6F9");
                     a.FogDensity = 0.055f;
-                    // Steeper than any other outdoor world. At 39 degrees the
-                    // near rim hid the chasm floor entirely and the two mesas
-                    // read as one step up; you have to be able to see down the
-                    // hole for it to be a hole.
-                    a.CameraPitch = 45f;
-                    a.CameraDistance = 6.5f;
-                    a.CameraHeight = 0.26f;
-                    a.CameraFov = 31f;
+                    // Three scales of canyon need three shots. The local
+                    // thermal looks down into one pocket, the cable system
+                    // exposes both towers, and the climax backs out and drops
+                    // lower so the monolith-to-bridge silhouette owns frame.
+                    if (root.name == "Diorama_Canyon_Updraft")
+                    {
+                        a.CameraPitch = 46.5f;
+                        a.CameraDistance = 6.25f;
+                        a.CameraHeight = 0.26f;
+                        a.CameraFov = 29.5f;
+                    }
+                    else if (root.name == "Diorama_Canyon_Cablecar")
+                    {
+                        a.CameraPitch = 42f;
+                        a.CameraDistance = 6.90f;
+                        a.CameraHeight = 0.34f;
+                        a.CameraFov = 31.5f;
+                    }
+                    else
+                    {
+                        a.CameraPitch = 37.5f;
+                        a.CameraDistance = 7.35f;
+                        a.CameraHeight = 0.43f;
+                        a.CameraFov = 32.5f;
+                    }
                     a.Ambience = "amb_canyon";
                     a.AmbienceVolume = 0.32f;
                     break;
@@ -1063,10 +1207,47 @@ namespace SavePeps.EditorTools
                     a.UseFog = true;
                     a.Fog = Hex("CDEBF7");
                     a.FogDensity = 0.022f;
-                    a.CameraPitch = 36f;
-                    a.CameraDistance = 6.85f;
-                    a.CameraHeight = 0.06f;
-                    a.CameraFov = 31f;
+                    if (root.name == "Diorama_Tide_Punt")
+                    {
+                        a.CameraPitch = 39f;
+                        a.CameraDistance = 6.35f;
+                        a.CameraHeight = 0.12f;
+                        a.CameraFov = 29.5f;
+                    }
+                    else if (root.name == "Diorama_Tide_Channel")
+                    {
+                        a.CameraPitch = 42f;
+                        a.CameraDistance = 7.05f;
+                        a.CameraHeight = 0.15f;
+                        a.CameraFov = 31.5f;
+                    }
+                    else
+                    {
+                        a.CameraPitch = 34f;
+                        a.CameraDistance = 7.55f;
+                        a.CameraHeight = 0.24f;
+                        a.CameraFov = 33f;
+                        a.Outcomes = new[]
+                        {
+                            new OutcomeAtmosphere
+                            {
+                                Id = "high_tide",
+                                Sky = Hex("B8E6F5"),
+                                AmbientSky = Hex("CDEBF7"),
+                                AmbientEquator = Hex("FFF3CE"),
+                                AmbientGround = Hex("6FC0E3"),
+                                UseFog = true,
+                                Fog = Hex("CDEBF7"),
+                                FogDensity = 0.012f,
+                                SunColor = Hex("FFF3CE"),
+                                SunIntensity = 1.38f,
+                                SunAngles = new Vector3(46f, -34f, 0f),
+                                FillColor = Hex("8FD6F9"),
+                                FillIntensity = 0.42f,
+                                FillAngles = new Vector3(35f, 145f, 0f),
+                            },
+                        };
+                    }
                     a.Ambience = "amb_tide";
                     a.AmbienceVolume = 0.30f;
                     break;
@@ -1084,10 +1265,64 @@ namespace SavePeps.EditorTools
                     a.UseFog = true;
                     a.Fog = Hex("3D3354");
                     a.FogDensity = 0.095f;
-                    a.CameraPitch = 31f;
-                    a.CameraDistance = 6.15f;
-                    a.CameraHeight = 0.34f;
-                    a.CameraFov = 32f;
+                    if (root.name == "Diorama_Storm_Tarp")
+                    {
+                        a.CameraPitch = 33f;
+                        a.CameraDistance = 6.10f;
+                        a.CameraHeight = 0.32f;
+                        a.CameraFov = 30.5f;
+                    }
+                    else if (root.name == "Diorama_Storm_Mast")
+                    {
+                        a.CameraPitch = 31f;
+                        a.CameraDistance = 6.75f;
+                        a.CameraHeight = 0.40f;
+                        a.CameraFov = 32f;
+                    }
+                    else
+                    {
+                        a.CameraPitch = 28.5f;
+                        a.CameraDistance = 7.45f;
+                        a.CameraHeight = 0.50f;
+                        a.CameraFov = 34f;
+                    }
+                    a.Outcomes = new[]
+                    {
+                        new OutcomeAtmosphere
+                        {
+                            Id = "grounded",
+                            Sky = Hex("3D3354"),
+                            AmbientSky = Hex("5FB7D4"),
+                            AmbientEquator = Hex("57406B"),
+                            AmbientGround = Hex("221D33"),
+                            UseFog = true,
+                            Fog = Hex("3D3354"),
+                            FogDensity = 0.070f,
+                            SunColor = Hex("CDEBF7"),
+                            SunIntensity = 0.88f,
+                            SunAngles = new Vector3(31f, 18f, 0f),
+                            FillColor = Hex("8FD6F9"),
+                            FillIntensity = 0.52f,
+                            FillAngles = new Vector3(35f, 145f, 0f),
+                        },
+                        new OutcomeAtmosphere
+                        {
+                            Id = "stormflow",
+                            Sky = Hex("514766"),
+                            AmbientSky = Hex("8FD6F9"),
+                            AmbientEquator = Hex("57406B"),
+                            AmbientGround = Hex("221D33"),
+                            UseFog = true,
+                            Fog = Hex("514766"),
+                            FogDensity = 0.052f,
+                            SunColor = Hex("FFF3CE"),
+                            SunIntensity = 1.22f,
+                            SunAngles = new Vector3(26f, 10f, 0f),
+                            FillColor = Hex("72D5E5"),
+                            FillIntensity = 0.72f,
+                            FillAngles = new Vector3(32f, 150f, 0f),
+                        },
+                    };
                     a.Ambience = "amb_storm";
                     a.AmbienceVolume = 0.34f;
                     break;
@@ -1108,34 +1343,143 @@ namespace SavePeps.EditorTools
                     a.UseFog = true;
                     a.Fog = Hex("221D33");
                     a.FogDensity = 0.045f;
-                    // Wider and further back than any other world: this is the
-                    // only stage with a ceiling, and the ceiling has to be in
-                    // shot or the enclosure does not read.
-                    a.CameraPitch = 39f;
-                    a.CameraDistance = 6.75f;
-                    a.CameraHeight = 0.44f;
-                    a.CameraFov = 34f;
+                    // Each rescue expands its spatial contract: a close pool,
+                    // a landscape route, then the whole geode cathedral.
+                    if (root.name == "Diorama_Cave_Dark")
+                    {
+                        a.CameraPitch = 40f;
+                        a.CameraDistance = 6.10f;
+                        a.CameraHeight = 0.38f;
+                        a.CameraFov = 31f;
+                    }
+                    else if (root.name == "Diorama_Cave_Vein")
+                    {
+                        a.CameraPitch = 38f;
+                        a.CameraDistance = 6.85f;
+                        a.CameraHeight = 0.46f;
+                        a.CameraFov = 33f;
+                    }
+                    else
+                    {
+                        a.CameraPitch = 35f;
+                        a.CameraDistance = 7.40f;
+                        a.CameraHeight = 0.56f;
+                        a.CameraFov = 35f;
+                    }
+                    a.Outcomes = new[]
+                    {
+                        new OutcomeAtmosphere
+                        {
+                            Id = "resonant",
+                            Sky = Hex("2B2940"),
+                            AmbientSky = Hex("8FD6F9"),
+                            AmbientEquator = Hex("57406B"),
+                            AmbientGround = Hex("3D3354"),
+                            UseFog = true,
+                            Fog = Hex("2B2940"),
+                            FogDensity = 0.034f,
+                            SunColor = Hex("CDEBF7"),
+                            SunIntensity = 1.18f,
+                            SunAngles = new Vector3(58f, -18f, 0f),
+                            FillColor = Hex("FFCF56"),
+                            FillIntensity = 0.76f,
+                            FillAngles = new Vector3(14f, -165f, 0f),
+                        },
+                        new OutcomeAtmosphere
+                        {
+                            Id = "geode",
+                            Sky = Hex("30294A"),
+                            AmbientSky = Hex("8FD6F9"),
+                            AmbientEquator = Hex("72D5E5"),
+                            AmbientGround = Hex("514766"),
+                            UseFog = true,
+                            Fog = Hex("30294A"),
+                            FogDensity = 0.020f,
+                            SunColor = Hex("FFF3CE"),
+                            SunIntensity = 1.42f,
+                            SunAngles = new Vector3(52f, -24f, 0f),
+                            FillColor = Hex("8FD6F9"),
+                            FillIntensity = 1.02f,
+                            FillAngles = new Vector3(18f, 156f, 0f),
+                        },
+                    };
                     a.Ambience = "amb_cave";
                     a.AmbienceVolume = 0.30f;
                     break;
 
                 case Peak:
-                    a.Sky = Hex("CDEBF7");
+                    a.Sky = Hex("9FD8E8");
                     a.AmbientSky = Hex("CDEBF7");
-                    a.AmbientEquator = Hex("FFF3CE");
-                    a.AmbientGround = Hex("5FB7D4");
+                    a.AmbientEquator = Hex("A7C9D2");
+                    a.AmbientGround = Hex("4F879B");
                     a.SunColor = Hex("FFF3CE");
-                    a.SunIntensity = 1.06f;
+                    a.SunIntensity = 0.82f;
                     a.SunAngles = new Vector3(44f, -62f, 0f);
                     a.FillColor = Hex("5FB7D4");
-                    a.FillIntensity = 0.46f;
+                    a.FillIntensity = 0.30f;
                     a.UseFog = true;
-                    a.Fog = Hex("CDEBF7");
-                    a.FogDensity = 0.034f;
-                    a.CameraPitch = 36f;
-                    a.CameraDistance = 6.45f;
-                    a.CameraHeight = 0.40f;
-                    a.CameraFov = 30f;
+                    a.Fog = Hex("B8DEEA");
+                    a.FogDensity = 0.026f;
+                    // The camera contract grows with the event: a close snow
+                    // pocket, the whole course, then the entire mountain.
+                    if (root.name == "Diorama_Peak_Powder")
+                    {
+                        a.CameraPitch = 38f;
+                        a.CameraDistance = 6.10f;
+                        a.CameraHeight = 0.38f;
+                        a.CameraFov = 30f;
+                    }
+                    else if (root.name == "Diorama_Peak_Chute")
+                    {
+                        a.CameraPitch = 35f;
+                        a.CameraDistance = 6.90f;
+                        a.CameraHeight = 0.44f;
+                        a.CameraFov = 33f;
+                    }
+                    else
+                    {
+                        a.CameraPitch = 31f;
+                        a.CameraDistance = 7.55f;
+                        a.CameraHeight = 0.52f;
+                        a.CameraFov = 35f;
+                    }
+                    a.Outcomes = new[]
+                    {
+                        new OutcomeAtmosphere
+                        {
+                            Id = "banked",
+                            Sky = Hex("93D0E2"),
+                            AmbientSky = Hex("CDEBF7"),
+                            AmbientEquator = Hex("D8E2D8"),
+                            AmbientGround = Hex("4F879B"),
+                            UseFog = true,
+                            Fog = Hex("A9D8E6"),
+                            FogDensity = 0.022f,
+                            SunColor = Hex("FFF3CE"),
+                            SunIntensity = 0.96f,
+                            SunAngles = new Vector3(40f, -58f, 0f),
+                            FillColor = Hex("72D5E5"),
+                            FillIntensity = 0.36f,
+                            FillAngles = new Vector3(32f, 145f, 0f),
+                        },
+                        new OutcomeAtmosphere
+                        {
+                            Id = "avalanche",
+                            Sky = Hex("7DB8CD"),
+                            AmbientSky = Hex("B7E0EC"),
+                            AmbientEquator = Hex("E4D7B4"),
+                            AmbientGround = Hex("4B7B91"),
+                            UseFog = true,
+                            Fog = Hex("9ACEDC"),
+                            FogDensity = 0.018f,
+                            SunColor = Hex("FFE8A8"),
+                            SunIntensity = 1.12f,
+                            SunAngles = new Vector3(34f, -50f, 0f),
+                            FillColor = Hex("72D5E5"),
+                            FillIntensity = 0.44f,
+                            FillAngles = new Vector3(28f, 148f, 0f),
+                        },
+                    };
                     a.Ambience = "amb_peak";
                     a.AmbienceVolume = 0.32f;
                     break;
@@ -1159,6 +1503,26 @@ namespace SavePeps.EditorTools
                     a.CameraFov = 29f;
                     a.Ambience = "amb_abyss";
                     a.AmbienceVolume = 0.34f;
+                    a.Outcomes = new[]
+                    {
+                        new OutcomeAtmosphere
+                        {
+                            Id = "abyss_bloom",
+                            Sky = Hex("221D33"),
+                            AmbientSky = Hex("3D4A6E"),
+                            AmbientEquator = Hex("6FC0E3"),
+                            AmbientGround = Hex("223048"),
+                            UseFog = true,
+                            Fog = Color.Lerp(Hex("221D33"), Hex("6FC0E3"), 0.32f),
+                            FogDensity = 0.125f,
+                            SunColor = Hex("A6EEFF"),
+                            SunIntensity = 0.95f,
+                            SunAngles = new Vector3(72f, -10f, 0f),
+                            FillColor = Hex("5FB7D4"),
+                            FillIntensity = 0.52f,
+                            FillAngles = new Vector3(30f, 160f, 0f),
+                        },
+                    };
                     break;
 
                 case Orbit:
@@ -1180,6 +1544,23 @@ namespace SavePeps.EditorTools
                     a.CameraFov = 33f;
                     a.Ambience = "amb_orbit";
                     a.AmbienceVolume = 0.22f;
+                    a.Outcomes = new[]
+                    {
+                        new OutcomeAtmosphere
+                        {
+                            Id = "orbit_docked",
+                            Sky = Hex("221D33"),
+                            AmbientSky = Hex("3D3354"),
+                            AmbientEquator = Hex("5CCCAE"),
+                            AmbientGround = Hex("3D3354"),
+                            SunColor = Hex("FFFFFF"),
+                            SunIntensity = 1.75f,
+                            SunAngles = new Vector3(25f, -65f, 0f),
+                            FillColor = Hex("5CCCAE"),
+                            FillIntensity = 0.35f,
+                            FillAngles = new Vector3(45f, 120f, 0f),
+                        },
+                    };
                     break;
 
                 case Forge:
@@ -1263,18 +1644,38 @@ namespace SavePeps.EditorTools
                     break;
 
                 default: // "rain"
-                    a.Sky = Hex("8E8BA7");
-                    a.AmbientSky = Hex("8E8BA7");
-                    a.AmbientEquator = Hex("C3C0D5");
-                    a.AmbientGround = Hex("557F50");
+                    a.Sky = Hex("57406B");
+                    a.AmbientSky = Hex("514766");
+                    a.AmbientEquator = Hex("8E8BA7");
+                    a.AmbientGround = Hex("3D3354");
                     a.SunColor = Hex("C3C0D5");
-                    a.SunIntensity = 0.72f;
+                    a.SunIntensity = 0.62f;
                     a.SunAngles = new Vector3(36f, 18f, 0f);
-                    a.FillColor = Hex("8FD6F9");
-                    a.FillIntensity = 0.34f;
+                    a.FillColor = Hex("5FB7D4");
+                    a.FillIntensity = 0.38f;
                     a.UseFog = true;
-                    a.Fog = Hex("8E8BA7");
-                    a.FogDensity = 0.070f;
+                    a.Fog = Hex("514766");
+                    a.FogDensity = 0.085f;
+                    a.Outcomes = new[]
+                    {
+                        new OutcomeAtmosphere
+                        {
+                            Id = "sunbreak",
+                            Sky = Hex("B8E6F5"),
+                            AmbientSky = Hex("FFF3CE"),
+                            AmbientEquator = Hex("CDEBF7"),
+                            AmbientGround = Hex("A9D488"),
+                            UseFog = false,
+                            Fog = Hex("CDEBF7"),
+                            FogDensity = 0f,
+                            SunColor = Hex("FFDE8A"),
+                            SunIntensity = 1.65f,
+                            SunAngles = new Vector3(54f, -28f, 0f),
+                            FillColor = Hex("8FD6F9"),
+                            FillIntensity = 0.38f,
+                            FillAngles = new Vector3(35f, 145f, 0f),
+                        },
+                    };
                     break;
             }
         }

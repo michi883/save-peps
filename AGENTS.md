@@ -212,6 +212,54 @@ Rules the validator enforces (`ContentValidator`), each of which exists because 
 
 ---
 
+## Round Escalation Quality Standard
+
+Every round must escalate perceptibly at normal speed:
+
+- **Rescue 1 — LOCAL EVENT:** A small, local consequence with restrained choreography; the simplest expression of the world's rule.
+- **Rescue 2 — LANDSCAPE / SYSTEM EVENT:** A broader spatial problem with a stronger cause/effect chain, more environmental or mechanical participation, and a clearly larger visual consequence.
+- **Rescue 3 — WORLD EVENT:** An unmistakable climax with major physical or environmental transformation, the largest affected screen area, the strongest traversal, choreography, sound, camera/game-feel, and reunion, and a payoff that could happen only in that world.
+
+This is not a ladder of step counts or durations. The difference must be obvious to a player at normal speed.
+
+### Visual acceptance criteria
+
+A round passes only when:
+
+1. Watching its three successful rescues consecutively without labels clearly reads **Rescue 1 < Rescue 2 < Rescue 3**.
+2. Rescue 3's before and peak frames are substantially different in physical composition and silhouette, not merely in lighting, particles, or colour.
+3. Rescue 3 clearly exceeds Rescue 2 in environmental participation, spatial scale, causal depth, traversal, visual impact, and payoff.
+4. Escalation comes from that world's unique physics. Do not copy another round's spectacle.
+5. Extra props or clutter, longer animation, particles, lighting changes, and camera shake may reinforce an event but cannot substitute for physical consequence.
+
+### Reference quality
+
+Rounds 1–2 demonstrate the escalation structure only. Rounds 3–5 are the current reference for the stronger visual-impact standard. Later rounds may and should exceed them, with late-game climaxes becoming increasingly spectacular.
+
+### Required agent workflow
+
+For escalation work:
+
+1. Work **one round at a time** unless explicitly instructed otherwise.
+2. Inspect the actual implementation, not just `design/ROUND_CATALOG.md`.
+3. Audit all three successful outcomes before editing.
+4. Identify why escalation is or is not perceptible.
+5. Implement the minimum coherent changes needed to create Local → Landscape/System → World escalation.
+6. Prefer reusable choreography and world systems over rescue-specific runtime code.
+7. Run content validation and the relevant automated tests.
+8. Verify the actual three-outcome sequence on Pixel 4 when the device workflow is available.
+9. Check for flicker/z-fighting, visibility-swap artifacts, HUD intrusion, broken retry/reset state, and atmosphere or ambient state that does not restore.
+10. Capture and review the successful outcomes at normal speed.
+11. Stop for human review before modifying the next round unless explicitly authorized.
+
+Passing tests, step counts, duration, or documentation are **not** evidence that perceptual escalation succeeds.
+
+### Architecture guidance
+
+Use and extend the shared escalation systems already introduced: atomic visibility swaps, explicit camera impacts, heavy haptics, atmosphere transitions, and ambient-motion control. Do not solve each climax with bespoke rescue-specific runtime code.
+
+---
+
 ## 6. Device testing
 
 A Pixel 4 is the reference device. Visual work is not verified until it has run there.

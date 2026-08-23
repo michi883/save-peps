@@ -41,7 +41,8 @@ namespace SavePeps.Rescue
     {
         [SerializeField] private AmbientMode _mode = AmbientMode.Sway;
 
-        [Tooltip("Degrees for Sway/Spin, metres for Bob/Drift/Beat, scale delta for Pulse, duty for Flicker.")]
+        [Tooltip("Degrees for Sway/Spin, metres for Bob/Drift/Beat, scale delta for Pulse, " +
+                 "fraction of each cycle spent off for Flicker.")]
         [SerializeField] private float _amplitude = 6f;
 
         [Tooltip("Cycles per second.")]
@@ -56,16 +57,26 @@ namespace SavePeps.Rescue
         [Tooltip("Seconds added to this instance's clock, so two of the same thing do not move in lockstep.")]
         [SerializeField] private float _phase;
 
+        [Tooltip("Optional choreography id. Defaults to this GameObject's name.")]
+        [SerializeField] private string _controlId;
+
         private Transform[] _movers;
         private Vector3[] _restPositions;
         private Quaternion[] _restRotations;
         private Vector3[] _restScales;
         private Renderer[][] _renderers;
         private float _clock;
+        private float _activity = 1f;
+        private float _activityFrom = 1f;
+        private float _activityTo = 1f;
+        private float _activityClock;
+        private float _activityDuration;
+
+        public string ControlId => string.IsNullOrWhiteSpace(_controlId) ? name : _controlId;
 
         /// <summary>Authoring entry point for the generated dioramas.</summary>
         public AmbientMotion Configure(AmbientMode mode, float amplitude, float speed, Vector3 axis,
-            bool staggerChildren = false, float phase = 0f)
+            bool staggerChildren = false, float phase = 0f, string controlId = null)
         {
             _mode = mode;
             _amplitude = amplitude;
@@ -73,7 +84,41 @@ namespace SavePeps.Rescue
             _axis = axis == Vector3.zero ? Vector3.forward : axis;
             _staggerChildren = staggerChildren;
             _phase = phase;
+            _controlId = controlId;
             return this;
+        }
+
+        /// <summary>
+        /// Blends a loop between fully active and still. Oscillating modes
+        /// settle back to their authored rest pose; travelling modes slow to
+        /// a stop where they are. Retry restores activity and phase exactly.
+        /// </summary>
+        public void SetActivity(float activity, float duration)
+        {
+            Capture();
+            _activityFrom = _activity;
+            _activityTo = Mathf.Clamp01(activity);
+            _activityClock = 0f;
+            _activityDuration = Mathf.Max(0f, duration);
+
+            if (_activityDuration <= 0.001f)
+            {
+                _activity = _activityTo;
+                ApplyCurrent();
+            }
+        }
+
+        /// <summary>Restores the authored loop after retry or rescue restart.</summary>
+        public void ResetControl()
+        {
+            Capture();
+            _clock = _phase;
+            _activity = 1f;
+            _activityFrom = 1f;
+            _activityTo = 1f;
+            _activityClock = 0f;
+            _activityDuration = 0f;
+            ApplyCurrent();
         }
 
         private void Awake() => Capture();
@@ -118,12 +163,27 @@ namespace SavePeps.Rescue
         private void OnEnable()
         {
             Capture();
-            _clock = _phase;
+            ResetControl();
         }
 
         private void Update()
         {
-            _clock += Time.deltaTime;
+            if (_activityClock < _activityDuration)
+            {
+                _activityClock += Time.deltaTime;
+                var t = Easing.Evaluate(EaseKind.InOut,
+                    Mathf.Clamp01(_activityClock / Mathf.Max(0.001f, _activityDuration)));
+                _activity = Mathf.Lerp(_activityFrom, _activityTo, t);
+            }
+
+            // Travelling loops decelerate rather than snapping to rest.
+            _clock += Time.deltaTime * _activity;
+            ApplyCurrent();
+        }
+
+        private void ApplyCurrent()
+        {
+            if (_movers == null) return;
 
             for (var i = 0; i < _movers.Length; i++)
             {
@@ -143,12 +203,14 @@ namespace SavePeps.Rescue
             {
                 case AmbientMode.Sway:
                     mover.localRotation = _restRotations[index] *
-                                          Quaternion.AngleAxis(Mathf.Sin(cycles * Mathf.PI * 2f) * _amplitude, _axis);
+                                          Quaternion.AngleAxis(
+                                              Mathf.Sin(cycles * Mathf.PI * 2f) * _amplitude * _activity, _axis);
                     break;
 
                 case AmbientMode.Bob:
                     mover.localPosition = _restPositions[index] +
-                                          _axis.normalized * (Mathf.Sin(cycles * Mathf.PI * 2f) * _amplitude);
+                                          _axis.normalized *
+                                          (Mathf.Sin(cycles * Mathf.PI * 2f) * _amplitude * _activity);
                     break;
 
                 case AmbientMode.Drift:
@@ -168,16 +230,16 @@ namespace SavePeps.Rescue
 
                 case AmbientMode.Pulse:
                 {
-                    var s = 1f + Mathf.Sin(cycles * Mathf.PI * 2f) * _amplitude;
+                    var s = 1f + Mathf.Sin(cycles * Mathf.PI * 2f) * _amplitude * _activity;
                     mover.localScale = _restScales[index] * s;
                     break;
                 }
 
                 case AmbientMode.Flicker:
                 {
-                    // A cheap deterministic blink: mostly on, with short gaps
-                    // whose position is fixed per instance rather than random,
-                    // so a screenshot of the same world always looks the same.
+                    // A cheap deterministic blink. Amplitude is deliberately
+                    // the off fraction: 0.965 gives lightning a rare flash,
+                    // while a lower value leaves a sign on for longer.
                     var t = cycles - Mathf.Floor(cycles);
                     var lit = t > Mathf.Clamp01(_amplitude);
                     var rows = _renderers[index];
@@ -194,7 +256,8 @@ namespace SavePeps.Rescue
                     var t = cycles - Mathf.Floor(cycles);
                     var stroke = t < 0.22f ? t / 0.22f : 1f - (t - 0.22f) / 0.78f;
                     stroke = Easing.Evaluate(t < 0.22f ? EaseKind.In : EaseKind.Out, Mathf.Clamp01(stroke));
-                    mover.localPosition = _restPositions[index] + _axis.normalized * (stroke * _amplitude);
+                    mover.localPosition = _restPositions[index] +
+                                          _axis.normalized * (stroke * _amplitude * _activity);
                     break;
                 }
             }

@@ -247,6 +247,7 @@ namespace SavePeps.Progression
         private void HandleSecretTap(HomeSecretTap tap)
         {
             if (!HomeVisible || _transitioning) return;
+            _feedback?.Tap();
             OnHomeSecretTapped?.Invoke(tap);
         }
 
