@@ -14,7 +14,7 @@ namespace SavePeps.Progression
     /// <summary>
     /// Builds deterministic QA profiles through the same <see cref="SaveData"/>
     /// API as gameplay. Entitlement is deliberately absent: RevenueCat (or the
-    /// development fake) remains the independent source of subscription state.
+    /// development fake) remains the independent source of full-game ownership.
     /// </summary>
     public static class TesterProfiles
     {

@@ -47,7 +47,7 @@ namespace SavePeps.Tests
 
             for (var i = 0; i <= 100; i++)
             {
-                var chosen = RoundSelector.Choose(_catalog, save, subscribed: false, i / 100f);
+                var chosen = RoundSelector.Choose(_catalog, save, hasFullGame: false, i / 100f);
                 Assert.That(chosen, Is.InRange(1, 2));
             }
         }
@@ -74,10 +74,10 @@ namespace SavePeps.Tests
         }
 
         [Test]
-        public void SubscriberSelectionIncludesUnreachedAndPremiumRounds()
+        public void FullGameSelectionIncludesUnreachedAndPremiumRounds()
         {
             var save = SaveData.Fresh();
-            var available = RoundSelector.Available(_catalog, save, subscribed: true);
+            var available = RoundSelector.Available(_catalog, save, hasFullGame: true);
 
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5 }, available);
         }

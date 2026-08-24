@@ -27,7 +27,7 @@ namespace SavePeps.UI
             if (_label != null) _label.text = $"ROUND {number}";
 
             var progress = RoundProgress.Read(round, save);
-            var locked = !progress.IsComplete && (access is RoundAccess.ProgressLocked or RoundAccess.SubscriptionLocked);
+            var locked = !progress.IsComplete && (access is RoundAccess.ProgressLocked or RoundAccess.FullGameLocked);
 
             if (_status != null)
             {
@@ -35,7 +35,7 @@ namespace SavePeps.UI
                     : progress.IsComplete ? "SAVED"
                     : access switch
                     {
-                        RoundAccess.SubscriptionLocked => "PEPS UNLIMITED",
+                        RoundAccess.FullGameLocked => "FULL GAME",
                         RoundAccess.ProgressLocked => "NOT YET",
                         _ when progress.IsUnplayed => "UNPLAYED",
                         _ => $"{progress.Solved} OF {Mathf.Max(1, progress.Total)}",

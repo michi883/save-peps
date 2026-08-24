@@ -40,7 +40,7 @@ namespace SavePeps.Progression
             {
                 _statusLabel.text = access switch
                 {
-                    RoundAccess.SubscriptionLocked => "PEPS UNLIMITED",
+                    RoundAccess.FullGameLocked => "FULL GAME",
                     RoundAccess.ProgressLocked => "LOCKED",
                     _ when progress.IsUnplayed => "NEW",
                     _ when progress.IsPerfect => "PERFECT",
@@ -51,7 +51,9 @@ namespace SavePeps.Progression
 
             if (_button != null)
             {
-                _button.interactable = access == RoundAccess.Playable;
+                // Premium tiles are calls to the one unlock screen. Only
+                // progression-locked and missing rounds reject the tap.
+                _button.interactable = access is RoundAccess.Playable or RoundAccess.FullGameLocked;
             }
 
             if (_panel != null)
@@ -61,7 +63,7 @@ namespace SavePeps.Progression
                     RoundAccess.Playable when progress.IsUnplayed => Hex("DFF4E9"),
                     RoundAccess.Playable when progress.IsPerfect => Hex("FFF0C2"),
                     RoundAccess.Playable => Hex("F7F3E8"),
-                    RoundAccess.SubscriptionLocked => Hex("E9E0F2"),
+                    RoundAccess.FullGameLocked => Hex("E9E0F2"),
                     _ => Hex("D9D5DD"),
                 };
             }

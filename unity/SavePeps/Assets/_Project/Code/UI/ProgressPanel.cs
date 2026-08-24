@@ -60,7 +60,7 @@ namespace SavePeps.UI
             Hide();
         }
 
-        public void Show(Catalog catalog, SaveData save, bool subscribed, Action onBack)
+        public void Show(Catalog catalog, SaveData save, bool hasFullGame, Action onBack)
         {
             _onBack = onBack;
             _busy = false;
@@ -70,7 +70,7 @@ namespace SavePeps.UI
             var stars = 0;
             var total = catalog != null ? catalog.RoundCount : 0;
 
-            BuildRows(catalog, save, subscribed, ref roundsDone, ref perfect, ref stars);
+            BuildRows(catalog, save, hasFullGame, ref roundsDone, ref perfect, ref stars);
 
             if (_roundsValue != null) _roundsValue.text = $"{roundsDone}/{total}";
             if (_perfectValue != null) _perfectValue.text = perfect.ToString();
@@ -111,7 +111,7 @@ namespace SavePeps.UI
             SetVisible(false);
         }
 
-        private void BuildRows(Catalog catalog, SaveData save, bool subscribed,
+        private void BuildRows(Catalog catalog, SaveData save, bool hasFullGame,
             ref int roundsDone, ref int perfect, ref int stars)
         {
             foreach (var row in _rows)
@@ -130,7 +130,7 @@ namespace SavePeps.UI
                 if (progress.IsPerfect) perfect++;
                 stars += progress.Stars;
 
-                var access = Access.State(catalog, number, save?.HighestUnlockedRound ?? 1, subscribed);
+                var access = Access.State(catalog, number, save?.HighestUnlockedRound ?? 1, hasFullGame);
                 var row = Instantiate(_rowTemplate, _content);
                 row.gameObject.SetActive(true);
                 row.Configure(number, round, save, access);

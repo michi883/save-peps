@@ -21,7 +21,7 @@ namespace SavePeps.Progression
         [Tooltip("Rounds in play order. Index 0 is round 1.")]
         public RoundDefinition[] Rounds = new RoundDefinition[0];
 
-        [Tooltip("Rounds playable without a subscription. The brief says 10; keep it movable.")]
+        [Tooltip("Rounds playable without the full-game unlock. Keep this at 10 for release.")]
         [Min(1)]
         public int FreeRoundCount = DefaultFreeRoundCount;
 
@@ -33,7 +33,7 @@ namespace SavePeps.Progression
 
         public bool Exists(int number) => Round(number) != null;
 
-        /// <summary>True if this round sits behind the subscription.</summary>
+        /// <summary>True if this round sits behind the lifetime unlock.</summary>
         public bool IsPaid(int number) => number > FreeRoundCount;
 
         private void OnValidate()

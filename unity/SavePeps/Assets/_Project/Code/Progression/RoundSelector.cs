@@ -11,14 +11,14 @@ namespace SavePeps.Progression
     /// </summary>
     public static class RoundSelector
     {
-        public static List<int> Available(Catalog catalog, SaveData save, bool subscribed)
+        public static List<int> Available(Catalog catalog, SaveData save, bool hasFullGame)
         {
             var result = new List<int>();
             if (catalog == null || save == null) return result;
 
             for (var number = 1; number <= catalog.RoundCount; number++)
             {
-                if (Access.CanPlay(catalog, number, save.HighestUnlockedRound, subscribed))
+                if (Access.CanPlay(catalog, number, save.HighestUnlockedRound, hasFullGame))
                 {
                     result.Add(number);
                 }
@@ -28,9 +28,9 @@ namespace SavePeps.Progression
         }
 
         /// <param name="roll">A value in [0,1], injected so selection is deterministic in tests.</param>
-        public static int Choose(Catalog catalog, SaveData save, bool subscribed, float roll)
+        public static int Choose(Catalog catalog, SaveData save, bool hasFullGame, float roll)
         {
-            var candidates = Available(catalog, save, subscribed);
+            var candidates = Available(catalog, save, hasFullGame);
             if (candidates.Count == 0) return 0;
 
             if (candidates.Count > 1 && save.LastPlayedRound > 0)

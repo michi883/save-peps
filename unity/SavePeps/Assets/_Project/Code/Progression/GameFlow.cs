@@ -30,17 +30,24 @@ namespace SavePeps.Progression
         [SerializeField] private GameMenu _menu;
         [SerializeField] private PauseOverlay _pause;
         [SerializeField] private ProgressPanel _progress;
+        [SerializeField] private FullGameUnlockPanel _unlock;
         [SerializeField] private TesterMode _testerMode;
         [SerializeField] private Feedback _feedback;
 
-        [Tooltip("Anything implementing IEntitlementService: the fake in the editor, RevenueCat on device.")]
+        [Tooltip("Editor/test entitlement and store stand-in.")]
         [SerializeField] private MonoBehaviour _entitlementSource;
+
+        [Tooltip("RevenueCat entitlement and store source used by Android players.")]
+        [SerializeField] private MonoBehaviour _deviceEntitlementSource;
 
         [Header("Pacing")]
         [Tooltip("Seconds after the authored outcome before the next rescue drops in. The reunion itself is already inside that outcome.")]
         [SerializeField, Range(0.5f, 5f)] private float _winDwell = 1.35f;
 
         private IEntitlementService _entitlements;
+        private IEntitlementService _testerEntitlements;
+        private IEntitlementService _deviceEntitlements;
+        private IFullGameStore _deviceStore;
         private SaveData _save;
         private int _roundNumber;
         private int _rescueIndex;
@@ -61,8 +68,12 @@ namespace SavePeps.Progression
         public int CurrentRound => _roundNumber;
         public int CurrentRescueIndex => _rescueIndex;
         public Catalog Catalog => _catalog;
-        public bool Subscribed => IsSubscribed;
+        public bool HasFullGame => FullGameUnlocked;
         public bool TesterPreviewActive => _testerPreviewActive;
+        public string TesterBilling => Debug.isDebugBuild || Application.isEditor ? "Test Store" : "Google Play";
+        public bool TesterStoreOwned => _deviceEntitlements is { HasFullGame: true };
+        public bool TesterStoreProductReady => _deviceStore is { ProductReady: true };
+        public string TesterStorePrice => _deviceStore?.LocalizedPrice;
 
         // -------------------------------------------------------------------
         // Boot
@@ -70,11 +81,18 @@ namespace SavePeps.Progression
 
         private void Awake()
         {
-            _entitlements = _entitlementSource as IEntitlementService;
-            if (_entitlementSource != null && _entitlements == null)
+            var source = _entitlementSource;
+            _testerEntitlements = _entitlementSource as IEntitlementService;
+            _deviceEntitlements = _deviceEntitlementSource as IEntitlementService;
+            _deviceStore = _deviceEntitlementSource as IFullGameStore;
+#if UNITY_ANDROID && !UNITY_EDITOR
+            if (_deviceEntitlementSource != null) source = _deviceEntitlementSource;
+#endif
+            _entitlements = source as IEntitlementService;
+            if (source != null && _entitlements == null)
             {
                 Debug.LogError(
-                    $"[SavePeps] '{_entitlementSource.GetType().Name}' is wired as the entitlement source but does " +
+                    $"[SavePeps] '{source.GetType().Name}' is wired as the entitlement source but does " +
                     "not implement IEntitlementService. Paid rounds will stay locked.");
             }
 
@@ -84,6 +102,7 @@ namespace SavePeps.Progression
             _menu?.Hide();
             _pause?.Hide();
             _progress?.Hide();
+            _unlock?.Hide();
             ApplySettings();
         }
 
@@ -92,6 +111,10 @@ namespace SavePeps.Progression
             if (_runner != null) _runner.OnSolved += HandleSolved;
             if (_hud != null) _hud.OnMenuRequested += OpenPause;
             if (_entitlements != null) _entitlements.Changed += HandleEntitlementChanged;
+            if (_testerEntitlements != null && _testerEntitlements != _entitlements)
+            {
+                _testerEntitlements.Changed += HandleEntitlementChanged;
+            }
         }
 
         private void OnDisable()
@@ -99,6 +122,10 @@ namespace SavePeps.Progression
             if (_runner != null) _runner.OnSolved -= HandleSolved;
             if (_hud != null) _hud.OnMenuRequested -= OpenPause;
             if (_entitlements != null) _entitlements.Changed -= HandleEntitlementChanged;
+            if (_testerEntitlements != null && _testerEntitlements != _entitlements)
+            {
+                _testerEntitlements.Changed -= HandleEntitlementChanged;
+            }
         }
 
         private void Start()
@@ -139,12 +166,15 @@ namespace SavePeps.Progression
         // -------------------------------------------------------------------
 
         public bool CanPlay(int round) =>
-            Access.CanPlay(_catalog, round, _save.HighestUnlockedRound, IsSubscribed);
+            Access.CanPlay(_catalog, round, _save.HighestUnlockedRound, FullGameUnlocked);
 
         public RoundAccess AccessFor(int round) =>
-            Access.State(_catalog, round, _save.HighestUnlockedRound, IsSubscribed);
+            Access.State(_catalog, round, _save.HighestUnlockedRound, FullGameUnlocked);
 
-        private bool IsSubscribed => _entitlements is { IsSubscribed: true };
+        private bool FullGameUnlocked =>
+            TesterMode.Available && _testerMode is { Active: true }
+                ? _testerEntitlements is { HasFullGame: true }
+                : _entitlements is { HasFullGame: true };
 
         // -------------------------------------------------------------------
         // Rounds
@@ -152,12 +182,14 @@ namespace SavePeps.Progression
 
         public void ShowHome()
         {
+            _pendingRound = 0;
             _testerPreviewActive = false;
             _testerPlayThrough = false;
             _hud?.SetVisible(false);
             _card?.Hide();
             _pause?.Hide();
             _progress?.Hide();
+            _unlock?.Hide();
             _runner?.SuspendInput(false);
             _runner?.Teardown();
             _menu?.ShowHome(PlayRecommendedRound, ShowRoundPickerFromHome, ShowProgressFromHome,
@@ -174,7 +206,7 @@ namespace SavePeps.Progression
                 return;
             }
 
-            var number = RoundSelector.Choose(_catalog, _save, IsSubscribed, UnityEngine.Random.value);
+            var number = RoundSelector.Choose(_catalog, _save, FullGameUnlocked, UnityEngine.Random.value);
             if (number <= 0)
             {
                 Debug.LogError("[SavePeps] No round is currently available to Play.");
@@ -202,9 +234,10 @@ namespace SavePeps.Progression
             _card?.Hide();
             _pause?.Hide();
             _progress?.Hide();
+            _unlock?.Hide();
             _hud?.SetVisible(false);
             var testerBypass = _testerMode is { Active: true };
-            _menu?.ShowPicker(_catalog, _save, IsSubscribed, showHomeDiorama, testerBypass,
+            _menu?.ShowPicker(_catalog, _save, FullGameUnlocked, showHomeDiorama, testerBypass,
                 SelectRound, back);
             Debug.Log($"[SavePeps] Round picker opened with {_catalog.RoundCount} rounds.");
         }
@@ -228,17 +261,18 @@ namespace SavePeps.Progression
 
             var isTester = _testerMode is { Active: true };
             var allowed = isTester
-                ? (IsSubscribed || !_catalog.IsPaid(number))
+                ? (FullGameUnlocked || !_catalog.IsPaid(number))
                 : CanPlay(number);
 
             if (!allowed)
             {
-                // Locked rather than unpurchased is a bug, not a sales moment:
-                // only surface the paywall when the subscription is genuinely
-                // what stands between the player and the round.
-                if (Access.IsPaywalled(_catalog, number, _save.HighestUnlockedRound, IsSubscribed))
+                // Locked by progression is not a sales moment. Only show the
+                // unlock when lifetime ownership is what stands between the
+                // player and the selected authored round.
+                if (Access.IsPaywalled(_catalog, number, _save.HighestUnlockedRound, FullGameUnlocked))
                 {
                     _pendingRound = number;
+                    _unlock?.Show(_entitlements as IFullGameStore, CancelPendingUnlock);
                     OnPaywallRequested?.Invoke(number);
                 }
                 else
@@ -264,6 +298,7 @@ namespace SavePeps.Progression
             _card?.Hide();
             _pause?.Hide();
             _progress?.Hide();
+            _unlock?.Hide();
             _runner?.SuspendInput(false);
             _hud?.SetVisible(true);
             RefreshDots();
@@ -274,6 +309,24 @@ namespace SavePeps.Progression
         // -------------------------------------------------------------------
         // Development-only inspection seams
         // -------------------------------------------------------------------
+
+        /// <summary>
+        /// Opens the ordinary purchase surface without selecting a round or
+        /// touching the simulated ACCESS state. On Android the active store is
+        /// RevenueCat; in Editor play the fake store keeps the UI inspectable.
+        /// </summary>
+        public bool TesterOpenUnlockScreen(Action onDismiss)
+        {
+            if (!TesterMode.Available || _testerMode is not { Active: true } || _unlock == null)
+            {
+                return false;
+            }
+
+            _pendingRound = 0;
+            _unlock.Show(_entitlements as IFullGameStore, onDismiss);
+            Debug.Log("[SavePeps] Tester opened the production unlock screen. No round is pending.");
+            return true;
+        }
 
         /// <summary>
         /// Stages any authored rescue for preview without saving progress or advancing.
@@ -304,6 +357,7 @@ namespace SavePeps.Progression
             _card?.Hide();
             _pause?.Hide();
             _progress?.Hide();
+            _unlock?.Hide();
             _hud?.SetVisible(true);
             RefreshDots();
             _runner?.Load(rescue, lockInputDuringEntrance: true);
@@ -350,6 +404,7 @@ namespace SavePeps.Progression
             _card?.Hide();
             _pause?.Hide();
             _progress?.Hide();
+            _unlock?.Hide();
             _hud?.SetVisible(true);
             RefreshDots();
             _runner?.Load(rescue, lockInputDuringEntrance: true);
@@ -475,7 +530,7 @@ namespace SavePeps.Progression
         {
             if (!_testerPreviewActive)
             {
-                // A subscriber may jump straight to any authored round.
+                // A full-game owner may jump straight to any authored round.
                 // Finishing that round must not silently skip the free
                 // player's sequential progression if entitlement later lapses.
                 if (_roundNumber <= _save.HighestUnlockedRound)
@@ -542,6 +597,7 @@ namespace SavePeps.Progression
             (_card != null && _card.Visible) ||
             (_pause != null && _pause.Visible) ||
             (_progress != null && _progress.Visible) ||
+            (_unlock != null && _unlock.Visible) ||
             (_testerMode != null && _testerMode.Visible);
 
         private void Update()
@@ -592,13 +648,13 @@ namespace SavePeps.Progression
         public void ShowProgressFromHome()
         {
             _progressFromPause = false;
-            _progress?.Show(_catalog, _save, IsSubscribed, CloseProgress);
+            _progress?.Show(_catalog, _save, FullGameUnlocked, CloseProgress);
         }
 
         private void ShowProgressFromPause()
         {
             _progressFromPause = true;
-            _progress?.Show(_catalog, _save, IsSubscribed, CloseProgress);
+            _progress?.Show(_catalog, _save, FullGameUnlocked, CloseProgress);
         }
 
         private void CloseProgress()
@@ -615,6 +671,7 @@ namespace SavePeps.Progression
         /// </summary>
         public void HandleBack()
         {
+            if (_unlock != null && _unlock.Visible) { _unlock.RequestClose(); return; }
             if (_testerMode != null && _testerMode.Visible) { _testerMode.RequestClose(); return; }
             if (_progress != null && _progress.Visible) { _progress.RequestClose(); return; }
             if (_pause != null && _pause.Visible) { _pause.RequestClose(); return; }
@@ -671,7 +728,7 @@ namespace SavePeps.Progression
         /// </summary>
         private void HandleEntitlementChanged()
         {
-            if (_pendingRound > 0 && IsSubscribed)
+            if (_pendingRound > 0 && FullGameUnlocked)
             {
                 var purchasedRound = _pendingRound;
                 _pendingRound = 0;
@@ -681,10 +738,12 @@ namespace SavePeps.Progression
 
             if (_menu != null && _menu.PickerVisible)
             {
-                _menu.ShowPicker(_catalog, _save, IsSubscribed, _pickerShowsHomeDiorama,
+                _menu.ShowPicker(_catalog, _save, FullGameUnlocked, _pickerShowsHomeDiorama,
                     _testerMode is { Active: true }, SelectRound, _pickerBack ?? ShowHome);
             }
         }
+
+        private void CancelPendingUnlock() => _pendingRound = 0;
 
         private void RefreshDots()
         {

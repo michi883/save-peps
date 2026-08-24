@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using SavePeps.Monetization;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
@@ -24,6 +25,8 @@ namespace SavePeps.EditorTools
     public static class BuildScript
     {
         private const string OutputDir = "Build/Android";
+        private const string RevenueCatGooglePlayKeyEnvironmentVariable =
+            "REVENUECAT_GOOGLE_PLAY_API_KEY";
 
         public static void BuildAndroid()
         {
@@ -71,8 +74,49 @@ namespace SavePeps.EditorTools
         [MenuItem("Tools/Save Peps/Build Android Development APK (Tester Mode)")]
         public static void BuildAndroidDevelopmentApkMenu() => Run(appBundle: false, development: true);
 
+        /// <summary>
+        /// Imports the public Google Play SDK key without requiring it on the
+        /// command line or in a tracked script. The value is deliberately
+        /// never written to the Unity log.
+        /// </summary>
+        public static void SyncRevenueCatGooglePlayKeyFromEnvironment()
+        {
+            var key = Environment.GetEnvironmentVariable(
+                RevenueCatGooglePlayKeyEnvironmentVariable)?.Trim();
+            if (string.IsNullOrWhiteSpace(key) ||
+                !key.StartsWith("goog_", StringComparison.Ordinal))
+            {
+                throw new BuildFailedException(
+                    $"{RevenueCatGooglePlayKeyEnvironmentVariable} must contain a RevenueCat " +
+                    "Google Play public SDK key starting with 'goog_'.");
+            }
+
+            var settings = LoadRevenueCatSettings();
+            var serializedSettings = new SerializedObject(settings);
+            var keyProperty = serializedSettings.FindProperty("_googlePlayApiKey");
+            if (keyProperty == null)
+            {
+                throw new BuildFailedException(
+                    "RevenueCatSettings no longer exposes its Google Play key field.");
+            }
+
+            if (string.Equals(keyProperty.stringValue, key, StringComparison.Ordinal))
+            {
+                Debug.Log("[SavePeps] RevenueCat Google Play public SDK key is already configured.");
+                return;
+            }
+
+            keyProperty.stringValue = key;
+            serializedSettings.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(settings);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[SavePeps] RevenueCat Google Play public SDK key configured.");
+        }
+
         private static BuildReport Run(bool appBundle, bool development)
         {
+            ApplyRevenueCatGooglePlayKeyFromEnvironmentIfPresent();
+            ValidateRevenueCatConfiguration(development);
             ProjectBootstrap.Apply();
             ApplySigningFromEnvironment();
 
@@ -125,6 +169,51 @@ namespace SavePeps.EditorTools
             }
 
             return report;
+        }
+
+        /// <summary>
+        /// Never let a Play artifact silently ship with the Test Store key,
+        /// or a development artifact boot without any purchasable product.
+        /// RevenueCat public SDK keys are store-specific.
+        /// </summary>
+        private static void ValidateRevenueCatConfiguration(bool development)
+        {
+            var settings = LoadRevenueCatSettings();
+
+            var key = settings.ApiKeyFor(development);
+            var expectedPrefix = development ? "test_" : "goog_";
+            if (string.IsNullOrWhiteSpace(key) || !key.StartsWith(expectedPrefix, StringComparison.Ordinal))
+            {
+                var target = development ? "Test Store" : "Google Play";
+                throw new BuildFailedException(
+                    $"RevenueCat {target} public SDK key must start with '{expectedPrefix}' in " +
+                    $"'{ContentPaths.RevenueCatSettingsPath}'.");
+            }
+
+            Debug.Log($"[SavePeps] RevenueCat configured for {(development ? "Test Store" : "Google Play")}.");
+        }
+
+        private static void ApplyRevenueCatGooglePlayKeyFromEnvironmentIfPresent()
+        {
+            if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(
+                    RevenueCatGooglePlayKeyEnvironmentVariable)))
+            {
+                SyncRevenueCatGooglePlayKeyFromEnvironment();
+            }
+        }
+
+        private static RevenueCatSettings LoadRevenueCatSettings()
+        {
+            var settings = AssetDatabase.LoadAssetAtPath<RevenueCatSettings>(
+                ContentPaths.RevenueCatSettingsPath);
+            if (settings != null)
+            {
+                return settings;
+            }
+
+            throw new BuildFailedException(
+                $"RevenueCat settings are missing at '{ContentPaths.RevenueCatSettingsPath}'. " +
+                "Rebuild the Game scene first.");
         }
 
         /// <summary>

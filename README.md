@@ -10,7 +10,7 @@ Built for [RevenueCat Shipaton 2026](https://revenuecat-shipaton-2026.devpost.co
 
 A fixed-camera toy diorama shows two Peps separated by something small and silly, with three tappable objects in the scene. Exactly one reunites them. The other two fail funny — a short visual gag, a dry one-liner, and an immediate retry. There is no fail state and no punishment; wrong answers are part of the entertainment.
 
-A **round is 3 rescues**. Solve one on the first tap and it earns a ★, after a retry a ✓. Rounds 1–10 are free; **Peps Unlimited** unlocks the rest.
+A **round is 3 rescues**. Solve one on the first tap and it earns a ★, after a retry a ✓. Rounds 1–10 are free; one lifetime purchase unlocks Rounds 11–12.
 
 Every round owns a **world**, and a world is more than a colour scheme: its own ground silhouette, camera, sky, key light, fog, ambient motion and sound bed, plus a physical rule its three rescues all obey — the clockwork courtyard never moves until a linkage moves it, the orbital station has no ground at all, the crystal cave is the only enclosed space in the game. Twelve rounds are twelve worlds and thirty-six rescues are thirty-six stages; [`design/ROUND_CATALOG.md`](design/ROUND_CATALOG.md) is the source of truth for all of it.
 
@@ -47,7 +47,7 @@ open unity/SavePeps                  # via Unity Hub
 
 On a fresh clone, run **Tools > Save Peps > Apply Project Settings** once. Most build settings live in `ProjectSettings/` and travel with the repo, but a few (active build target, AAB-vs-APK) are machine-local and would otherwise silently default back to APK.
 
-The RevenueCat SDK does not run in the Unity Editor. Editor play uses `FakeEntitlementService`, which can simulate every subscription state; real purchase paths must be tested on a device.
+The RevenueCat SDK does not run in the Unity Editor. Editor play uses `FakeEntitlementService`, which simulates free/full-game ownership and store outcomes; real Google Play purchase paths must be tested from a Play-installed build on a device.
 
 ### Tester Mode
 
@@ -57,7 +57,7 @@ The editor and Unity **Development Builds** always boot in ordinary User Mode wi
 
 That switches on Tester Mode, opens its compact target sheet, and shows a small `TESTER` indicator until the same title sequence switches back to User Mode. Choose a round and optional rescue, select **Return to title**, then use the title's Play button; Play keeps that exact target and bypasses progression and premium gates without writing `save.json`. The normal round picker also bypasses its locks while Tester Mode is active.
 
-The secondary controls restart the current rescue, preview any of its three outcomes, reset the profile, apply Fresh/Partial/All completed/All perfect states, unlock progression without adding marks, and switch the existing fake entitlement between Free and Premium. Profile changes happen only from those explicit buttons; navigation, Play, and outcome preview remain profile-safe.
+The secondary controls restart the current rescue, preview any of its three outcomes, reset the profile, apply Fresh/Partial/All completed/All perfect states, unlock progression without adding marks, and switch the existing fake entitlement between Free and Full Game. The **Purchase** section reports the active billing store, real RevenueCat ownership, product availability, and localized price, then opens the exact production Full Game Unlock screen without granting access or changing progress. Simulated **Access** and real store ownership deliberately remain separate. Profile changes happen only from those explicit buttons; navigation, Play, and outcome preview remain profile-safe.
 
 Build the device QA artifact with **Tools > Save Peps > Build Android Development APK (Tester Mode)** or:
 

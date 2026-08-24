@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditor.Android;
 using UnityEditor.Build;
 using UnityEngine;
 
@@ -17,6 +18,9 @@ namespace SavePeps.EditorTools
     {
         private const string CompanyName = "michi883";
         private const string ProductName = "Save Peps";
+        private const string AppIconPath = "Assets/_Project/Art/UI/AppIcon.png";
+        private const string AppIconBackgroundPath = "Assets/_Project/Art/UI/AppIconBackground.png";
+        private const string AppIconForegroundPath = "Assets/_Project/Art/UI/AppIconForeground.png";
 
         // FINAL. Reverse-domain namespace for sound.fan, which we control.
         // Immutable once the first bundle reaches Play — do not change.
@@ -66,6 +70,7 @@ namespace SavePeps.EditorTools
             // is standard, but purchases get cancelled mid-flow if this ever
             // drifts to singleTask.
             PlayerSettings.Android.androidIsGame = true;
+            ApplyAndroidIcons();
 
             // Play distributes app bundles, not APKs.
             EditorUserBuildSettings.buildAppBundle = true;
@@ -73,6 +78,48 @@ namespace SavePeps.EditorTools
             AssetDatabase.SaveAssets();
             Debug.Log($"[SavePeps] Project settings applied: {ProductName} ({ApplicationId}), " +
                       $"portrait, linear, IL2CPP/ARM64, AAB, minSdk 24.");
+        }
+
+        private static void ApplyAndroidIcons()
+        {
+            var icon = LoadIcon(AppIconPath);
+            var background = LoadIcon(AppIconBackgroundPath);
+            var foreground = LoadIcon(AppIconForegroundPath);
+
+            ApplySingleLayerIcons(AndroidPlatformIconKind.Legacy, icon);
+            ApplySingleLayerIcons(AndroidPlatformIconKind.Round, icon);
+
+            var adaptive = PlayerSettings.GetPlatformIcons(
+                NamedBuildTarget.Android, AndroidPlatformIconKind.Adaptive);
+            foreach (var slot in adaptive)
+            {
+                if (slot.maxLayerCount != 2)
+                {
+                    throw new BuildFailedException(
+                        $"Android adaptive icon slot {slot.width}x{slot.height} expects " +
+                        $"{slot.maxLayerCount} layers instead of background + foreground.");
+                }
+                slot.SetTextures(background, foreground);
+            }
+            PlayerSettings.SetPlatformIcons(
+                NamedBuildTarget.Android, AndroidPlatformIconKind.Adaptive, adaptive);
+        }
+
+        private static void ApplySingleLayerIcons(PlatformIconKind kind, Texture2D texture)
+        {
+            var icons = PlayerSettings.GetPlatformIcons(NamedBuildTarget.Android, kind);
+            foreach (var slot in icons)
+            {
+                slot.SetTextures(texture);
+            }
+            PlayerSettings.SetPlatformIcons(NamedBuildTarget.Android, kind, icons);
+        }
+
+        private static Texture2D LoadIcon(string path)
+        {
+            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            if (texture != null) return texture;
+            throw new BuildFailedException($"Required Android icon is missing at '{path}'.");
         }
 
         /// <summary>Batchmode entry point: apply settings and switch to Android.</summary>

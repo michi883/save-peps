@@ -58,6 +58,7 @@ namespace SavePeps.EditorTools
             // object that assigns as null, so the scene silently ends up with
             // no catalogue and the game boots to "nothing to play".
             var catalog = AssetDatabase.LoadAssetAtPath<Catalog>(catalogPath);
+            var revenueCatSettings = EnsureRevenueCatSettings();
 
             // Fixed camera, low FOV, tilted down: the tilt-shift toy read from
             // design/palette.md. Framing is tuned for portrait 9:19.5 and
@@ -116,6 +117,7 @@ namespace SavePeps.EditorTools
             // Progress covers the pause sheet it was opened from.
             BuildPauseOverlay(hud.transform, out var pauseComponent);
             BuildProgressPanel(hud.transform, out var progressComponent);
+            BuildFullGameUnlockPanel(hud.transform, out var unlockComponent);
 
             var game = new GameObject("Game");
             var player = game.AddComponent<ChoreographyPlayer>();
@@ -144,15 +146,20 @@ namespace SavePeps.EditorTools
             Wire(cardComponent, "_feedback", feedback);
             Wire(pauseComponent, "_feedback", feedback);
             Wire(progressComponent, "_feedback", feedback);
+            Wire(unlockComponent, "_feedback", feedback);
             // GameFlow owns sequencing now; the runner is handed one rescue
             // at a time rather than playing a fixed asset at boot.
             WireBool(runner, "_autoPlayOnStart", false);
 
-            // The editor stand-in for RevenueCat. The real SDK does not run in
-            // the editor at all, so this is what makes the gating path
-            // testable without a device deploy - swapped for
-            // RevenueCatEntitlementService in the Android build (P4).
+            // The fake stays wired for Editor/PlayMode tests. Android players
+            // select the RevenueCat source from the same GameFlow gate.
             var entitlements = game.AddComponent<FakeEntitlementService>();
+            var purchases = game.AddComponent<Purchases>();
+            purchases.useRuntimeSetup = true;
+            purchases.productIdentifiers = new[] { StoreProducts.Lifetime };
+            var revenueCat = game.AddComponent<RevenueCatEntitlementService>();
+            purchases.listener = revenueCat;
+            Wire(revenueCat, "_settings", revenueCatSettings);
 
             var flow = game.AddComponent<GameFlow>();
             Wire(flow, "_catalog", catalog);
@@ -162,8 +169,10 @@ namespace SavePeps.EditorTools
             Wire(flow, "_menu", menuComponent);
             Wire(flow, "_pause", pauseComponent);
             Wire(flow, "_progress", progressComponent);
+            Wire(flow, "_unlock", unlockComponent);
             Wire(flow, "_feedback", feedback);
             Wire(flow, "_entitlementSource", entitlements);
+            Wire(flow, "_deviceEntitlementSource", revenueCat);
 
             // Last sibling wins draw order. Tester Mode is intentionally the
             // outermost development-only surface so it can be reached from
@@ -177,6 +186,17 @@ namespace SavePeps.EditorTools
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             Debug.Log($"[SavePeps] Scene saved to {ScenePath} and set as the only build scene.");
             _ = hud;
+        }
+
+        private static RevenueCatSettings EnsureRevenueCatSettings()
+        {
+            var settings = AssetDatabase.LoadAssetAtPath<RevenueCatSettings>(ContentPaths.RevenueCatSettingsPath);
+            if (settings != null) return settings;
+
+            settings = ScriptableObject.CreateInstance<RevenueCatSettings>();
+            AssetDatabase.CreateAsset(settings, ContentPaths.RevenueCatSettingsPath);
+            Debug.Log($"[SavePeps] Created RevenueCat settings at {ContentPaths.RevenueCatSettingsPath}.");
+            return settings;
         }
 
         /// <summary>
@@ -265,16 +285,17 @@ namespace SavePeps.EditorTools
             menuImage.color = new Color(1f, 0.97f, 0.88f, 0.88f);
             AddShadow(menuImage, new Color(0.24f, 0.20f, 0.33f, 0.16f), new Vector2(0f, -5f));
 
-            // Two bars, not three dots: a pause glyph says "step out for a
-            // moment" without promising a settings hierarchy behind it.
-            for (var i = 0; i < 2; i++)
+            // This control opens the whole in-game menu, not a literal pause:
+            // three rounded horizontal bars describe that destination without
+            // looking like the Roman numeral II on a small phone screen.
+            for (var i = 0; i < 3; i++)
             {
                 var bar = new GameObject($"Bar_{i}", typeof(Image));
                 bar.transform.SetParent(menuGo.transform, false);
                 var barRt = bar.GetComponent<RectTransform>();
                 barRt.anchorMin = barRt.anchorMax = new Vector2(0.5f, 0.5f);
-                barRt.sizeDelta = new Vector2(16f, 46f);
-                barRt.anchoredPosition = new Vector2(i == 0 ? -15f : 15f, 0f);
+                barRt.sizeDelta = new Vector2(54f, 12f);
+                barRt.anchoredPosition = new Vector2(0f, 20f - i * 20f);
                 StylePanel(bar.GetComponent<Image>(), new Color(ink.r, ink.g, ink.b, 0.72f));
                 bar.GetComponent<Image>().raycastTarget = false;
             }
@@ -491,6 +512,18 @@ namespace SavePeps.EditorTools
                 shadow: false);
             var statLabel = stat.GetComponentInChildren<Text>();
 
+            // Legal links are deliberately quiet utility actions. They must
+            // be reachable in-app for Play review without competing with the
+            // two gameplay choices or the earned Progress line.
+            var privacy = ShellButton(home.transform, "Privacy", font, "Privacy",
+                new Vector2(210f, 58f), new Vector2(-118f, -985f),
+                new Color(1f, 1f, 1f, 0.18f), 25, new Color(ink.r, ink.g, ink.b, 0.68f),
+                shadow: false);
+            var terms = ShellButton(home.transform, "Terms", font, "Terms",
+                new Vector2(180f, 58f), new Vector2(118f, -985f),
+                new Color(1f, 1f, 1f, 0.18f), 25, new Color(ink.r, ink.g, ink.b, 0.68f),
+                shadow: false);
+
             // These transparent hit areas sit over the title and tableau
             // characters. TesterMode shows them at boot; the seven-tap command
             // is the only way in, so there is nothing to find by accident.
@@ -566,6 +599,8 @@ namespace SavePeps.EditorTools
             Wire(menu, "_chooseButton", choose);
             Wire(menu, "_statButton", stat);
             Wire(menu, "_statLabel", statLabel);
+            Wire(menu, "_privacyButton", privacy);
+            Wire(menu, "_termsButton", terms);
             Wire(menu, "_secretHeartButton", secretHeart);
             Wire(menu, "_secretGreenPepButton", secretGreen);
             Wire(menu, "_secretPinkPepButton", secretPink);
@@ -714,7 +749,7 @@ namespace SavePeps.EditorTools
 
             var sound = ShellButton(sheet, "Sound", font, "SOUND ON",
                 new Vector2(388f, 106f), new Vector2(-206f, -330f), Hex("5CCCAE"), 28, ink);
-            var haptics = ShellButton(sheet, "Haptics", font, "BUZZ ON",
+            var haptics = ShellButton(sheet, "Haptics", font, "VIBRATION ON",
                 new Vector2(388f, 106f), new Vector2(206f, -330f), Hex("5CCCAE"), 28, ink);
 
             pause = holder.AddComponent<PauseOverlay>();
@@ -865,6 +900,89 @@ namespace SavePeps.EditorTools
             root.SetActive(false);
         }
 
+        /// <summary>
+        /// The whole purchase UX in one toy card. The price label starts in a
+        /// loading state and is replaced only by RevenueCat's localized store
+        /// price; no currency amount is authored into the scene.
+        /// </summary>
+        private static void BuildFullGameUnlockPanel(Transform canvas, out FullGameUnlockPanel unlock)
+        {
+            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            var ink = Hex("3D3354");
+
+            var holder = new GameObject("FullGameUnlock", typeof(RectTransform));
+            holder.transform.SetParent(canvas, false);
+            Stretch(holder.GetComponent<RectTransform>());
+
+            var root = new GameObject("Overlay", typeof(RectTransform), typeof(CanvasGroup));
+            root.transform.SetParent(holder.transform, false);
+            Stretch(root.GetComponent<RectTransform>());
+
+            var scrimGo = new GameObject("Scrim", typeof(Image), typeof(Button));
+            scrimGo.transform.SetParent(root.transform, false);
+            Stretch(scrimGo.GetComponent<RectTransform>());
+            scrimGo.GetComponent<Image>().color = new Color(ink.r, ink.g, ink.b, 0.62f);
+            NeutraliseTint(scrimGo.GetComponent<Button>());
+
+            var cardGo = new GameObject("UnlockCard", typeof(Image));
+            cardGo.transform.SetParent(root.transform, false);
+            var card = cardGo.GetComponent<RectTransform>();
+            card.anchorMin = card.anchorMax = new Vector2(0.5f, 0.5f);
+            card.sizeDelta = new Vector2(920f, 910f);
+            card.anchoredPosition = new Vector2(0f, 20f);
+            StylePanel(cardGo.GetComponent<Image>(), Hex("FFF6E4"));
+            AddShadow(cardGo.GetComponent<Image>(), new Color(ink.r, ink.g, ink.b, 0.28f),
+                new Vector2(0f, -12f));
+
+            var close = ShellButton(card, "UnlockClose", font, "X",
+                new Vector2(86f, 86f), new Vector2(378f, 365f),
+                new Color(ink.r, ink.g, ink.b, 0.88f), 30, Color.white, shadow: false);
+
+            var heart = Text(card, "Heart", font, 92, Hex("F06C7A"),
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 314f), new Vector2(180f, 120f));
+            heart.text = "♥";
+
+            var title = Text(card, "Title", font, 64, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 205f), new Vector2(790f, 92f));
+            title.text = "Unlock Full Game";
+            title.fontStyle = FontStyle.Bold;
+
+            var subtitle = Text(card, "Subtitle", font, 42, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 112f), new Vector2(790f, 70f));
+            subtitle.text = "Get Rounds 11–12";
+            subtitle.fontStyle = FontStyle.Bold;
+
+            var detail = Text(card, "Detail", font, 31, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 30f), new Vector2(760f, 76f));
+            detail.text = "Six more rescues · yours forever";
+            detail.color = new Color(ink.r, ink.g, ink.b, 0.70f);
+
+            var purchase = ShellButton(card, "UnlockPurchase", font, "Loading price…",
+                new Vector2(790f, 148f), new Vector2(0f, -105f), Hex("FFB53E"), 36, ink,
+                breathe: 0.018f);
+            var restore = ShellButton(card, "UnlockRestore", font, "Restore Purchase",
+                new Vector2(600f, 106f), new Vector2(0f, -245f), Hex("F0E3C8"), 31, ink);
+
+            var status = Text(card, "Status", font, 27, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, -350f), new Vector2(760f, 90f));
+            status.text = string.Empty;
+            status.color = new Color(ink.r, ink.g, ink.b, 0.76f);
+
+            unlock = holder.AddComponent<FullGameUnlockPanel>();
+            Wire(unlock, "_root", root);
+            Wire(unlock, "_group", root.GetComponent<CanvasGroup>());
+            Wire(unlock, "_card", card);
+            Wire(unlock, "_scrim", scrimGo.GetComponent<Button>());
+            Wire(unlock, "_closeButton", close);
+            Wire(unlock, "_purchaseButton", purchase);
+            Wire(unlock, "_purchaseLabel", purchase.GetComponentInChildren<Text>());
+            Wire(unlock, "_restoreButton", restore);
+            Wire(unlock, "_restoreLabel", restore.GetComponentInChildren<Text>());
+            Wire(unlock, "_statusLabel", status);
+
+            root.SetActive(false);
+        }
+
         private static ProgressRow BuildProgressRow(Transform parent, Font font)
         {
             var ink = Hex("3D3354");
@@ -944,7 +1062,7 @@ namespace SavePeps.EditorTools
             cardGo.transform.SetParent(root.transform, false);
             var card = cardGo.GetComponent<RectTransform>();
             card.anchorMin = card.anchorMax = new Vector2(0.5f, 0.5f);
-            card.sizeDelta = new Vector2(1010f, 1320f);
+            card.sizeDelta = new Vector2(1010f, 1780f);
             card.anchoredPosition = Vector2.zero;
             StylePanel(cardGo.GetComponent<Image>(), new Color(1f, 0.97f, 0.88f, 0.99f));
 
@@ -1003,27 +1121,39 @@ namespace SavePeps.EditorTools
 
             var free = ShellButton(card, "TesterFree", font, "FREE", new Vector2(425f, 88f),
                 new Vector2(-225f, -105f), cream, 30, ink, shadow: false);
-            var unlimited = ShellButton(card, "TesterUnlimited", font, "PEPS UNLIMITED",
+            var fullGame = ShellButton(card, "TesterFullGame", font, "FULL GAME",
                 new Vector2(425f, 88f), new Vector2(225f, -105f), cream, 30, ink, shadow: false);
 
-            // 3. PROFILE
-            SectionLabel(card, font, ink, "PROFILE", -195f);
+            // 3. PURCHASE — real store state, deliberately separate from ACCESS.
+            SectionLabel(card, font, ink, "PURCHASE", -195f);
+            var openUnlock = ShellButton(card, "TesterOpenUnlock", font, "OPEN UNLOCK SCREEN",
+                new Vector2(870f, 90f), new Vector2(0f, -270f), gold, 30, ink, shadow: false);
+            var purchaseDiagnostics = Text(card, "TesterPurchaseDiagnostics", font, 25, ink,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, -395f), new Vector2(820f, 140f));
+            purchaseDiagnostics.text =
+                "Billing: Test Store\nEntitlement: FREE\nProduct: MISSING\nPrice: —";
+            purchaseDiagnostics.lineSpacing = 1.05f;
+            purchaseDiagnostics.alignment = TextAnchor.MiddleLeft;
+            purchaseDiagnostics.color = new Color(ink.r, ink.g, ink.b, 0.88f);
+
+            // 4. PROFILE
+            SectionLabel(card, font, ink, "PROFILE", -515f);
             var profileSub = Text(card, "ProfileSubtext", font, 25, ink, new Vector2(0.5f, 0.5f),
-                new Vector2(0f, -235f), new Vector2(900f, 44f));
+                new Vector2(0f, -555f), new Vector2(900f, 44f));
             profileSub.text = "Erases all marks, completed rounds, and history back to a fresh install.";
             profileSub.alignment = TextAnchor.MiddleCenter;
             profileSub.color = new Color(ink.r, ink.g, ink.b, 0.90f);
 
             var clearProgress = ShellButton(card, "TesterClearProgress", font, "CLEAR ALL PROGRESS",
-                new Vector2(870f, 90f), new Vector2(0f, -315f), new Color(0.96f, 0.91f, 0.91f, 1f),
+                new Vector2(870f, 90f), new Vector2(0f, -635f), new Color(0.96f, 0.91f, 0.91f, 1f),
                 28, new Color(0.60f, 0.15f, 0.15f, 1f), shadow: false);
 
             var cancelClear = ShellButton(card, "TesterCancelClear", font, "CANCEL",
-                new Vector2(320f, 62f), new Vector2(0f, -395f), cream, 24, ink, shadow: false);
+                new Vector2(320f, 62f), new Vector2(0f, -715f), cream, 24, ink, shadow: false);
             cancelClear.gameObject.SetActive(false);
 
             var note = Text(card, "SafetyNote", font, 25, ink, new Vector2(0.5f, 0.5f),
-                new Vector2(0f, -485f), new Vector2(900f, 90f));
+                new Vector2(0f, -805f), new Vector2(900f, 90f));
             note.text = "• Same game, but you can go anywhere.\n• Playing in Tester Mode records progress and unlocks.";
             note.lineSpacing = 1.2f;
             note.alignment = TextAnchor.MiddleCenter;
@@ -1042,9 +1172,11 @@ namespace SavePeps.EditorTools
             Wire(tester, "_playRescueButton", playRescue);
             Wire(tester, "_goToSelectionSummary", goToSummary);
             Wire(tester, "_freeButton", free);
-            Wire(tester, "_unlimitedButton", unlimited);
+            Wire(tester, "_fullGameButton", fullGame);
             Wire(tester, "_freeLabel", free.GetComponentInChildren<Text>());
-            Wire(tester, "_unlimitedLabel", unlimited.GetComponentInChildren<Text>());
+            Wire(tester, "_fullGameLabel", fullGame.GetComponentInChildren<Text>());
+            Wire(tester, "_openUnlockButton", openUnlock);
+            Wire(tester, "_purchaseDiagnostics", purchaseDiagnostics);
             Wire(tester, "_clearProgressButton", clearProgress);
             Wire(tester, "_clearProgressLabel", clearProgress.GetComponentInChildren<Text>());
             Wire(tester, "_cancelClearButton", cancelClear);

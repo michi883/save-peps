@@ -1,71 +1,243 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace SavePeps.Monetization
 {
     /// <summary>
-    /// The real thing, on device.
-    ///
-    /// Guarded by the SAVEPEPS_REVENUECAT scripting define so the project
-    /// compiles whether or not the SDK is installed — the define is added
-    /// once `purchases-unity` is in the project. Without that guard, pulling
-    /// the SDK in becomes a blocking, all-or-nothing step, and it is on the
-    /// critical path for the Play clock.
-    ///
-    /// Note that RevenueCat does not run in the Editor at all: in-editor this
-    /// component logs and reports not-subscribed, and
-    /// <see cref="FakeEntitlementService"/> is what the game actually uses
-    /// there.
+    /// Android RevenueCat adapter for the one full-game non-consumable.
+    /// CustomerInfo is the only access authority; neither a successful store
+    /// callback nor a local save flag can unlock content by itself.
     /// </summary>
-    public sealed class RevenueCatEntitlementService : MonoBehaviour, IEntitlementService
+    [RequireComponent(typeof(Purchases))]
+    public sealed class RevenueCatEntitlementService : Purchases.UpdatedCustomerInfoListener,
+        IEntitlementService, IFullGameStore
     {
-        public event Action Changed;
+        [SerializeField] private RevenueCatSettings _settings;
 
-        public bool IsSubscribed { get; private set; }
+        private Purchases _purchases;
+        private Purchases.Package _lifetimePackage;
+        private bool _initialised;
+
+        public event Action Changed;
+        public event Action StoreChanged;
+        public event Action<FullGameStoreResult> ActionFinished;
+
+        public bool HasFullGame { get; private set; }
+        public string LocalizedPrice => _lifetimePackage?.StoreProduct?.PriceString;
+        public bool ProductReady => _lifetimePackage != null && !string.IsNullOrWhiteSpace(LocalizedPrice);
+        public bool Busy { get; private set; }
 
         public void Initialise()
         {
-#if SAVEPEPS_REVENUECAT && UNITY_ANDROID && !UNITY_EDITOR
-            var purchases = GetComponent<Purchases>();
-            if (purchases == null)
+            if (_initialised) return;
+            _initialised = true;
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+            // Purchases creates its native wrapper in Start. GameFlow can call
+            // us from its own Start in either order, so wait one frame before
+            // configuring or asking the wrapper for anything.
+            StartCoroutine(InitialiseAndroid());
+#else
+            Debug.Log("[SavePeps] RevenueCat device service is idle outside an Android player.");
+#endif
+        }
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+        private IEnumerator InitialiseAndroid()
+        {
+            yield return null;
+
+            _purchases = GetComponent<Purchases>();
+            if (_purchases == null)
             {
-                Debug.LogError("[SavePeps] No Purchases component alongside RevenueCatEntitlementService.");
+                Debug.LogError("[SavePeps] RevenueCat Purchases component is missing.");
+                StoreChanged?.Invoke();
+                yield break;
+            }
+
+            var development = Debug.isDebugBuild;
+            var apiKey = _settings != null ? _settings.ApiKeyFor(development) : null;
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                var target = development ? "Test Store" : "Google Play";
+                Debug.LogError($"[SavePeps] RevenueCat {target} public SDK key is not configured.");
+                StoreChanged?.Invoke();
+                yield break;
+            }
+
+            _purchases.useRuntimeSetup = true;
+            _purchases.listener = this;
+            var configuration = Purchases.PurchasesConfiguration.Builder.Init(apiKey).Build();
+            _purchases.Configure(configuration);
+            _purchases.SetLogLevel(development ? Purchases.LogLevel.Debug : Purchases.LogLevel.Warn);
+
+            RefreshCustomerInfo();
+            RefreshProduct();
+        }
+#endif
+
+        public void RefreshProduct()
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            if (_purchases == null)
+            {
+                StoreChanged?.Invoke();
                 return;
             }
 
-            purchases.SetLogLevel(Purchases.LogLevel.Warn);
-            purchases.GetCustomerInfo((info, error) =>
+            _purchases.GetOfferings((offerings, error) =>
             {
                 if (error != null)
                 {
-                    // Offline or store unavailable is not fatal: the SDK
-                    // serves a cached entitlement, and the free rounds do not
-                    // depend on this call succeeding.
-                    Debug.LogWarning($"[SavePeps] RevenueCat customer info failed: {error.message}");
+                    Debug.LogWarning($"[SavePeps] RevenueCat offerings failed: {error.Message}");
+                    _lifetimePackage = null;
+                    StoreChanged?.Invoke();
+                    return;
+                }
+
+                var candidate = offerings?.Current?.Lifetime;
+                if (candidate?.StoreProduct?.Identifier != StoreProducts.Lifetime)
+                {
+                    var found = candidate?.StoreProduct?.Identifier ?? "none";
+                    Debug.LogError(
+                        $"[SavePeps] Current RevenueCat offering must contain lifetime product " +
+                        $"'{StoreProducts.Lifetime}', but found '{found}'.");
+                    _lifetimePackage = null;
+                }
+                else
+                {
+                    _lifetimePackage = candidate;
+                    Debug.Log($"[SavePeps] Full-game product ready at {LocalizedPrice}.");
+                }
+
+                StoreChanged?.Invoke();
+            });
+#else
+            StoreChanged?.Invoke();
+#endif
+        }
+
+        public void PurchaseFullGame()
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            if (_purchases == null || !ProductReady || Busy)
+            {
+                ActionFinished?.Invoke(FullGameStoreResult.Failed);
+                return;
+            }
+
+            SetBusy(true);
+            _purchases.PurchasePackage(_lifetimePackage, result =>
+            {
+                SetBusy(false);
+                if (result == null)
+                {
+                    Debug.LogWarning("[SavePeps] RevenueCat purchase returned no result.");
+                    ActionFinished?.Invoke(FullGameStoreResult.Failed);
+                    return;
+                }
+
+                if (result.UserCancelled)
+                {
+                    ActionFinished?.Invoke(FullGameStoreResult.Cancelled);
+                    return;
+                }
+
+                if (result.Error != null)
+                {
+                    Debug.LogWarning($"[SavePeps] RevenueCat purchase failed: {result.Error.Message}");
+                    ActionFinished?.Invoke(FullGameStoreResult.Failed);
+                    return;
+                }
+
+                Apply(result.CustomerInfo);
+                if (HasFullGame)
+                {
+                    ActionFinished?.Invoke(FullGameStoreResult.Purchased);
+                }
+                else
+                {
+                    Debug.LogError(
+                        $"[SavePeps] Purchase completed without entitlement '{Entitlements.FullGame}'. " +
+                        "Check the RevenueCat product attachment.");
+                    ActionFinished?.Invoke(FullGameStoreResult.Failed);
+                }
+            });
+#else
+            ActionFinished?.Invoke(FullGameStoreResult.Failed);
+#endif
+        }
+
+        public void RestoreFullGame()
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            if (_purchases == null || Busy)
+            {
+                ActionFinished?.Invoke(FullGameStoreResult.Failed);
+                return;
+            }
+
+            SetBusy(true);
+            _purchases.RestorePurchases((info, error) =>
+            {
+                SetBusy(false);
+                if (error != null)
+                {
+                    Debug.LogWarning($"[SavePeps] RevenueCat restore failed: {error.Message}");
+                    ActionFinished?.Invoke(FullGameStoreResult.Failed);
+                    return;
+                }
+
+                Apply(info);
+                ActionFinished?.Invoke(HasFullGame
+                    ? FullGameStoreResult.Restored
+                    : FullGameStoreResult.NoPurchaseFound);
+            });
+#else
+            ActionFinished?.Invoke(FullGameStoreResult.Failed);
+#endif
+        }
+
+        /// <summary>SDK listener: fires for refreshed, purchased, and restored CustomerInfo.</summary>
+        public override void CustomerInfoReceived(Purchases.CustomerInfo customerInfo) => Apply(customerInfo);
+
+        private void RefreshCustomerInfo()
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            _purchases.GetCustomerInfo((info, error) =>
+            {
+                if (error != null)
+                {
+                    // Offline is not fatal. RevenueCat normally returns its
+                    // cached CustomerInfo; the ten free rounds remain usable
+                    // if no usable response exists.
+                    Debug.LogWarning($"[SavePeps] RevenueCat customer info failed: {error.Message}");
                     return;
                 }
 
                 Apply(info);
             });
-#else
-            Debug.Log("[SavePeps] RevenueCat is unavailable here; treating the player as not subscribed.");
-            IsSubscribed = false;
 #endif
         }
-
-#if SAVEPEPS_REVENUECAT
-        /// <summary>SDK callback: fires on purchase, restore, renewal and lapse.</summary>
-        public void OnCustomerInfoUpdated(Purchases.CustomerInfo info) => Apply(info);
 
         private void Apply(Purchases.CustomerInfo info)
         {
             var active = info != null
-                         && info.Entitlements.Active.ContainsKey(Entitlements.PepsUnlimited);
+                         && info.Entitlements?.Active != null
+                         && info.Entitlements.Active.ContainsKey(Entitlements.FullGame);
 
-            if (active == IsSubscribed) return;
-            IsSubscribed = active;
+            if (active == HasFullGame) return;
+            HasFullGame = active;
+            Debug.Log($"[SavePeps] Full-game entitlement active: {HasFullGame}.");
             Changed?.Invoke();
         }
-#endif
+
+        private void SetBusy(bool value)
+        {
+            if (Busy == value) return;
+            Busy = value;
+            StoreChanged?.Invoke();
+        }
     }
 }

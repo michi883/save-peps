@@ -192,7 +192,10 @@ namespace SavePeps.UI
             if (_soundPanel != null) _soundPanel.color = sound ? On : Off;
             if (_soundLabel != null) _soundLabel.text = sound ? "SOUND ON" : "SOUND OFF";
             if (_hapticsPanel != null) _hapticsPanel.color = haptics ? On : Off;
-            if (_hapticsLabel != null) _hapticsLabel.text = haptics ? "BUZZ ON" : "BUZZ OFF";
+            if (_hapticsLabel != null)
+            {
+                _hapticsLabel.text = haptics ? "VIBRATION ON" : "VIBRATION OFF";
+            }
         }
 
         private IEnumerator RiseRoutine()

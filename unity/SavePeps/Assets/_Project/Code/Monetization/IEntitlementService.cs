@@ -14,10 +14,10 @@ namespace SavePeps.Monetization
     /// </summary>
     public interface IEntitlementService
     {
-        /// <summary>True while the peps_unlimited entitlement is active.</summary>
-        bool IsSubscribed { get; }
+        /// <summary>True while RevenueCat reports the full-game entitlement as active.</summary>
+        bool HasFullGame { get; }
 
-        /// <summary>Fires when entitlement changes — purchase, restore, or lapse.</summary>
+        /// <summary>Fires when entitlement changes — purchase, restore, or a refreshed receipt.</summary>
         event Action Changed;
 
         /// <summary>Begins fetching state. Safe to call once at boot.</summary>
@@ -27,6 +27,12 @@ namespace SavePeps.Monetization
     public static class Entitlements
     {
         /// <summary>The single entitlement id, as configured in RevenueCat.</summary>
-        public const string PepsUnlimited = "peps_unlimited";
+        public const string FullGame = "save_peps_pro";
+    }
+
+    public static class StoreProducts
+    {
+        /// <summary>The single Google Play non-consumable attached to the full-game entitlement.</summary>
+        public const string Lifetime = "lifetime";
     }
 }

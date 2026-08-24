@@ -37,50 +37,50 @@ namespace SavePeps.Tests
         }
 
         [Test]
-        public void FreeRoundsPlayWithoutASubscription()
+        public void FreeRoundsPlayWithoutTheFullGameUnlock()
         {
             for (var round = 1; round <= 10; round++)
             {
                 Assert.IsTrue(
-                    Access.CanPlay(_catalog, round, highestUnlocked: 12, subscribed: false),
+                    Access.CanPlay(_catalog, round, highestUnlocked: 12, hasFullGame: false),
                     $"Round {round} is inside the free block and must be playable.");
             }
         }
 
         [Test]
-        public void TheFirstPaidRoundIsBlockedWithoutASubscription()
+        public void TheFirstPaidRoundIsBlockedWithoutTheFullGameUnlock()
         {
-            Assert.IsFalse(Access.CanPlay(_catalog, 11, highestUnlocked: 12, subscribed: false));
+            Assert.IsFalse(Access.CanPlay(_catalog, 11, highestUnlocked: 12, hasFullGame: false));
         }
 
         [Test]
-        public void PaidRoundsPlayWithASubscription()
+        public void PaidRoundsPlayWithTheFullGameUnlock()
         {
-            Assert.IsTrue(Access.CanPlay(_catalog, 11, highestUnlocked: 12, subscribed: true));
-            Assert.IsTrue(Access.CanPlay(_catalog, 12, highestUnlocked: 12, subscribed: true));
+            Assert.IsTrue(Access.CanPlay(_catalog, 11, highestUnlocked: 12, hasFullGame: true));
+            Assert.IsTrue(Access.CanPlay(_catalog, 12, highestUnlocked: 12, hasFullGame: true));
         }
 
         [Test]
-        public void SubscriberCanChooseAnyExistingRoundImmediately()
+        public void FullGameOwnerCanChooseAnyExistingRoundImmediately()
         {
-            Assert.IsTrue(Access.CanPlay(_catalog, 5, highestUnlocked: 1, subscribed: true));
-            Assert.IsTrue(Access.CanPlay(_catalog, 12, highestUnlocked: 1, subscribed: true));
+            Assert.IsTrue(Access.CanPlay(_catalog, 5, highestUnlocked: 1, hasFullGame: true));
+            Assert.IsTrue(Access.CanPlay(_catalog, 12, highestUnlocked: 1, hasFullGame: true));
         }
 
         [Test]
         public void RoundsBeyondTheCatalogAreNeverPlayable()
         {
-            Assert.IsFalse(Access.CanPlay(_catalog, 13, highestUnlocked: 99, subscribed: true));
-            Assert.IsFalse(Access.CanPlay(_catalog, 0, highestUnlocked: 99, subscribed: true));
+            Assert.IsFalse(Access.CanPlay(_catalog, 13, highestUnlocked: 99, hasFullGame: true));
+            Assert.IsFalse(Access.CanPlay(_catalog, 0, highestUnlocked: 99, hasFullGame: true));
         }
 
         [Test]
-        public void ALapsedSubscriptionRelocksPaidRounds()
+        public void LosingTheEntitlementRelocksPaidRounds()
         {
-            Assert.IsTrue(Access.CanPlay(_catalog, 11, 12, subscribed: true));
-            Assert.IsFalse(Access.CanPlay(_catalog, 11, 12, subscribed: false),
-                "A lapsed subscriber must lose the paid rounds and keep the free ones.");
-            Assert.IsTrue(Access.CanPlay(_catalog, 10, 12, subscribed: false));
+            Assert.IsTrue(Access.CanPlay(_catalog, 11, 12, hasFullGame: true));
+            Assert.IsFalse(Access.CanPlay(_catalog, 11, 12, hasFullGame: false),
+                "A missing entitlement must relock paid rounds and keep the free ones.");
+            Assert.IsTrue(Access.CanPlay(_catalog, 10, 12, hasFullGame: false));
         }
 
         [Test]
@@ -89,34 +89,34 @@ namespace SavePeps.Tests
             // D3: FreeRoundCount is the release-week lever if content slips.
             _catalog.FreeRoundCount = 8;
 
-            Assert.IsTrue(Access.CanPlay(_catalog, 8, 12, subscribed: false));
-            Assert.IsFalse(Access.CanPlay(_catalog, 9, 12, subscribed: false));
+            Assert.IsTrue(Access.CanPlay(_catalog, 8, 12, hasFullGame: false));
+            Assert.IsFalse(Access.CanPlay(_catalog, 9, 12, hasFullGame: false));
         }
 
         [Test]
-        public void PaywallShowsOnlyWhenTheSubscriptionIsWhatIsMissing()
+        public void PaywallShowsOnlyWhenTheFullGameEntitlementIsMissing()
         {
-            // Reached, paid, not subscribed: this is the sales moment.
-            Assert.IsTrue(Access.IsPaywalled(_catalog, 11, highestUnlocked: 11, subscribed: false));
+            // Reached, paid, not owned: this is the sales moment.
+            Assert.IsTrue(Access.IsPaywalled(_catalog, 11, highestUnlocked: 11, hasFullGame: false));
 
-            // Subscription bypasses sequential progression, so a premium
-            // round in the picker is genuinely a subscription opportunity
+            // Full-game ownership bypasses sequential progression, so a
+            // premium picker tile is genuinely a purchase opportunity
             // even when the free path has not reached it yet.
-            Assert.IsTrue(Access.IsPaywalled(_catalog, 11, highestUnlocked: 5, subscribed: false));
+            Assert.IsTrue(Access.IsPaywalled(_catalog, 11, highestUnlocked: 5, hasFullGame: false));
 
             // Free round, and past the end of the catalogue: never a paywall.
-            Assert.IsFalse(Access.IsPaywalled(_catalog, 4, highestUnlocked: 11, subscribed: false));
-            Assert.IsFalse(Access.IsPaywalled(_catalog, 13, highestUnlocked: 99, subscribed: false));
+            Assert.IsFalse(Access.IsPaywalled(_catalog, 4, highestUnlocked: 11, hasFullGame: false));
+            Assert.IsFalse(Access.IsPaywalled(_catalog, 13, highestUnlocked: 99, hasFullGame: false));
         }
 
         [Test]
-        public void AccessStateDistinguishesProgressFromSubscriptionLocks()
+        public void AccessStateDistinguishesProgressFromFullGameLocks()
         {
-            Assert.AreEqual(RoundAccess.Playable, Access.State(_catalog, 2, 3, subscribed: false));
-            Assert.AreEqual(RoundAccess.ProgressLocked, Access.State(_catalog, 4, 3, subscribed: false));
-            Assert.AreEqual(RoundAccess.SubscriptionLocked, Access.State(_catalog, 11, 3, subscribed: false));
-            Assert.AreEqual(RoundAccess.Playable, Access.State(_catalog, 11, 1, subscribed: true));
-            Assert.AreEqual(RoundAccess.Missing, Access.State(_catalog, 13, 99, subscribed: true));
+            Assert.AreEqual(RoundAccess.Playable, Access.State(_catalog, 2, 3, hasFullGame: false));
+            Assert.AreEqual(RoundAccess.ProgressLocked, Access.State(_catalog, 4, 3, hasFullGame: false));
+            Assert.AreEqual(RoundAccess.FullGameLocked, Access.State(_catalog, 11, 3, hasFullGame: false));
+            Assert.AreEqual(RoundAccess.Playable, Access.State(_catalog, 11, 1, hasFullGame: true));
+            Assert.AreEqual(RoundAccess.Missing, Access.State(_catalog, 13, 99, hasFullGame: true));
         }
 
         /// <summary>
@@ -127,24 +127,24 @@ namespace SavePeps.Tests
         [Test]
         public void RoundOneIsAlwaysPlayable()
         {
-            // A fresh save, a finished save, subscribed or not.
+            // A fresh save, a finished save, full-game owner or not.
             foreach (var unlocked in new[] { 1, 5, 12 })
-            foreach (var subscribed in new[] { true, false })
+            foreach (var hasFullGame in new[] { true, false })
             {
-                Assert.IsTrue(Access.CanPlay(_catalog, 1, unlocked, subscribed),
-                    $"Round 1 must stay playable (unlocked {unlocked}, subscribed {subscribed}).");
+                Assert.IsTrue(Access.CanPlay(_catalog, 1, unlocked, hasFullGame),
+                    $"Round 1 must stay playable (unlocked {unlocked}, full game {hasFullGame}).");
             }
 
             // Even if the gate were moved to its most aggressive setting.
             _catalog.FreeRoundCount = 1;
-            Assert.IsTrue(Access.CanPlay(_catalog, 1, 12, subscribed: false));
+            Assert.IsTrue(Access.CanPlay(_catalog, 1, 12, hasFullGame: false));
         }
 
         [Test]
         public void ANullCatalogDeniesRatherThanThrows()
         {
-            Assert.IsFalse(Access.CanPlay(null, 1, 1, subscribed: true));
-            Assert.IsFalse(Access.IsPaywalled(null, 1, 1, subscribed: false));
+            Assert.IsFalse(Access.CanPlay(null, 1, 1, hasFullGame: true));
+            Assert.IsFalse(Access.IsPaywalled(null, 1, 1, hasFullGame: false));
         }
     }
 }

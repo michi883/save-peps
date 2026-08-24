@@ -59,6 +59,20 @@ namespace SavePeps.Tests
         }
 
         [UnityTest]
+        public IEnumerator HomeExposesReleaseLegalLinks()
+        {
+            yield return LoadGameScene();
+
+            var menu = Object.FindFirstObjectByType<GameMenu>();
+            Assert.IsNotNull(menu, "The Game scene has no GameMenu.");
+
+            var privacy = Find(menu, "Privacy");
+            var terms = Find(menu, "Terms");
+            Assert.AreEqual("Privacy", privacy.GetComponentInChildren<Text>().text);
+            Assert.AreEqual("Terms", terms.GetComponentInChildren<Text>().text);
+        }
+
+        [UnityTest]
         public IEnumerator ProgressOpensFromPauseAndBackReturnsToIt()
         {
             var save = SaveData.Fresh();
@@ -151,9 +165,13 @@ namespace SavePeps.Tests
             yield return null;
 
             Assert.IsTrue(flow.Save.SoundMuted, "The sound toggle should write to the save.");
-            Assert.IsTrue(flow.Save.HapticsOff, "The buzz toggle should write to the save.");
+            Assert.IsTrue(flow.Save.HapticsOff, "The vibration toggle should write to the save.");
             Assert.IsFalse(feedback.SoundEnabled, "A muted save must reach the audio layer.");
-            Assert.IsFalse(feedback.HapticsAllowed, "A buzz-off save must reach the haptics layer.");
+            Assert.IsFalse(feedback.HapticsAllowed, "A vibration-off save must reach the haptics layer.");
+
+            var vibrationLabel = Find(pause, "Haptics").GetComponentInChildren<Text>();
+            Assert.AreEqual("VIBRATION OFF", vibrationLabel.text,
+                "The setting should name the physical effect instead of calling it buzz.");
 
             var reloaded = SaveStore.Load();
             Assert.IsTrue(reloaded.SoundMuted, "Settings should survive a restart.");

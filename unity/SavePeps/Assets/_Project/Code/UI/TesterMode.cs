@@ -13,8 +13,9 @@ namespace SavePeps.UI
     ///
     /// Tester Tools answers three questions with zero fluff:
     /// 1. Where do I want to go? (GO TO: Round & Rescue -> PLAY RESCUE)
-    /// 2. Do I want to test Free or Peps Unlimited? (ACCESS: FREE | PEPS UNLIMITED)
-    /// 3. Do I want to erase my progress? (PROFILE: CLEAR ALL PROGRESS)
+    /// 2. Do I want to test Free or Full Game? (ACCESS: FREE | FULL GAME)
+    /// 3. What is the real store reporting? (PURCHASE: unlock UI + diagnostics)
+    /// 4. Do I want to erase my progress? (PROFILE: CLEAR ALL PROGRESS)
     /// </summary>
     public sealed class TesterMode : MonoBehaviour
     {
@@ -48,9 +49,13 @@ namespace SavePeps.UI
 
         [Header("Access")]
         [SerializeField] private Button _freeButton;
-        [SerializeField] private Button _unlimitedButton;
+        [SerializeField] private Button _fullGameButton;
         [SerializeField] private Text _freeLabel;
-        [SerializeField] private Text _unlimitedLabel;
+        [SerializeField] private Text _fullGameLabel;
+
+        [Header("Purchase")]
+        [SerializeField] private Button _openUnlockButton;
+        [SerializeField] private Text _purchaseDiagnostics;
 
         [Header("Profile")]
         [SerializeField] private Button _clearProgressButton;
@@ -85,8 +90,11 @@ namespace SavePeps.UI
         private float _confirmExpiresTime;
         private float _nextPaint;
 
-        /// <summary>Available across environments so the secret 7-tap command works reliably.</summary>
-        public static bool Available => true;
+        /// <summary>
+        /// QA shortcuts must never ship in a release player: Tester Mode can
+        /// bypass both progression and the store-backed access decision.
+        /// </summary>
+        public static bool Available => Application.isEditor || Debug.isDebugBuild;
 
         /// <summary>Session-only; deliberately false on every process start.</summary>
         public bool Active => Available && _active;
@@ -95,6 +103,7 @@ namespace SavePeps.UI
         public int SelectedRound => _selectedRound;
         public int SelectedRescueIndex => _selectedRescue;
         public string HomePlayLabel => "PLAY";
+        public string PurchaseDiagnostics => _purchaseDiagnostics != null ? _purchaseDiagnostics.text : null;
 
         public bool TryGetPlayTarget(out int round, out int rescueIndex)
         {
@@ -125,8 +134,9 @@ namespace SavePeps.UI
             _closeButton?.onClick.AddListener(RequestClose);
             _exitModeButton?.onClick.AddListener(Deactivate);
             _playRescueButton?.onClick.AddListener(PlayRescue);
-            _freeButton?.onClick.AddListener(() => SetSubscribed(false));
-            _unlimitedButton?.onClick.AddListener(() => SetSubscribed(true));
+            _freeButton?.onClick.AddListener(() => SetFullGame(false));
+            _fullGameButton?.onClick.AddListener(() => SetFullGame(true));
+            _openUnlockButton?.onClick.AddListener(OpenUnlockScreen);
             _clearProgressButton?.onClick.AddListener(HandleClearProgressClicked);
             _cancelClearButton?.onClick.AddListener(CancelClearProgress);
 
@@ -289,12 +299,27 @@ namespace SavePeps.UI
 
         private void SelectRescue(int index) => SelectTarget(_selectedRound, index);
 
-        private void SetSubscribed(bool subscribed)
+        private void SetFullGame(bool unlocked)
         {
             if (!Active || _fakeEntitlements == null) return;
-            _fakeEntitlements.SetSubscribed(subscribed);
-            Debug.Log($"[SavePeps] Tester entitlement set to: {(subscribed ? "Peps Unlimited" : "Free")}.");
+            _fakeEntitlements.SetFullGameUnlocked(unlocked);
+            Debug.Log($"[SavePeps] Tester entitlement set to: {(unlocked ? "Full Game" : "Free")}.");
             Paint();
+        }
+
+        private void OpenUnlockScreen()
+        {
+            if (!Active || _busy || _flow == null) return;
+
+            _confirmingClear = false;
+            HidePanel();
+            SetVisible(_indicatorRoot, false);
+            if (!_flow.TesterOpenUnlockScreen(ReturnFromUnlockScreen)) Open();
+        }
+
+        private void ReturnFromUnlockScreen()
+        {
+            if (Active) Open();
         }
 
         private void HandleClearProgressClicked()
@@ -354,25 +379,40 @@ namespace SavePeps.UI
                 _goToSelectionSummary.text = $"ROUND {_selectedRound} · RESCUE {_selectedRescue + 1}{rescueName}";
             }
 
-            var isSubscribed = _fakeEntitlements is { IsSubscribed: true };
+            var hasFullGame = _fakeEntitlements is { HasFullGame: true };
             if (_freeButton != null)
             {
                 _freeButton.interactable = _fakeEntitlements != null;
-                PaintButton(_freeButton, !isSubscribed ? ActiveAccess : InactiveAccess);
+                PaintButton(_freeButton, !hasFullGame ? ActiveAccess : InactiveAccess);
             }
             if (_freeLabel != null)
             {
-                _freeLabel.color = !isSubscribed ? Ink : new Color(Ink.r, Ink.g, Ink.b, 0.75f);
+                _freeLabel.color = !hasFullGame ? Ink : new Color(Ink.r, Ink.g, Ink.b, 0.75f);
             }
 
-            if (_unlimitedButton != null)
+            if (_fullGameButton != null)
             {
-                _unlimitedButton.interactable = _fakeEntitlements != null;
-                PaintButton(_unlimitedButton, isSubscribed ? ActiveAccess : InactiveAccess);
+                _fullGameButton.interactable = _fakeEntitlements != null;
+                PaintButton(_fullGameButton, hasFullGame ? ActiveAccess : InactiveAccess);
             }
-            if (_unlimitedLabel != null)
+            if (_fullGameLabel != null)
             {
-                _unlimitedLabel.color = isSubscribed ? Ink : new Color(Ink.r, Ink.g, Ink.b, 0.75f);
+                _fullGameLabel.color = hasFullGame ? Ink : new Color(Ink.r, Ink.g, Ink.b, 0.75f);
+            }
+
+            if (_openUnlockButton != null) _openUnlockButton.interactable = _flow != null;
+            if (_purchaseDiagnostics != null)
+            {
+                var owned = _flow is { TesterStoreOwned: true } ? "OWNED" : "FREE";
+                var product = _flow is { TesterStoreProductReady: true } ? "AVAILABLE" : "MISSING";
+                var price = !string.IsNullOrWhiteSpace(_flow?.TesterStorePrice)
+                    ? _flow.TesterStorePrice
+                    : "—";
+                _purchaseDiagnostics.text =
+                    $"Billing: {_flow?.TesterBilling ?? "Test Store"}\n" +
+                    $"Entitlement: {owned}\n" +
+                    $"Product: {product}\n" +
+                    $"Price: {price}";
             }
 
             if (_clearProgressButton != null)

@@ -23,8 +23,8 @@ namespace SavePeps.Progression
     /// Everything that survives an app restart.
     ///
     /// Deliberately absent: entitlement. RevenueCat's CustomerInfo is the only
-    /// source of truth for whether a player is subscribed, and its own cache
-    /// already covers offline launches. Writing "is subscribed" into a
+    /// source of truth for whether a player owns the full game, and its own
+    /// cache already covers offline launches. Writing "owns full game" into a
     /// user-writable JSON file in persistentDataPath would be both a
     /// correctness bug and a paywall anyone can defeat with a text editor.
     ///

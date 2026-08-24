@@ -46,7 +46,7 @@ namespace SavePeps.Tests
             Assert.IsFalse(tester.Active);
             Assert.IsFalse(tester.Visible);
             Assert.IsNull(GameObject.Find("TesterIndicator"));
-            Assert.AreEqual(RoundAccess.SubscriptionLocked, flow.AccessFor(12));
+            Assert.AreEqual(RoundAccess.FullGameLocked, flow.AccessFor(12));
 
             SubmitSecretSequence();
             Assert.IsTrue(tester.Active);
@@ -72,7 +72,7 @@ namespace SavePeps.Tests
             Assert.IsFalse(tester.Active);
             Assert.IsNull(GameObject.Find("TesterIndicator"));
             Assert.AreEqual("PLAY", ButtonNamed("Play").GetComponentInChildren<UnityEngine.UI.Text>().text);
-            Assert.AreEqual(RoundAccess.SubscriptionLocked, flow.AccessFor(12));
+            Assert.AreEqual(RoundAccess.FullGameLocked, flow.AccessFor(12));
         }
 
         [UnityTest]
@@ -119,7 +119,7 @@ namespace SavePeps.Tests
             var router = Object.FindFirstObjectByType<TapRouter>();
             var tester = Object.FindFirstObjectByType<TesterMode>();
 
-            Assert.AreEqual(RoundAccess.SubscriptionLocked, flow.AccessFor(12));
+            Assert.AreEqual(RoundAccess.FullGameLocked, flow.AccessFor(12));
             SubmitSecretSequence();
             Assert.IsTrue(tester.Active);
 
@@ -156,7 +156,7 @@ namespace SavePeps.Tests
         }
 
         [UnityTest]
-        public IEnumerator ChooseRoundRespectsSimulatedEntitlementUnderFreeAndUnlimited()
+        public IEnumerator ChooseRoundRespectsSimulatedEntitlementUnderFreeAndFullGame()
         {
             yield return LoadGameScene();
 
@@ -164,12 +164,13 @@ namespace SavePeps.Tests
             var fake = Object.FindFirstObjectByType<FakeEntitlementService>();
             var menu = Object.FindFirstObjectByType<GameMenu>();
             var tester = Object.FindFirstObjectByType<TesterMode>();
+            var unlock = Object.FindFirstObjectByType<FullGameUnlockPanel>();
 
             SubmitSecretSequence();
             Assert.IsTrue(tester.Active);
 
             // 1. FREE simulated entitlement
-            fake.SetSubscribed(false);
+            fake.SetFullGameUnlocked(false);
             flow.ShowRoundPickerFromHome();
             yield return null;
 
@@ -182,27 +183,32 @@ namespace SavePeps.Tests
             }
             for (var i = 10; i < 12; i++)
             {
-                Assert.AreEqual(RoundAccess.SubscriptionLocked, menu.Items[i].AccessState,
-                    $"Round {i + 1} should be SubscriptionLocked under FREE in Tester Mode.");
-                Assert.IsFalse(menu.Items[i].Interactable,
-                    $"Round {i + 1} should not be interactable under FREE in Tester Mode.");
+                Assert.AreEqual(RoundAccess.FullGameLocked, menu.Items[i].AccessState,
+                    $"Round {i + 1} should be FullGameLocked under FREE in Tester Mode.");
+                Assert.IsTrue(menu.Items[i].Interactable,
+                    $"Round {i + 1} should open the unlock screen under FREE in Tester Mode.");
             }
 
-            // Tapping locked round does not dismiss or get stuck
+            // Tapping a full-game round keeps the picker behind a dedicated unlock card.
             menu.Items[11].Select();
             yield return null;
             Assert.IsTrue(menu.PickerVisible);
+            Assert.IsTrue(unlock.Visible);
+            Assert.AreEqual("Unlock Full Game · TEST PRICE", unlock.PrimaryLabel);
             Assert.AreEqual(0, flow.CurrentRound);
 
-            // 2. PEPS UNLIMITED simulated entitlement
-            fake.SetSubscribed(true);
+            flow.HandleBack();
+            yield return WaitUntil(() => !unlock.Visible, 2f);
+
+            // 2. FULL GAME simulated entitlement
+            fake.SetFullGameUnlocked(true);
             yield return null;
 
             Assert.AreEqual(12, menu.Items.Count);
             for (var i = 0; i < 12; i++)
             {
                 Assert.AreEqual(RoundAccess.Playable, menu.Items[i].AccessState,
-                    $"Round {i + 1} should be Playable under PEPS UNLIMITED in Tester Mode.");
+                    $"Round {i + 1} should be Playable under FULL GAME in Tester Mode.");
                 Assert.IsTrue(menu.Items[i].Interactable);
             }
         }
@@ -278,7 +284,7 @@ namespace SavePeps.Tests
             var fake = Object.FindFirstObjectByType<FakeEntitlementService>();
             var menu = Object.FindFirstObjectByType<GameMenu>();
 
-            fake.SetSubscribed(true);
+            fake.SetFullGameUnlocked(true);
             flow.TesterApplyProfile(TesterProfilePreset.AllPerfect);
             Assert.AreEqual(36, flow.Save.TotalRescuesSolved);
 
@@ -289,7 +295,7 @@ namespace SavePeps.Tests
             Assert.AreEqual(1, flow.Save.HighestUnlockedRound);
             Assert.AreEqual(0, flow.Save.LastPlayedRound);
             Assert.AreEqual(0, flow.Save.TotalRescuesSolved);
-            Assert.IsTrue(fake.IsSubscribed,
+            Assert.IsTrue(fake.HasFullGame,
                 "Local-profile reset must not rewrite the entitlement service.");
 
             var reloaded = SaveStore.Load();
@@ -307,7 +313,7 @@ namespace SavePeps.Tests
             var runner = Object.FindFirstObjectByType<RescueRunner>();
             var menu = Object.FindFirstObjectByType<GameMenu>();
 
-            Assert.AreEqual(RoundAccess.SubscriptionLocked, flow.AccessFor(12));
+            Assert.AreEqual(RoundAccess.FullGameLocked, flow.AccessFor(12));
             Assert.IsTrue(flow.TesterJumpTo(12, 2));
             yield return WaitUntil(() => runner.AwaitingChoice, 8f);
             Assert.IsNotNull(runner.Current);
@@ -318,7 +324,7 @@ namespace SavePeps.Tests
             Assert.IsTrue(menu.HomeVisible);
             Assert.IsNull(runner.Current);
             Assert.IsFalse(flow.TesterPreviewActive);
-            Assert.AreEqual(RoundAccess.SubscriptionLocked, flow.AccessFor(12));
+            Assert.AreEqual(RoundAccess.FullGameLocked, flow.AccessFor(12));
         }
 
         [UnityTest]
@@ -347,7 +353,7 @@ namespace SavePeps.Tests
         }
 
         [UnityTest]
-        public IEnumerator AccessToggleSwitchesFreeAndUnlimitedImmediately()
+        public IEnumerator AccessToggleSwitchesFreeAndFullGameImmediately()
         {
             yield return LoadGameScene();
 
@@ -358,14 +364,52 @@ namespace SavePeps.Tests
             Assert.IsTrue(tester.Active);
             Assert.IsTrue(tester.Visible);
 
-            Click("TesterUnlimited");
-            Assert.IsTrue(fake.IsSubscribed);
+            Click("TesterFullGame");
+            Assert.IsTrue(fake.HasFullGame);
 
             Click("TesterFree");
-            Assert.IsFalse(fake.IsSubscribed);
+            Assert.IsFalse(fake.HasFullGame);
 
-            Click("TesterUnlimited");
-            Assert.IsTrue(fake.IsSubscribed);
+            Click("TesterFullGame");
+            Assert.IsTrue(fake.HasFullGame);
+        }
+
+        [UnityTest]
+        public IEnumerator PurchaseToolOpensProductionUnlockWithoutChangingSimulationOrProgress()
+        {
+            yield return LoadGameScene();
+
+            var flow = Object.FindFirstObjectByType<GameFlow>();
+            var tester = Object.FindFirstObjectByType<TesterMode>();
+            var fake = Object.FindFirstObjectByType<FakeEntitlementService>();
+            var unlock = Object.FindFirstObjectByType<FullGameUnlockPanel>();
+
+            SubmitSecretSequence();
+            fake.SetFullGameUnlocked(true);
+            var solved = flow.Save.TotalRescuesSolved;
+            var highest = flow.Save.HighestUnlockedRound;
+
+            yield return null;
+            StringAssert.Contains("Billing: Test Store", tester.PurchaseDiagnostics);
+            StringAssert.Contains("Entitlement: FREE", tester.PurchaseDiagnostics,
+                "Diagnostics must read the device service, not the fake ACCESS toggle.");
+            StringAssert.Contains("Product: MISSING", tester.PurchaseDiagnostics);
+
+            Click("TesterOpenUnlock");
+            yield return null;
+
+            Assert.IsFalse(tester.Visible);
+            Assert.IsTrue(unlock.Visible);
+            Assert.AreEqual("Unlock Full Game · TEST PRICE", unlock.PrimaryLabel);
+            Assert.IsTrue(fake.HasFullGame, "Opening purchase UI must not rewrite ACCESS simulation.");
+            Assert.AreEqual(solved, flow.Save.TotalRescuesSolved);
+            Assert.AreEqual(highest, flow.Save.HighestUnlockedRound);
+
+            Click("UnlockClose");
+            yield return WaitUntil(() => tester.Visible, 2f);
+            Assert.IsFalse(unlock.Visible);
+            Assert.IsTrue(fake.HasFullGame);
+            Assert.AreEqual(solved, flow.Save.TotalRescuesSolved);
         }
 
         [UnityTest]
@@ -408,12 +452,13 @@ namespace SavePeps.Tests
             var menu = Object.FindFirstObjectByType<GameMenu>();
             var tester = Object.FindFirstObjectByType<TesterMode>();
             var fake = Object.FindFirstObjectByType<FakeEntitlementService>();
+            var unlock = Object.FindFirstObjectByType<FullGameUnlockPanel>();
 
             // Ensure Tester Mode is NOT active (normal User Mode)
             Assert.IsFalse(tester.Active);
 
-            // 1. Free user with a fresh save: Round 1 playable, 2-10 progress locked, 11-12 subscription locked
-            fake.SetSubscribed(false);
+            // 1. Free user: R1 playable, R2-10 progression locked, R11-12 lead to the unlock card.
+            fake.SetFullGameUnlocked(false);
             flow.ShowRoundPickerFromHome();
             yield return null;
 
@@ -430,22 +475,26 @@ namespace SavePeps.Tests
 
             for (var i = 10; i < 12; i++)
             {
-                Assert.AreEqual(RoundAccess.SubscriptionLocked, menu.Items[i].AccessState,
-                    $"Round {i + 1} should be SubscriptionLocked for free user.");
-                Assert.IsFalse(menu.Items[i].Interactable);
+                Assert.AreEqual(RoundAccess.FullGameLocked, menu.Items[i].AccessState,
+                    $"Round {i + 1} should be FullGameLocked for a free user.");
+                Assert.IsTrue(menu.Items[i].Interactable);
             }
 
-            // Normal PlayRound(12) is blocked by production gating and sets pending round
-            flow.PlayRound(12);
+            // The real picker callback opens the minimal card with a price supplied by the store.
+            menu.Items[11].Select();
             yield return null;
             Assert.AreEqual(0, flow.CurrentRound);
+            Assert.IsTrue(unlock.Visible);
+            Assert.AreEqual("Unlock Full Game · TEST PRICE", unlock.PrimaryLabel);
 
-            // 2. Real Peps Unlimited purchase: auto-launches pending Round 12
-            fake.SetSubscribed(true);
+            // 2. The fake purchase follows the same entitlement callback and launches pending R12.
+            Click("UnlockPurchase");
             yield return null;
             Assert.AreEqual(12, flow.CurrentRound);
+            Assert.IsTrue(fake.HasFullGame);
+            Assert.IsFalse(unlock.Visible);
 
-            // 3. Opening picker as a subscriber: all 12 rounds playable and interactable immediately
+            // 3. Opening picker as an owner: all 12 rounds are immediately available.
             flow.ShowRoundPickerFromHome();
             yield return null;
 
@@ -453,14 +502,80 @@ namespace SavePeps.Tests
             for (var i = 0; i < 12; i++)
             {
                 Assert.AreEqual(RoundAccess.Playable, menu.Items[i].AccessState,
-                    $"Round {i + 1} should be Playable for subscriber.");
+                    $"Round {i + 1} should be Playable for a full-game owner.");
                 Assert.IsTrue(menu.Items[i].Interactable);
             }
 
-            // Subscriber can play any round (e.g. Round 6) immediately
+            // A full-game owner can play any round (e.g. Round 6) immediately.
             menu.Items[5].Select();
             yield return null;
             Assert.AreEqual(6, flow.CurrentRound);
+        }
+
+        [UnityTest]
+        public IEnumerator UnlockCancellationAndErrorsStayCalmAndRecoverable()
+        {
+            yield return LoadGameScene();
+
+            var flow = Object.FindFirstObjectByType<GameFlow>();
+            var menu = Object.FindFirstObjectByType<GameMenu>();
+            var fake = Object.FindFirstObjectByType<FakeEntitlementService>();
+            var unlock = Object.FindFirstObjectByType<FullGameUnlockPanel>();
+
+            flow.ShowRoundPickerFromHome();
+            yield return null;
+
+            fake.SetNextPurchaseResult(FullGameStoreResult.Cancelled);
+            menu.Items[10].Select();
+            yield return null;
+            Click("UnlockPurchase");
+            yield return WaitUntil(() => !unlock.Visible, 2f);
+
+            Assert.IsTrue(menu.PickerVisible, "Cancelling should simply return to the picker.");
+            Assert.IsFalse(fake.HasFullGame);
+            Assert.AreEqual(0, flow.CurrentRound);
+
+            fake.SetNextPurchaseResult(FullGameStoreResult.Failed);
+            menu.Items[10].Select();
+            yield return null;
+            Click("UnlockPurchase");
+            yield return null;
+
+            Assert.IsTrue(unlock.Visible, "A store error should leave a usable unlock card on screen.");
+            Assert.AreEqual("Couldn’t complete that. Please try again.", unlock.Status);
+            Assert.IsTrue(ButtonNamed("UnlockPurchase").interactable);
+
+            Click("UnlockRestore");
+            yield return null;
+            Assert.AreEqual("No purchase found for this Google Play account.", unlock.Status);
+            Assert.IsFalse(fake.HasFullGame);
+        }
+
+        [UnityTest]
+        public IEnumerator RestoreRecoversStoreOwnershipAndStartsThePendingRound()
+        {
+            yield return LoadGameScene();
+
+            var flow = Object.FindFirstObjectByType<GameFlow>();
+            var menu = Object.FindFirstObjectByType<GameMenu>();
+            var fake = Object.FindFirstObjectByType<FakeEntitlementService>();
+            var unlock = Object.FindFirstObjectByType<FullGameUnlockPanel>();
+
+            fake.SetFullGameUnlocked(false);
+            fake.SetRestorableFullGame(true);
+            flow.ShowRoundPickerFromHome();
+            yield return null;
+
+            menu.Items[10].Select();
+            yield return null;
+            Assert.IsTrue(unlock.Visible);
+
+            Click("UnlockRestore");
+            yield return null;
+
+            Assert.IsTrue(fake.HasFullGame);
+            Assert.IsFalse(unlock.Visible);
+            Assert.AreEqual(11, flow.CurrentRound);
         }
 
         private static IEnumerator LoadGameScene()

@@ -85,7 +85,7 @@ namespace SavePeps.Progression
             if (data.SchemaVersion > SaveData.CurrentSchemaVersion)
             {
                 // Downgrade: keep what parsed and carry on rather than wiping
-                // a subscriber's progress because they rolled back a build.
+                // a full-game owner's progress because they rolled back a build.
                 Debug.LogWarning(
                     $"[SavePeps] Save is schema {data.SchemaVersion}, newer than this build's " +
                     $"{SaveData.CurrentSchemaVersion}. Loading it as-is.");

@@ -99,8 +99,8 @@ namespace SavePeps.Tests
             Assert.AreEqual(1, save.LastPlayedRound);
             Assert.IsTrue(save.SoundMuted);
             Assert.AreEqual(firstRun, save.FirstRunUtc);
-            Assert.AreEqual(RoundAccess.SubscriptionLocked,
-                Access.State(_catalog, 11, save.HighestUnlockedRound, subscribed: false),
+            Assert.AreEqual(RoundAccess.FullGameLocked,
+                Access.State(_catalog, 11, save.HighestUnlockedRound, hasFullGame: false),
                 "Unlocking progression must not manufacture entitlement.");
         }
     }

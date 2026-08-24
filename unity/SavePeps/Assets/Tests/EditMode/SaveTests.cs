@@ -87,7 +87,7 @@ namespace SavePeps.Tests
         [Test]
         public void NewerSchemaIsKeptRatherThanWiped()
         {
-            // Rolling a build back must not cost a subscriber their progress.
+            // Rolling a build back must not cost a full-game owner their progress.
             File.WriteAllText(SavePath, "{\"SchemaVersion\":99,\"HighestUnlockedRound\":7}");
 
             var loaded = SaveStore.Load();

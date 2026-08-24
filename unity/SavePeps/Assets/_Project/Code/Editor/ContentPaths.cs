@@ -15,6 +15,7 @@ namespace SavePeps.EditorTools
         public const string CatalogPath = Root + "/Content/Catalog.asset";
 
         public const string GameScenePath = Root + "/Scenes/Game.unity";
+        public const string RevenueCatSettingsPath = "Assets/Settings/RevenueCatSettings.asset";
 
         public const string EnvironmentDir = Root + "/Art/Environments";
         public const string CharacterDir = Root + "/Art/Characters";

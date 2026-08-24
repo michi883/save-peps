@@ -30,6 +30,9 @@ namespace SavePeps.Progression
     /// </summary>
     public sealed class GameMenu : MonoBehaviour
     {
+        private const string PrivacyUrl = "https://michi883.github.io/save-peps/privacy/";
+        private const string TermsUrl = "https://michi883.github.io/save-peps/terms/";
+
         [Header("Home")]
         [SerializeField] private GameObject _homeRoot;
         [SerializeField] private RectTransform _homeTitle;
@@ -39,6 +42,8 @@ namespace SavePeps.Progression
         [SerializeField] private Button _chooseButton;
         [SerializeField] private Button _statButton;
         [SerializeField] private Text _statLabel;
+        [SerializeField] private Button _privacyButton;
+        [SerializeField] private Button _termsButton;
         [SerializeField] private Button _secretHeartButton;
         [SerializeField] private Button _secretGreenPepButton;
         [SerializeField] private Button _secretPinkPepButton;
@@ -81,6 +86,8 @@ namespace SavePeps.Progression
             if (_playButton != null) _playButton.onClick.AddListener(HandlePlay);
             if (_chooseButton != null) _chooseButton.onClick.AddListener(HandleChoose);
             if (_statButton != null) _statButton.onClick.AddListener(HandleStats);
+            if (_privacyButton != null) _privacyButton.onClick.AddListener(HandlePrivacy);
+            if (_termsButton != null) _termsButton.onClick.AddListener(HandleTerms);
             if (_secretHeartButton != null)
                 _secretHeartButton.onClick.AddListener(() => HandleSecretTap(HomeSecretTap.Heart));
             if (_secretGreenPepButton != null)
@@ -132,12 +139,12 @@ namespace SavePeps.Progression
             StartHomeLife();
         }
 
-        public void ShowPicker(Catalog catalog, SaveData save, bool subscribed, bool showHomeDiorama,
+        public void ShowPicker(Catalog catalog, SaveData save, bool hasFullGame, bool showHomeDiorama,
             bool bypassAccess, Action<int> onRoundSelected, Action onBack)
         {
             _onRoundSelected = onRoundSelected;
             _onBack = onBack;
-            BuildItems(catalog, save, subscribed, bypassAccess);
+            BuildItems(catalog, save, hasFullGame, bypassAccess);
             SetVisible(_homeRoot, false);
             RestoreHomeDiorama();
             SetVisible(_homeDiorama, showHomeDiorama);
@@ -176,7 +183,7 @@ namespace SavePeps.Progression
             SetVisible(_secretPinkPepButton != null ? _secretPinkPepButton.gameObject : null, enabled);
         }
 
-        private void BuildItems(Catalog catalog, SaveData save, bool subscribed, bool bypassAccess)
+        private void BuildItems(Catalog catalog, SaveData save, bool hasFullGame, bool bypassAccess)
         {
             foreach (var item in _items)
             {
@@ -194,8 +201,8 @@ namespace SavePeps.Progression
                 var item = Instantiate(_itemTemplate, _pickerContent);
                 item.gameObject.SetActive(true);
                 var access = bypassAccess
-                    ? (subscribed || !catalog.IsPaid(number) ? RoundAccess.Playable : RoundAccess.SubscriptionLocked)
-                    : Access.State(catalog, number, save.HighestUnlockedRound, subscribed);
+                    ? (hasFullGame || !catalog.IsPaid(number) ? RoundAccess.Playable : RoundAccess.FullGameLocked)
+                    : Access.State(catalog, number, save.HighestUnlockedRound, hasFullGame);
                 item.Configure(number, catalog.Round(number), save, access, HandleRoundSelected);
                 _items.Add(item);
             }
@@ -242,6 +249,20 @@ namespace SavePeps.Progression
             _feedback?.Tap();
             StopHomeLife();
             Dismiss(_homeRoot, _onStats);
+        }
+
+        private void HandlePrivacy()
+        {
+            if (_transitioning) return;
+            _feedback?.Tap();
+            Application.OpenURL(PrivacyUrl);
+        }
+
+        private void HandleTerms()
+        {
+            if (_transitioning) return;
+            _feedback?.Tap();
+            Application.OpenURL(TermsUrl);
         }
 
         private void HandleSecretTap(HomeSecretTap tap)
