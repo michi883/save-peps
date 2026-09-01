@@ -8,9 +8,9 @@ namespace SavePeps.EditorTools
     ///
     /// These exist so an authored outcome reads as a timeline — one line per
     /// beat, times in a column — rather than as a wall of object initialisers.
-    /// Until the custom inspector lands (PLAN §5.3) this is the authoring
-    /// surface, and legibility here is the difference between reviewing a gag
-    /// and re-deriving it.
+    /// Reseeding still builds authored outcomes through this surface, and
+    /// legibility here is the difference between reviewing a gag and
+    /// re-deriving it.
     /// </summary>
     public static class Steps
     {

@@ -2,26 +2,33 @@
 
 ## Signing
 
-The upload keystore lives **outside the repo**, at `~/.savepeps/`:
+Keep the upload keystore and its credentials **outside the repository**. The build reads these environment variables:
 
-| File | What |
+| Variable | Value |
 |---|---|
-| `~/.savepeps/upload-keystore.jks` | The upload key. Alias `upload`, RSA 2048, valid 10 000 days. |
-| `~/.savepeps/credentials.env` | The passwords, `chmod 600`. |
+| `SAVEPEPS_KEYSTORE` | Absolute path to the upload keystore |
+| `SAVEPEPS_KEYSTORE_PASS` | Keystore password |
+| `SAVEPEPS_KEYALIAS` | Upload-key alias |
+| `SAVEPEPS_KEYALIAS_PASS` | Alias password |
 
-Put both in a password manager now. The keystore is not in git and never should be — `.gitignore` blocks `*.jks` and `*.keystore`.
+Keep the keystore and credentials in a password manager. The keystore is not in git and never should be — `.gitignore` blocks common Android signing and service-account formats.
 
 Because the app will be enrolled in **Play App Signing**, Google holds the actual app signing key and this is only the *upload* key. If it is lost, Google can reset it — so this is a multi-day disruption rather than the end of the app. Still worth not losing.
 
-Build a signed bundle. If the tracked RevenueCat settings have not yet been
-updated, `REVENUECAT_GOOGLE_PLAY_API_KEY` may be supplied in the environment;
-the build validates its `goog_` prefix and imports it without logging the key:
+Build a signed bundle. `REVENUECAT_GOOGLE_PLAY_API_KEY` may be supplied in the
+environment to refresh the tracked public SDK key; the build validates its
+`goog_` prefix and imports it without logging the value:
 
 ```bash
-set -a; . ~/.savepeps/credentials.env; set +a
-/Applications/Unity/Hub/Editor/6000.3.21f1/Unity.app/Contents/MacOS/Unity \
+set -a
+. /absolute/path/to/save-peps-signing.env
+set +a
+
+UNITY=/Applications/Unity/Hub/Editor/6000.3.21f1/Unity.app/Contents/MacOS/Unity
+PROJ="$(git rev-parse --show-toplevel)/unity/SavePeps"
+"$UNITY" \
   -batchmode -quit -nographics \
-  -projectPath unity/SavePeps \
+  -projectPath "$PROJ" \
   -executeMethod SavePeps.EditorTools.BuildScript.BuildAndroid \
   -logFile /tmp/aab.log
 ```
@@ -50,11 +57,11 @@ Offering whose only package is `$rc_lifetime`. The Play and Test Store lifetime
 products are attached to both the package and entitlement. The real `goog_`
 public SDK key is configured in Unity.
 
-Before a real internal-track purchase can work:
+The repository cannot prove Play Console permissions, product activation, uploaded credentials, track enrollment, or tester state. Verify these external prerequisites before a real internal-track purchase test:
 
-1. Confirm the Play Console app exists for `fan.sound.savepeps`. Invite `save-peps-revenuecat@coding-490122.iam.gserviceaccount.com` under **Users and permissions**, scope it to Save Peps, and grant **View app information**, **View financial data**, **Manage orders and subscriptions**, **Manage store presence**, and **Release apps to testing tracks**. Do not grant production-release permission.
+1. Confirm the Play Console app exists for `fan.sound.savepeps`. Invite the project's RevenueCat service account under **Users and permissions**, scope it to Save Peps, and grant **View app information**, **View financial data**, **Manage orders and subscriptions**, **Manage store presence**, and **Release apps to testing tracks**. Do not grant production-release permission.
 2. Once API access works, create and activate the Play one-time product `lifetime` through the modern `monetization.onetimeproducts` API. Use **Unlock Full Game** / **Get Rounds 11–12**, set the US base price to **$0.99**, and review the converted regional prices.
-3. Upload `/Users/michi/.savepeps/revenuecat-play-service-account.json` in RevenueCat under **Project Settings > Save Peps (Google Play) > Service account credentials**. The public V2 API does not expose credential upload. Never copy this JSON into the repository.
+3. Upload the service-account JSON in RevenueCat under **Project Settings > Save Peps (Google Play) > Service account credentials**. Never copy this JSON into the repository.
 4. Upload the signed AAB to Internal testing, add the purchase tester both to the internal track and Play Console's license testers, open the opt-in URL with that account, and install from Google Play. A sideloaded APK does not exercise the real Play purchase path.
 5. Verify purchase, immediate R11/R12 access, relaunch, uninstall/reinstall, and **Restore Purchase**. Check the RevenueCat customer timeline and confirm `save_peps_pro` is active.
 
@@ -67,14 +74,14 @@ package, then archive the old Test Store product. This does not affect the real
 Google Play product ID, which remains `lifetime`. Before Play testing, the AAB
 must use the Google key and Google product; never submit a `test_…` key.
 
-## First upload — the P1 critical path
+## Google Play test and release path
 
-The closed test must be **live by 16 Aug** for the 14-day clock to finish in time. Do these in order.
+Devpost closes **30 Sep 2026**. The planned 16 Aug closed-test start is in the past, and the repository cannot show whether that external step happened. Check Play Console first. This release plan treats the account as subject to [Google's production-access testing requirement for qualifying personal accounts](https://support.google.com/googleplay/android-developer/answer/14151465). If the qualifying closed test is not already active, starting it is the critical path because the required tester clock cannot be recovered from code changes. Then proceed in this order:
 
 1. **Create the app** in Play Console. Package id `fan.sound.savepeps` — **immutable after this step**. App type: Game. Free, with in-app purchases.
 2. **Enrol in Play App Signing** (the default). Google generates the app signing key; our keystore stays the upload key.
 3. **Upload the AAB** to Internal testing first — it is instant and shakes out any manifest or signing rejections without burning time.
-4. **Promote to Closed testing** and use the Google Group `save-peps@googlegroups.com` for **12+ people**. Over-recruit to ~15: the requirement is 12 opted in *continuously* for 14 days, and anyone who opts out restarts their own clock.
+4. **Promote to Closed testing** and add the project's tester group or email list with **12+ people**. Over-recruit to ~15: the requirement is 12 opted in *continuously* for 14 days, and anyone who opts out restarts their own clock.
 5. Send testers the opt-in link and confirm each one actually accepts. An invited tester is not an opted-in tester.
 6. **Complete the required declarations** — these block the release, not the upload:
    - Content rating questionnaire (IARC)
@@ -82,11 +89,11 @@ The closed test must be **live by 16 Aug** for the 14-day clock to finish in tim
    - Ads declaration: none.
    - Target audience: **13+**. Do not declare a child-directed audience — it pulls the app into the Designed for Families programme and adds policy work we have no room for.
    - Privacy policy URL: `https://michi883.github.io/save-peps/privacy/`. Configure GitHub Pages to publish the repository's `/docs` folder before submitting the closed release, and confirm the URL is public without a login. The generated Home screen links to the same policy and to `https://michi883.github.io/save-peps/terms/`.
-7. **Apply for production access** the moment the 14-day window closes (~30 Aug if the test starts 16 Aug).
+7. **Apply for production access** as soon as the qualifying 14-day window closes.
 
 ## Before the production upload
 
-- Confirm `targetSdkVersion` resolves to whatever Play currently requires for new apps. It is set to `Auto`, which tracks the editor — verify the number rather than trusting it, because a wrong target API is a hard rejection.
+- Confirm `targetSdkVersion` resolves to **API 36 or newer**, the [Google Play requirement for new mobile apps and updates since 31 August 2026](https://support.google.com/googleplay/android-developer/answer/11926878). It is set to `Auto`, which tracks the editor — inspect the built manifest rather than trusting the label, because a wrong target API is a hard rejection.
 - Run the pre-launch report and fix what it flags.
 - Check the bundle size against the 150 MB warning threshold Unity is configured with.
 
@@ -96,5 +103,5 @@ The closed test must be **live by 16 Aug** for the 14-day clock to finish in tim
 |---|---|
 | Unity | 6000.3.21f1 LTS |
 | Slice APK | ~18 MB, installs and runs on a Pixel 4 (API 33, arm64-v8a) |
-| Min / target SDK | 24 / Auto |
+| Min / target SDK | 25 / Auto |
 | ABI | ARM64 only, IL2CPP |

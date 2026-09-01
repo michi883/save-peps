@@ -1,6 +1,6 @@
 # Working on Save Peps
 
-Operating notes for coding agents. **This is the "how", not the "what"** — [`PLAN.md`](PLAN.md) is the source of truth for what is being built and why, and [`README.md`](README.md) covers the authoring tools. Read this first anyway: most of it is a day someone already lost.
+Operating notes for coding agents. [`README.md`](README.md) is the public entry point and current-status summary; this file records the working rules, architecture invariants, and validation traps. Read it before changing the Unity project: most of it is a day someone already lost.
 
 ---
 
@@ -8,9 +8,9 @@ Operating notes for coding agents. **This is the "how", not the "what"** — [`P
 
 ### Current phase
 
-As of **21 Aug 2026**, the repository contains **12 rounds / 36 rescues** across **12 distinct worlds and 36 distinct stages**, following the content revamp that replaced the shared-diorama catalogue. Each round now owns a world rule, its own ground silhouette, camera framing, sky/light/fog, ambient motion and sound bed (`DioramaAtmosphere` + `AtmosphereDirector` + `AmbientMotion`), and three error-level validator rules make the old failure modes unrepresentable: one world per round, one stage per rescue, one *(correct prop, reasoning kind)* pair per catalogue. `design/ROUND_CATALOG.md` is the source of truth for the content itself.
+As of **1 Sep 2026**, the repository contains **12 rounds / 36 rescues** across **12 distinct worlds and 36 distinct stages**, following the content revamp that replaced the shared-diorama catalogue. Each round owns a world rule, its own spatial silhouette, camera framing, sky/light/fog, ambient motion and sound bed (`DioramaAtmosphere` + `AtmosphereDirector` + `AmbientMotion`), and three error-level validator rules make the old failure modes unrepresentable: one world per round, one stage per rescue, one *(correct prop, reasoning kind)* pair per catalogue. `design/ROUND_CATALOG.md` is the source of truth for the content itself.
 
-The complete mobile loop has passed its P2 polish pass plus the shell-and-feedback pass (pause sheet, progress shelf, inline sound/haptics settings, Android Back routing, and shared `UIPop`/`ToyButton` motion). Both are frozen in [`docs/core-ux.md`](docs/core-ux.md). **The revamp has not had its Pixel 4 pass yet (§6) — that is the default next move, followed by Android APK/AAB build and Google Play closed testing track release.** Reopen the frozen UX only for a demonstrated device regression, accessibility issue, or release blocker.
+The complete mobile loop has passed its P2 polish pass plus the shell-and-feedback pass (pause sheet, progress shelf, inline sound/haptics settings, Android Back routing, and shared `UIPop`/`ToyButton` motion). Both are frozen in [`docs/core-ux.md`](docs/core-ux.md). The repository also contains the all-round escalation pass, RevenueCat lifetime unlock flow, release configuration, legal pages, and Play listing assets. **The post-revamp catalogue has not had its full Pixel 4 pass yet (§6) — that is the default next move, followed by final APK/AAB verification and real Play purchase testing.** Play Console and tester status are external state; never infer them from the worktree. Reopen the frozen UX only for a demonstrated device regression, accessibility issue, or release blocker.
 
 Keep this snapshot current when the catalogue or phase changes. A stale status paragraph wastes every future agent's first inspection.
 
@@ -18,7 +18,7 @@ Keep this snapshot current when the catalogue or phase changes. A stale status p
 
 | Task | Source of truth |
 |---|---|
-| Product priority, scope, milestone, launch count | [`PLAN.md`](PLAN.md) |
+| Current status, public scope, and project overview | [`README.md`](README.md) |
 | Frozen gameplay, feedback, pacing, and UI contract | [`docs/core-ux.md`](docs/core-ux.md) |
 | Rescue authoring and editor tooling | [`README.md`](README.md) |
 | Play track, signing, tester clock, release procedure | [`docs/release.md`](docs/release.md) |
@@ -102,7 +102,8 @@ Four commands cover essentially all work. `UNITY` and `PROJ` below:
 
 ```bash
 UNITY=/Applications/Unity/Hub/Editor/6000.3.21f1/Unity.app/Contents/MacOS/Unity
-PROJ=/Users/michi/save-peps/unity/SavePeps
+REPO="$(git rev-parse --show-toplevel)"
+PROJ="$REPO/unity/SavePeps"
 ```
 
 ```bash
@@ -182,7 +183,7 @@ Break these and things fail silently rather than loudly.
 
 - **Content is data, never C#.** A rescue is a `RescueDefinition` asset: an environment, two Peps, three objects, one correct index, and each outcome as a flat list of timed `OutcomeStep`s. Adding a rescue must not mean writing a new MonoBehaviour.
 - **Scenes are generated, not hand-edited.** `Game.unity` is built by `BrookScene.BuildGameScene`. Any manual edit is destroyed the next time someone runs it. Change the builder.
-- **Seeding creates, never overwrites.** Existing assets are left alone; `Danger > Re-seed` is the only overwriting path. `Catalog.FreeRoundCount` in particular is the release-week paywall lever (PLAN D3) and must survive every tool. There are tests for this — if you make seeding overwrite, they fail on purpose.
+- **Seeding creates, never overwrites.** Existing assets are left alone; `Danger > Re-seed` is the only overwriting path. `Catalog.FreeRoundCount` in particular is the release-week paywall lever and must survive every tool. There are tests for this — if you make seeding overwrite, they fail on purpose.
 - **Rest pose is identity.** Authored placement lives on a prop's outer transform; `AnimTarget` sits on a child that rests at local identity and receives every animation. That is why `ResetToRest()` is exact rather than approximate. Never animate the placement transform.
 - **Choreography deltas are slot-relative.** Moving a prop to a different `Slot_n` invalidates every `Delta` in its outcome. Re-aim them, or reuse a gag written purely in self-relative terms (see `PropGags`).
 - **One definition of the paywall.** `Access.CanPlay` is a pure function and the only gate. `GameFlow` delegates to it. Do not restate the rule anywhere.
@@ -196,7 +197,7 @@ Break these and things fail silently rather than loudly.
 
 ## 5. Authoring content
 
-A round is three rescues; the catalogue is an ordered list of rounds. Environments are reused — PLAN §6 budgets eight dioramas for thirty-six rescues.
+A round is three rescues; the catalogue is an ordered list of rounds. Each rescue owns a distinct stage prefab, while the three stages in a round share one world identity and physical rule. `design/ROUND_CATALOG.md` records the implemented catalogue.
 
 Rules the validator enforces (`ContentValidator`), each of which exists because breaking it produced a rescue that looked fine and failed silently:
 
@@ -336,6 +337,6 @@ Every one of these was found the hard way.
 
 ## 9. The one deadline that matters
 
-Devpost closes **30 Sep 2026**, and the app must be **live on Google Play** before then. Google requires 12 testers opted into a closed test continuously for 14 days before granting production access. That clock cannot be compressed and gates everything else — see PLAN §0 and `docs/release.md`. If you are choosing between tasks and one of them unblocks the Play track, choose that one.
+Devpost closes **30 Sep 2026**, and the app must be **live on Google Play** before then. The release plan treats this account as subject to [Google's production-access requirement](https://support.google.com/googleplay/android-developer/answer/14151465): 12 testers opted into a closed test continuously for 14 days. That clock cannot be compressed and gates everything else — see `docs/release.md`. If you are choosing between tasks and one of them unblocks the Play track, choose that one.
 
 The planned **16 Aug** closed-track start is now a past repository milestone, but the worktree cannot prove whether that external step happened. Never infer Play Console or tester status from code. When release work is in scope, verify the real external state or explicitly hand it off as unknown.

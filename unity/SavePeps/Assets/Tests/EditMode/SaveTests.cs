@@ -8,8 +8,8 @@ namespace SavePeps.Tests
     /// <summary>
     /// The save file is the one piece of player-visible state that survives
     /// the process, so every way it can arrive malformed is a way to lose
-    /// somebody's progress or crash them on launch. These are the cases from
-    /// PLAN §15: round-trip, corrupt, missing fields, schema.
+    /// somebody's progress or crash them on launch. Cover round-trip, corrupt
+    /// input, missing fields, and schema migration here.
     /// </summary>
     public sealed class SaveTests
     {

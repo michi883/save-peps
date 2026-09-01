@@ -5,10 +5,10 @@ using UnityEngine;
 namespace SavePeps.Tests
 {
     /// <summary>
-    /// The paywall boundary, exhaustively. PLAN §15 asks for the
-    /// FreeRoundCount boundary and every entitlement state; these are cheap to
-    /// assert here and genuinely awkward to reach on a device, which is the
-    /// whole argument for <see cref="Access"/> being a pure function.
+    /// The paywall boundary, exhaustively. The FreeRoundCount boundary and
+    /// every entitlement state are cheap to assert here and genuinely awkward
+    /// to reach on a device, which is the whole argument for
+    /// <see cref="Access"/> being a pure function.
     /// </summary>
     public sealed class AccessTests
     {
@@ -17,7 +17,7 @@ namespace SavePeps.Tests
         [SetUp]
         public void SetUp()
         {
-            // Twelve rounds, ten of them free — the shipping shape from D2/D3.
+            // Twelve rounds, ten of them free — the shipping catalogue.
             _catalog = ScriptableObject.CreateInstance<Catalog>();
             _catalog.FreeRoundCount = 10;
             _catalog.Rounds = new RoundDefinition[12];

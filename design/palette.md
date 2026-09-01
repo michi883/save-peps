@@ -73,17 +73,17 @@ These are pass/fail, not taste. A rescue that breaks one is a broken rescue.
 
 ## 5. The diorama
 
-Each rescue is a small toy world on a **floating platform** against a soft gradient sky.
+Each rescue is a small toy world against its authored sky and atmosphere.
 
-- Platform silhouette is soft-cornered and roughly square, sized to the 4:3 safe box.
-- The platform edge is visible — it should read as an object sitting on a table, not as a cropped world.
-- **One transition, used everywhere:** the solved diorama tilts and slides away, the next drops in with a small settle bounce. Authored once, ~1 day, and it carries the whole game's sense of craft.
+- Each round owns a distinct spatial silhouette. Grounded worlds expose a deliberate toy-base edge; suspended and orbital worlds may replace the base with rails, machinery, or open space.
+- Compose for the portrait gameplay safe area. The predicament, both Peps, and all three choices must read together without flattening every world into the same platform.
+- **One transition, used everywhere:** the solved diorama tilts and slides away, and the next drops in with a small settle bounce. The shared transition carries the whole game's sense of craft.
 
 ---
 
 ## 6. Character look
 
-See `PLAN.md` §7 for behaviour. Visually:
+Character behavior is frozen in [`docs/core-ux.md`](../docs/core-ux.md). Visually:
 
 - **Distinct silhouettes, not just colours.** Pep A taller and rounder (coral), Pep B smaller and squarer (mint). Both must be tellable apart in a 1024² icon and in a thumbnail.
 - **Faces are a texture atlas** on a forward-facing quad — `neutral, worried, hopeful, panic, happy, love`. No blend shapes, no facial rig. Directly inherited from Save Pip's face-stack approach, which got a full emotional range out of swapping one drawing for another.

@@ -62,7 +62,7 @@ namespace SavePeps.EditorTools
 
             // Fixed camera, low FOV, tilted down: the tilt-shift toy read from
             // design/palette.md. Framing is tuned for portrait 9:19.5 and
-            // wants a look on the actual device — see the note in PLAN.md.
+            // must be accepted on the reference device (AGENTS.md §6).
             var camGo = new GameObject("Main Camera");
             camGo.tag = "MainCamera";
             var cam = camGo.AddComponent<Camera>();

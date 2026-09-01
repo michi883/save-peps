@@ -13,27 +13,102 @@ Usage:
   python3 scripts/escalate_round.py device-prep <round_num>
   python3 scripts/escalate_round.py device-test <round_num>
   python3 scripts/escalate_round.py status
+
+Optional environment variables:
+  UNITY_BIN                  Unity executable
+  SAVEPEPS_PROJECT_PATH      Unity project (defaults to this checkout)
+  ADB_BIN                    adb executable (defaults to Unity's bundled adb)
 """
 
-import sys
-import os
-import subprocess
 import json
+import os
+from pathlib import Path
+import shlex
+import subprocess
+import sys
 import time
 import xml.etree.ElementTree as ET
 
-UNITY_BIN = "/Applications/Unity/Hub/Editor/6000.3.21f1/Unity.app/Contents/MacOS/Unity"
-PROJ_PATH = "/Users/michi/save-peps/unity/SavePeps"
-ADB_BIN = "/Applications/Unity/Hub/Editor/6000.3.21f1/PlaybackEngines/AndroidPlayer/SDK/platform-tools/adb"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_UNITY = Path(
+    "/Applications/Unity/Hub/Editor/6000.3.21f1/Unity.app/Contents/MacOS/Unity"
+)
+UNITY_BIN = os.environ.get("UNITY_BIN", str(DEFAULT_UNITY))
+PROJ_PATH = str(
+    Path(
+        os.environ.get("SAVEPEPS_PROJECT_PATH", REPO_ROOT / "unity" / "SavePeps")
+    ).expanduser().resolve()
+)
+DEFAULT_ADB = (
+    DEFAULT_UNITY.parents[3]
+    / "PlaybackEngines"
+    / "AndroidPlayer"
+    / "SDK"
+    / "platform-tools"
+    / "adb"
+)
+ADB_BIN = os.environ.get("ADB_BIN", str(DEFAULT_ADB))
 PKG_NAME = "fan.sound.savepeps"
 
-def run_unity(execute_method=None, test_platform=None, env=None, log_file="/tmp/unity_cmd.log"):
+
+def active_unity_processes():
+    """Return matching processes without mistaking a blocked pgrep for no Unity."""
+    try:
+        result = subprocess.run(
+            ["pgrep", "-lf", "Unity.app/Contents/MacOS/Unity"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+        if result.returncode == 1:
+            return ""
+    except FileNotFoundError:
+        pass
+
+    try:
+        result = subprocess.run(
+            ["ps", "-axo", "pid,command"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError) as error:
+        raise RuntimeError("Could not inspect active Unity processes safely.") from error
+
+    return "\n".join(
+        line
+        for line in result.stdout.splitlines()
+        if "Unity.app/Contents/MacOS/Unity" in line
+    )
+
+
+def run_unity(
+    execute_method=None,
+    test_platform=None,
+    env=None,
+    log_file="/tmp/unity_cmd.log",
+    needs_graphics=False,
+):
+    if not os.path.isdir(PROJ_PATH):
+        print(f"[ERROR] Unity project not found at {PROJ_PATH}.")
+        return False
+
     cmd = [UNITY_BIN, "-batchmode", "-projectPath", PROJ_PATH, "-logFile", log_file]
-    
+
+    if os.path.exists(log_file):
+        os.remove(log_file)
+
     if test_platform:
-        cmd.extend(["-runTests", "-testPlatform", test_platform, "-testResults", "/tmp/edit.xml"])
+        test_results = "/tmp/edit.xml"
+        if os.path.exists(test_results):
+            os.remove(test_results)
+        cmd.extend(["-runTests", "-testPlatform", test_platform, "-testResults", test_results])
     else:
-        cmd.extend(["-quit", "-nographics"])
+        cmd.append("-quit")
+        if not needs_graphics:
+            cmd.append("-nographics")
         if execute_method:
             cmd.extend(["-executeMethod", execute_method])
 
@@ -46,26 +121,39 @@ def run_unity(execute_method=None, test_platform=None, env=None, log_file="/tmp/
     if os.path.exists(lockfile):
         print("[WARN] Temp/UnityLockfile exists. Checking for active Unity processes...")
         try:
-            out = subprocess.check_output(["pgrep", "-lf", "Unity.app/Contents/MacOS/Unity"]).decode()
+            out = active_unity_processes()
             if out.strip():
                 print(f"[ERROR] Unity is currently running:\n{out.strip()}\nWait for it to finish.")
                 return False
-        except subprocess.CalledProcessError:
-            print("[INFO] Stale lockfile detected, proceeding.")
+        except RuntimeError as error:
+            print(f"[ERROR] {error}")
+            return False
+        print("[INFO] Stale lockfile detected, proceeding.")
 
-    print(f"[RUN] {' '.join(cmd)}")
+    print(f"[RUN] {shlex.join(cmd)}")
     p = subprocess.run(cmd, env=cmd_env, capture_output=True)
-    
+
     if os.path.exists(log_file):
         with open(log_file, "r") as f:
             content = f.read()
-            if "error CS" in content or "Scripts have compiler errors" in content:
-                print("[ERROR] Compilation errors detected:")
+            failure_markers = (
+                "error CS",
+                "Scripts have compiler errors",
+                "Aborting batchmode due to failure",
+                "[SavePeps] Build Failed",
+            )
+            failures = [marker for marker in failure_markers if marker in content]
+            if failures:
+                print(f"[ERROR] Unity log contains: {', '.join(failures)}")
                 for line in content.splitlines():
-                    if "error CS" in line:
+                    if any(marker in line for marker in failures):
                         print("  " + line)
                 return False
+    if p.returncode != 0 and not test_platform:
+        print(f"[ERROR] Unity exited with status {p.returncode}.")
+        return False
     return True
+
 
 def cmd_audit(round_num):
     print(f"\n--- AUDITING ESCALATION: ROUND {round_num} ---")
@@ -92,6 +180,7 @@ def cmd_audit(round_num):
                     print(line.rstrip())
     return 0
 
+
 def cmd_reseed(round_num):
     print(f"\n--- RESEEDING ROUND {round_num} (ISOLATED) ---")
     log_file = f"/tmp/reseed_r{round_num}.log"
@@ -105,6 +194,7 @@ def cmd_reseed(round_num):
         return 1
     print(f"[OK] Round {round_num} reseeded successfully.")
     return 0
+
 
 def cmd_validate(round_num):
     print(f"\n--- VALIDATING CATALOG & ROUND {round_num} ---")
@@ -136,6 +226,7 @@ def cmd_validate(round_num):
         return 0
     return 1
 
+
 def cmd_capture_sheet(round_num, out_dir=None):
     if not out_dir:
         out_dir = f"/tmp/round_{round_num}_stages"
@@ -145,7 +236,8 @@ def cmd_capture_sheet(round_num, out_dir=None):
     ok = run_unity(
         execute_method="SavePeps.EditorTools.EscalationWorkflow.CaptureFromCli",
         env={"ROUND_NUM": str(round_num), "OUTPUT_DIR": out_dir},
-        log_file=log_file
+        log_file=log_file,
+        needs_graphics=True,
     )
     if not ok:
         print(f"[FAIL] Capturing stages for round {round_num} failed.")
@@ -156,12 +248,19 @@ def cmd_capture_sheet(round_num, out_dir=None):
             print("  -", f)
     return 0
 
+
 def cmd_device_prep(round_num):
     print(f"\n--- PREPARING PIXEL 4 FOR ROUND {round_num} ---")
     completed_rounds = list(range(1, round_num))
     completed_rescues = []
     for r in completed_rounds:
-        completed_rescues.extend([f"r{(r-1)*3 + 1:02d}", f"r{(r-1)*3 + 2:02d}", f"r{(r-1)*3 + 3:02d}"])
+        completed_rescues.extend(
+            [
+                f"r{(r - 1) * 3 + 1:02d}",
+                f"r{(r - 1) * 3 + 2:02d}",
+                f"r{(r - 1) * 3 + 3:02d}",
+            ]
+        )
 
     save_data = {
         "HighestUnlockedRound": round_num,
@@ -171,7 +270,7 @@ def cmd_device_prep(round_num):
         "MasteredRescues": completed_rescues,
         "SoundEnabled": True,
         "HapticsEnabled": True,
-        "CreatedTimestamp": 1787429100,
+        "CreatedTimestamp": int(time.time()),
         "LastPlayedTimestamp": int(time.time()),
         "PlayCount": 10
     }
@@ -181,11 +280,16 @@ def cmd_device_prep(round_num):
         json.dump(save_data, f, indent=2)
 
     device_path = f"/storage/emulated/0/Android/data/{PKG_NAME}/files/save.json"
-    
-    subprocess.run([ADB_BIN, "shell", f"mkdir -p /storage/emulated/0/Android/data/{PKG_NAME}/files"])
-    subprocess.run([ADB_BIN, "push", local_save, device_path])
+
+    subprocess.run(
+        [ADB_BIN, "shell", "mkdir", "-p", f"/storage/emulated/0/Android/data/{PKG_NAME}/files"],
+        check=True,
+    )
+    subprocess.run([ADB_BIN, "push", local_save, device_path], check=True)
+    os.remove(local_save)
     print(f"[OK] Pixel 4 save file configured for Round {round_num}.")
     return 0
+
 
 def cmd_device_test(round_num, out_screenshots_dir=None):
     if not out_screenshots_dir:
@@ -195,34 +299,57 @@ def cmd_device_test(round_num, out_screenshots_dir=None):
     cmd_device_prep(round_num)
 
     print(f"\n--- LAUNCHING & RUNNING ROUND {round_num} ON PIXEL 4 ---")
-    subprocess.run([ADB_BIN, "logcat", "-c"])
-    subprocess.run([ADB_BIN, "shell", "am", "force-stop", PKG_NAME])
-    subprocess.run([ADB_BIN, "shell", "am", "start", "-n", f"{PKG_NAME}/com.unity3d.player.UnityPlayerActivity"])
-    
+    subprocess.run([ADB_BIN, "logcat", "-c"], check=True)
+    subprocess.run([ADB_BIN, "shell", "am", "force-stop", PKG_NAME], check=True)
+    subprocess.run(
+        [
+            ADB_BIN,
+            "shell",
+            "am",
+            "start",
+            "-n",
+            f"{PKG_NAME}/com.unity3d.player.UnityPlayerActivity",
+        ],
+        check=True,
+    )
+
     print("[WAIT] Waiting for game to load...")
     time.sleep(3.5)
 
     # Tap 'Play' on home screen (x=540, y=1730)
-    subprocess.run([ADB_BIN, "shell", "input", "tap", "540", "1730"])
+    subprocess.run([ADB_BIN, "shell", "input", "tap", "540", "1730"], check=True)
     time.sleep(2.5)
 
     # Capture R{N}.1 stage
     shot1 = os.path.join(out_screenshots_dir, f"r{round_num}_1_stage.png")
-    subprocess.run(f"{ADB_BIN} exec-out screencap -p > {shot1}", shell=True)
+    with open(shot1, "wb") as screenshot:
+        subprocess.run(
+            [ADB_BIN, "exec-out", "screencap", "-p"],
+            stdout=screenshot,
+            check=True,
+        )
     print(f"[SHOT] Captured {shot1}")
 
     # Check logcat for active rescue
-    out = subprocess.check_output(f"{ADB_BIN} logcat -d | grep -oE '\\[SavePeps\\].*'", shell=True).decode()
-    print("[LOGS]\n" + "\n".join("  " + l for l in out.splitlines()[-6:]))
+    out = subprocess.check_output([ADB_BIN, "logcat", "-d"], text=True)
+    lines = []
+    for line in out.splitlines():
+        marker = line.find("[SavePeps]")
+        if marker >= 0:
+            lines.append(line[marker:])
+    print("[LOGS]\n" + "\n".join("  " + line for line in lines[-6:]))
     return 0
+
 
 def cmd_status():
     print("\n=== SAVE PEPS: 12-ROUND ESCALATION STATUS ===")
-    run_unity(
+    ok = run_unity(
         execute_method="SavePeps.EditorTools.EscalationWorkflow.AuditFromCli",
         env={"ROUND_NUM": "all"},
         log_file="/tmp/audit_all.log"
     )
+    if not ok:
+        return 1
     if os.path.exists("/tmp/audit_all.log"):
         with open("/tmp/audit_all.log", "r") as f:
             for line in f:
@@ -230,16 +357,21 @@ def cmd_status():
                     print(line.rstrip())
     return 0
 
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__)
         sys.exit(1)
 
+    if sys.argv[1] in ("-h", "--help"):
+        print(__doc__)
+        sys.exit(0)
+
     cmd = sys.argv[1].lower()
-    
+
     if cmd == "status":
         sys.exit(cmd_status())
-    
+
     if len(sys.argv) < 3:
         print(f"Error: Command '{cmd}' requires <round_num> argument (1-12).")
         sys.exit(1)
@@ -271,5 +403,10 @@ def main():
         print(__doc__)
         sys.exit(1)
 
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (FileNotFoundError, RuntimeError, subprocess.CalledProcessError) as error:
+        print(f"[ERROR] {error}", file=sys.stderr)
+        sys.exit(1)

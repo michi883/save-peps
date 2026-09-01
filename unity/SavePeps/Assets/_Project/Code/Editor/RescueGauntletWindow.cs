@@ -8,12 +8,10 @@ namespace SavePeps.EditorTools
     /// <summary>
     /// Watch every outcome in the catalogue, back to back, unattended.
     ///
-    /// PLAN §5.3's argument for this is a scheduling one: a polish pass over
-    /// 36 rescues is 108 outcomes, and reaching each one by hand costs more
-    /// than watching it does. Automating the *reaching* is what turns a day
-    /// into an hour, and it is the only practical way to catch the bug class
-    /// that matters most here — an outcome that leaves the scene subtly wrong
-    /// for the next one (PLAN R7).
+    /// A polish pass over 36 rescues is 108 outcomes, and reaching each one by
+    /// hand costs more than watching it does. Automating the *reaching* is what
+    /// turns a day into an hour, and it is the only practical way to catch an
+    /// outcome that leaves the scene subtly wrong for the next one.
     ///
     /// It deliberately does not assert anything. A human is watching; the
     /// automated version of this is the PlayMode reset test.

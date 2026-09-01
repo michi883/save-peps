@@ -6,10 +6,9 @@ namespace SavePeps.Rescue
     /// <summary>
     /// One thing choreography can move.
     ///
-    /// The critical rule from PLAN.md: authored placement lives on this
-    /// component's *parent*, and every animation is applied to this
-    /// transform, which rests at local identity. Nothing ever writes to the
-    /// placement transform.
+    /// Authored placement lives on this component's *parent*, and every
+    /// animation is applied to this transform, which rests at local identity.
+    /// Nothing ever writes to the placement transform.
     ///
     /// That is what makes reset exact rather than approximate. `ResetToRest`
     /// is not "remember where it was and put it back" — there is no

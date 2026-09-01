@@ -121,6 +121,9 @@ namespace SavePeps.EditorTools
             ApplySigningFromEnvironment();
 
             EditorUserBuildSettings.buildAppBundle = appBundle;
+            EditorUserBuildSettings.androidCreateSymbols = appBundle
+                ? AndroidCreateSymbols.Public
+                : AndroidCreateSymbols.Disabled;
 
             Directory.CreateDirectory(OutputDir);
             var flavour = development ? "-dev" : string.Empty;

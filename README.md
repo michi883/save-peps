@@ -6,32 +6,38 @@ A one-tap 3D puzzle game for Android.
 
 Built for [RevenueCat Shipaton 2026](https://revenuecat-shipaton-2026.devpost.com/) — primary category **Best Game**, secondary **RevenueCat Design Award**. Submission deadline **30 September 2026**.
 
+## Current status
+
+As of **1 September 2026**, the repository contains the complete playable catalogue: **12 rounds, 36 rescues, 12 worlds, and 36 distinct stages**. The core loop, progression, pause/progress shell, sound and haptics settings, Android Back behavior, outcome feedback, round-by-round escalation, lifetime unlock flow, legal pages, and Google Play listing assets are implemented.
+
+The next repository-verifiable release steps are a full post-revamp Pixel 4 pass, final APK/AAB verification (including an effective target of API 36 or newer), and a real Google Play purchase/restore test. Closed-test enrollment and production-access status live in Play Console and cannot be inferred from this repository; check that external state before treating the app as released.
+
 ## How it plays
 
 A fixed-camera toy diorama shows two Peps separated by something small and silly, with three tappable objects in the scene. Exactly one reunites them. The other two fail funny — a short visual gag, a dry one-liner, and an immediate retry. There is no fail state and no punishment; wrong answers are part of the entertainment.
 
 A **round is 3 rescues**. Solve one on the first tap and it earns a ★, after a retry a ✓. Rounds 1–10 are free; one lifetime purchase unlocks Rounds 11–12.
 
-Every round owns a **world**, and a world is more than a colour scheme: its own ground silhouette, camera, sky, key light, fog, ambient motion and sound bed, plus a physical rule its three rescues all obey — the clockwork courtyard never moves until a linkage moves it, the orbital station has no ground at all, the crystal cave is the only enclosed space in the game. Twelve rounds are twelve worlds and thirty-six rescues are thirty-six stages; [`design/ROUND_CATALOG.md`](design/ROUND_CATALOG.md) is the source of truth for all of it.
+Every round owns a **world**, and a world is more than a colour scheme: its own spatial silhouette, camera, sky, key light, fog, ambient motion and sound bed, plus a physical rule its three rescues all obey — the clockwork courtyard never moves until a linkage moves it, the orbital station has no ground at all, the crystal cave is the only enclosed space in the game. Twelve rounds are twelve worlds and thirty-six rescues are thirty-six stages; [`design/ROUND_CATALOG.md`](design/ROUND_CATALOG.md) is the source of truth for all of it.
 
 The shell stays deliberately small: **Play** chooses a useful available round without immediately repeating the last one, while **Choose round** offers direct control. Finishing a round returns to **Keep playing** rather than forcing a strictly linear next button. A pause control in the corner of the HUD opens a bottom sheet with Resume, Progress, Choose round, Home, and sound/buzz toggles, and Android Back walks the same path — the player is never stuck inside a rescue.
 
 ## Repo layout
 
 ```
-PLAN.md            the development plan — architecture, schedule, risks, decisions
-design/            art direction lock and the palette atlas
-docs/              privacy + terms (published to GitHub Pages; Play requires the URLs)
-store/             listing copy, icon, screenshots
-unity/SavePeps/    the Unity project
+AGENTS.md          contributor workflow, architecture invariants, and validation
+design/            art direction, palette, and the implemented round catalogue
+docs/              core UX, release runbook, privacy policy, and terms
+scripts/           portable command-line authoring helpers
+store/             Google Play listing copy, icon, and screenshots
+unity/SavePeps/    Unity project
 ```
 
-Start with [`PLAN.md`](PLAN.md). It is the source of truth for what is being built and why.
-The polished interaction and feedback loop is frozen in [`docs/core-ux.md`](docs/core-ux.md); the content sprint should reuse that contract rather than reopen it per rescue.
+Start here for project status, then use [`AGENTS.md`](AGENTS.md) for the working and verification rules. The polished interaction and feedback loop is frozen in [`docs/core-ux.md`](docs/core-ux.md), while [`design/ROUND_CATALOG.md`](design/ROUND_CATALOG.md) is the source of truth for the implemented content.
 
 ## Toolchain
 
-- **Unity 6.3 LTS (6000.3.21f1)** + Android Build Support. Chosen over 6000.0 LTS because it supports Android target API 35/36, which Google Play requires for new apps.
+- **Unity 6.3 LTS (6000.3.21f1)** + Android Build Support. Chosen over 6000.0 LTS because it supports Android target API 36, which [Google Play requires for new mobile apps and updates submitted after 31 August 2026](https://support.google.com/googleplay/android-developer/answer/11926878).
 - **URP**, mobile renderer, portrait only, IL2CPP + ARM64, AAB output.
 - **RevenueCat** `purchases-unity` via OpenUPM, plus EDM4U.
 - **No tween library.** The choreography runtime is hand-rolled (decision D7): the additive-delta model is bespoke, so a tween library would only have supplied easing and scheduling, and dropping it keeps a dependency off the Android build path.
@@ -41,9 +47,11 @@ Use Unity's bundled OpenJDK/SDK/NDK rather than a system install.
 ## Development
 
 ```bash
-git lfs install                      # once per clone — meshes, textures and audio are LFS
-open unity/SavePeps                  # via Unity Hub
+git lfs install                      # once per machine
+git lfs pull                         # fetch textures and audio after cloning
 ```
+
+Add `unity/SavePeps` as a project in Unity Hub and open it with Unity 6000.3.21f1. Binary art and audio are stored with Git LFS; placeholder pointer files are not usable Unity assets, so make sure `git lfs pull` completes first.
 
 On a fresh clone, run **Tools > Save Peps > Apply Project Settings** once. Most build settings live in `ProjectSettings/` and travel with the repo, but a few (active build target, AAB-vs-APK) are machine-local and would otherwise silently default back to APK.
 
@@ -118,11 +126,17 @@ Two safety properties worth relying on:
 - **Seeding creates, it never overwrites.** The generator is how round one came into being, but the assets on disk are the source of truth the moment anyone edits one. Re-seeding exists under **Danger >**, and it names what it is about to discard before doing it.
 - **Previewing never touches progress.** The flow is disabled during playback, so a solved preview records no mark.
 
-Run the tests with:
+Run the tests from the repository root. Unity requires an absolute project path, the test runner owns the process exit (so omit `-quit`), and the XML result is the authoritative pass/fail signal:
 
 ```bash
-Unity -batchmode -runTests -testPlatform EditMode -projectPath unity/SavePeps
-Unity -batchmode -runTests -testPlatform PlayMode -projectPath unity/SavePeps
+UNITY=/Applications/Unity/Hub/Editor/6000.3.21f1/Unity.app/Contents/MacOS/Unity
+PROJ="$(pwd)/unity/SavePeps"
+mkdir -p /tmp/save-peps
+
+"$UNITY" -batchmode -runTests -testPlatform EditMode -projectPath "$PROJ" \
+  -testResults /tmp/save-peps/edit.xml -logFile /tmp/save-peps/edit.log
+"$UNITY" -batchmode -runTests -testPlatform PlayMode -projectPath "$PROJ" \
+  -testResults /tmp/save-peps/play.xml -logFile /tmp/save-peps/play.log
 ```
 
 The EditMode suite validates the real authored catalogue, so a rescue with a step aimed at a target that does not exist fails the build rather than silently doing nothing on stage.
@@ -136,7 +150,9 @@ Continuous environmental motion is `AmbientMotion` (`Sway`, `Bob`, `Drift`, `Spi
 The art pipeline builds everything from Unity primitives: `ToyShapes` (helpers) → `PropLibrary` (36 props) → `WorldKits` (12 world kits: base silhouette, dressing, atmosphere) → `DioramaLibrary` (36 stages) → `PrototypeArt.Generate`. Regenerate with:
 
 ```bash
-Unity -batchmode -quit -nographics -projectPath /absolute/path/to/unity/SavePeps   -executeMethod SavePeps.EditorTools.PrototypeArt.Generate -logFile /tmp/art.log
+"$UNITY" -batchmode -quit -nographics -projectPath "$PROJ" \
+  -executeMethod SavePeps.EditorTools.PrototypeArt.Generate \
+  -logFile /tmp/save-peps/art.log
 ```
 
 The contact sheet is the one batchmode tool that must **not** be given `-nographics`: that forces a Null GfxDevice and every PNG comes back uniform grey with nothing in the log.
@@ -147,4 +163,4 @@ Save Peps is a new game, not a port. It inherits the authoring discipline of [Sa
 
 ## License
 
-<!-- TODO: decide before making the repo public (D9 in PLAN.md). -->
+This repository does not currently include an open-source license. Until one is added, the code and assets remain under their existing copyright; public visibility alone does not grant permission to copy, modify, or redistribute them.

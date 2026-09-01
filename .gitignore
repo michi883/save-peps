@@ -43,16 +43,29 @@ crashlytics-build.properties
 # Keystores and secrets — never commit signing material or API keys.
 *.keystore
 *.jks
-!store/README.md
+*.p12
+*.pfx
 secrets/
 .env
 .env.*
+credentials.env
 revenuecat.*.json
 google-play-service-account*.json
+*service-account*.json
+
+# Developer-specific agent/editor state
+.agents/
+.claude/
+.codex/
+local.properties
+
+# Python helper caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
 
 # macOS
 .DS_Store
 ._*
 .Spotlight-V100
 .Trashes
-unity/SavePeps/Build/

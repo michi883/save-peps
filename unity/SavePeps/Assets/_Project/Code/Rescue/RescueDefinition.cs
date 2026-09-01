@@ -94,9 +94,9 @@ namespace SavePeps.Rescue
     /// <summary>
     /// A whole rescue as data.
     ///
-    /// The goal from PLAN.md: adding a rescue means filling this in and
-    /// dragging prefabs, never writing C#. That is what made 106 rescues
-    /// tractable in Save Pip and it is the only way 36 fit in this schedule.
+    /// Adding a rescue means filling this in and dragging prefabs, never
+    /// writing C#. That is what made 106 rescues tractable in Save Pip and it
+    /// is the only way 36 fit in this schedule.
     /// </summary>
     [CreateAssetMenu(menuName = "Peps/Rescue", fileName = "Rescue")]
     public sealed class RescueDefinition : ScriptableObject
